@@ -8,15 +8,16 @@ const SingleHostelScreen = ({ navigation }) => {
     const cards = [
         {
             id: '1',
-            name: 'Floor 1',
+            name: 'First Floor',
             image: CustomImage.logo,
             address: 'Available Bads 3',
             price: '$50',
             number: '1234567890',
+            active: true
         },
         {
             id: '2',
-            name: 'Floor 2',
+            name: 'Second Floor',
             image: CustomImage.logo,
             address: 'Available Bads 4',
             price: '$80',
@@ -24,7 +25,7 @@ const SingleHostelScreen = ({ navigation }) => {
         },
         {
             id: '3',
-            name: 'Floor 3',
+            name: 'Third Floor',
             image: CustomImage.logo,
             address: 'Available Bads 3',
             price: '$60',
@@ -32,7 +33,7 @@ const SingleHostelScreen = ({ navigation }) => {
         },
         {
             id: '4',
-            name: 'Floor 4',
+            name: 'Forth Floor',
             image: CustomImage.logo,
             address: 'Available Bads 3',
             price: '$60',
@@ -45,39 +46,39 @@ const SingleHostelScreen = ({ navigation }) => {
             id: '1',
             name: 'Room No 1',
             image: CustomImage.logo,
-            address: 'Available Bad 1',
-            price: '$50',
+            address: 'Avai. Bad 1',
+            price: '50',
             number: '1234567890',
         },
         {
             id: '2',
             name: 'Room No 2',
             image: CustomImage.logo,
-            address: 'Available Bad 2',
-            price: '$80',
+            address: 'Avai. Bad 2',
+            price: '80',
             number: '9876543210',
         },
         {
             id: '3',
             name: 'Room No 3',
             image: CustomImage.logo,
-            address: 'Available Bad 1',
-            price: '$60',
+            address: 'Avai. Bad 1',
+            price: '60',
             number: '1234598760',
         },
         {
             id: '4',
             name: 'Room No 4',
             image: CustomImage.logo,
-            address: 'Available Bad 0',
-            price: '$60',
+            address: 'Avai. Bad 0',
+            price: '60',
             number: '1234598760',
         },
         // Add more cards as needed
     ];
 
     const renderItem = ({ item }) => (
-        <TouchableOpacity style={styles.card}>
+        <TouchableOpacity style={{ ...styles.card, borderColor: item.active ? 'green' : 'black', borderWidth: item.active ? 3 : 0.8 }}>
             <Image source={item.image} style={styles.cardImage} />
             <Text style={styles.cardTitle}>{item.name}</Text>
             <Text style={styles.cardInfo}>{item.address}</Text>
@@ -87,17 +88,22 @@ const SingleHostelScreen = ({ navigation }) => {
         <TouchableOpacity style={styles.roomContainer} onPress={() => {
             navigation.navigate('SingleRoomScreen')
         }}>
-            <Text style={styles.cardTitle}>{item.name}</Text>
-            <Text style={styles.cardInfo}>{item.address}</Text>
-            <Text style={styles.cardInfo}>Bad Price: {item.price}</Text>
-            <Text style={styles.cardInfo}>Number: {item.number}</Text>
+            <View>
+
+                <Text style={styles.cardTitle}>{item.name}</Text>
+            </View>
+            <View>
+
+                <Text style={styles.cardInfo}>{item.address}</Text>
+                <Text style={styles.cardInfo}>₹ : {item.price}</Text>
+            </View>
         </TouchableOpacity>
     );
 
     return (
         <View style={styles.container}>
             <View style={{
-                backgroundColor: Colors.blue, height: 70, width: '100%',
+                backgroundColor: Colors.blue, height: 70, width: '100%', flex: 0.1
             }}>
                 <TouchableOpacity
                     onPress={() => { navigation.goBack('HomeScreen') }}
@@ -112,46 +118,62 @@ const SingleHostelScreen = ({ navigation }) => {
                     <Text style={{ fontSize: fontSize.input, color: Colors.white, marginLeft: 10 }}>Back to home</Text>
                 </TouchableOpacity>
             </View>
-            <FlatList
-                data={cards}
-                renderItem={renderItem}
-                keyExtractor={item => item.id}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.listContainer}
-            />
-            <FlatList
-                data={room}
-                renderItem={renderItemRoom}
-                keyExtractor={item => item.id}
-                numColumns={2}
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.listContainer}
-            />
+            <View style={{ flex: 0.9 }}>
+                <View style={{ flex: 0.3, marginVertical: 20 }}>
+
+                    <FlatList
+                        data={cards}
+                        renderItem={renderItem}
+                        keyExtractor={item => item.id}
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={styles.listContainer}
+                    />
+                </View>
+                <View style={{ flex: 0.7, paddingVertical: 20 }}>
+
+                    <FlatList
+                        data={room}
+                        renderItem={renderItemRoom}
+                        keyExtractor={item => item.id}
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={styles.listContainer}
+                    />
+                </View>
+            </View>
         </View >
     );
 };
 
 const styles = StyleSheet.create({
     roomContainer: {
-        width: '47%',
+
         borderWidth: 0.8,
-        margin: 5
+        borderRadius: 15,
+        marginVertical: 5,
+        padding: 15,
+        width: '100%',
+        alignSelf: 'center',
+        backgroundColor: 'white',
+        elevation: 2,
+        flexDirection: 'row',
+        alignItems: 'center'
     },
     container: {
         flex: 1,
     },
     listContainer: {
         paddingHorizontal: 20,
-        alignItems: 'center'
+        // alignItems: 'center's
     },
     card: {
-        width: 80,
+
         padding: 10,
         borderWidth: 0.8,
         borderRadius: 10,
         backgroundColor: 'white',
-        elevation: 5
+        elevation: 5,
+        marginHorizontal: 5
     },
     cardImage: {
         width: 80,
@@ -167,6 +189,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
         textAlign: 'center',
         marginBottom: 5,
+        width: 90
     },
 });
 
