@@ -1,6 +1,11 @@
 
-import React from 'react';
-import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, ScrollView, Alert, ToastAndroid } from 'react-native';
+import React, { useState } from 'react';
+import {
+    View, Text, FlatList, StyleSheet, Image,
+    TouchableOpacity, ScrollView, Alert, ToastAndroid,
+    TextInput
+} from 'react-native';
+import { Colors } from '../../../util/Colors';
 
 const FilledRoomScreen = ({ navigation }) => {
 
@@ -38,7 +43,7 @@ const FilledRoomScreen = ({ navigation }) => {
         // Add more cards as needed
     ];
 
-
+    const [Search, setSearch] = useState('')
     const renderItemUserInfo = ({ item }) => (
         <TouchableOpacity style={styles.userInfoContainer} disabled>
             <View style={styles.rowList}>
@@ -70,6 +75,14 @@ const FilledRoomScreen = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
+            <TextInput
+                style={styles.search}
+                placeholder='Search Here ...'
+                placeholderTextColor={Colors.black}
+                onChangeText={(value) => {
+                    setSearch(value)
+                }}
+            />
             <FlatList
                 data={UserInfo}
                 renderItem={renderItemUserInfo}
@@ -82,6 +95,19 @@ const FilledRoomScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+    search: {
+        height: 60,
+        marginVertical: 15,
+        width: '95%',
+        alignSelf: 'center',
+        borderRadius: 30,
+        elevation: 8,
+        backgroundColor: Colors.white,
+        fontSize: 17,
+        paddingHorizontal: 20,
+        fontWeight: '700',
+        color: Colors.black
+    },
     rowList: {
         flexDirection: 'row',
         justifyContent: 'space-around',

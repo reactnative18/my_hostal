@@ -28,18 +28,20 @@ const LoginScreen = ({ navigation }) => {
 
     return (
         <ImageBackground
-            source={CustomImage.logo}
+            source={CustomImage.loginbackground}
             style={styles.backgroundImage}
         >
             <View style={styles.container}>
                 <TextInput
                     placeholder="Email"
+                    placeholderTextColor={Colors.grey}
                     style={styles.input}
                     value={email}
                     onChangeText={text => setEmail(text)}
                 />
                 <TextInput
                     placeholder="Password"
+                    placeholderTextColor={Colors.grey}
                     style={styles.input}
                     secureTextEntry
                     value={password}
@@ -88,7 +90,9 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         paddingLeft: 10,
         backgroundColor: 'white', // Add a background color for the input fields
-        opacity: 0.8, // Adjust the opacity to make the input fields semi-transparent
+        // opacity: 0.8,
+        borderRadius: 15,
+        color: Colors.black// Adjust the opacity to make the input fields semi-transparent
     },
     errorText: {
         color: 'red',

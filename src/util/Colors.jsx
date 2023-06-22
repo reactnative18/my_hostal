@@ -6,10 +6,13 @@ export const Colors = {
   blueLight: '#64beff',
   grey: "#a6a6a6",
   darkgrey: "#808080",
-  red: "#ff0000",
   yellow: "#fbc10d",
   transparent: "#00000040",
-  button: "#607D8B"
+  button: "#607D8B",
+  theme: '#2B3467',
+  red: '#EB455F',
+  lightsky: '#BAD7E9',
+  green: 'rgba(0, 177, 106, 1)'
 };
 
 

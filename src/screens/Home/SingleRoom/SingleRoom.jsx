@@ -98,7 +98,7 @@ const SingleRoomScreen = ({ navigation }) => {
         <View style={styles.container}>
 
             <View style={{
-                backgroundColor: Colors.blue, height: 70, width: '100%',
+                height: 70, width: '100%',
             }}>
                 <TouchableOpacity
                     onPress={() => { navigation.goBack('HomeScreen') }}
@@ -107,10 +107,10 @@ const SingleRoomScreen = ({ navigation }) => {
                         alignItems: 'center', margin: 20,
                     }}>
                     <Image source={CustomImage.back} style={{
-                        height: 20, width: 20, tintColor: Colors.white,
+                        height: 20, width: 20, tintColor: Colors.black,
 
                     }} />
-                    <Text style={{ fontSize: fontSize.input, color: Colors.white, marginLeft: 10 }}>Back to home</Text>
+                    <Text style={{ fontSize: fontSize.input, color: Colors.black, marginLeft: 10 }}>1st Floor Room</Text>
                 </TouchableOpacity>
             </View>
             <FlatList
@@ -121,7 +121,7 @@ const SingleRoomScreen = ({ navigation }) => {
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.listContainer}
             />
-            <Text style={{ fontWeight: '700', fontSize: 18, marginLeft: 20 }}>Pending amount : 5500</Text>
+            <Text style={{ fontWeight: '700', fontSize: 18, marginLeft: 20, color: Colors.red }}>Pending amount : 5500</Text>
             <ScrollView horizontal={true}>
 
                 <FlatList
@@ -222,11 +222,13 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
         textAlign: 'center',
+        color: Colors.black
     },
     cardInfo: {
         fontSize: 14,
         textAlign: 'center',
         marginBottom: 5,
+        color: Colors.black
     },
 });
 

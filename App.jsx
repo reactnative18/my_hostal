@@ -16,6 +16,7 @@ import AvailableRoomScreen from './src/screens/Home/AvailableRoom/AvailableRoomS
 import FilledRoomScreen from './src/screens/Home/FilledRoom/FilledRoomScreen';
 import AllocateBedScreen from './src/screens/Home/AllocateBed/AllocateBedScreen';
 import { Colors } from './src/util/Colors';
+import SingleFloorScreen from './src/screens/Home/SingleFloor/SingleFloorScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createMaterialTopTabNavigator();
@@ -36,6 +37,7 @@ const App = () => {
           <Stack.Screen name="SingleHostelScreen" component={SingleHostelScreen} />
           <Stack.Screen name="SingleRoomScreen" component={SingleRoomScreen} />
           <Stack.Screen name="AllocateBedScreen" component={AllocateBedScreen} />
+          <Stack.Screen name="SingleFloorScreen" component={SingleFloorScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </Provider>
@@ -62,9 +64,10 @@ const HomeTab = () => {
       screenOptions={
         {
           tabBarContentContainerStyle: {
-            backgroundColor: Colors.blue
+            backgroundColor: Colors.theme
           },
-          tabBarActiveTintColor: 'white'
+          tabBarActiveTintColor: Colors.lightsky,
+          tabBarLabelStyle: { fontWeight: 'bold', fontSize: 15 }
         }
       }
     >
