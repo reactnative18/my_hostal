@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, ScrollView, TextInput } from 'react-native';
 import CustomImage from '../../../util/Images';
 import { Colors } from '../../../util/Colors';
-import fontSize from '../../../util/Fonts';
+import { fontSize } from '../../../util/Fonts';
 
 const AvailableRoomScreen = ({ navigation }) => {
 

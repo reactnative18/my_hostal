@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native'
 import { Colors } from './Colors'
-import fontSize from './Fonts'
+import { fontSize } from './Fonts'
 import { horizScale } from './Layout'
 const styles = StyleSheet.create({
     rowCenter: {

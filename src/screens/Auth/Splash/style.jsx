@@ -1,5 +1,6 @@
-import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
 import { StyleSheet } from 'react-native';
+import { horizScale } from '../../../util/Layout';
+import { fontFamily } from '../../../util/Fonts';
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -10,14 +11,14 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     image: {
-        width: scale(200),
-        height: scale(200),
+        width: horizScale(200),
+        height: horizScale(200),
         resizeMode: 'contain',
     },
     text: {
         fontSize: 24,
-        fontWeight: 'bold',
-        marginTop: scale(16),
+        fontFamily: fontFamily.blackItalic,
+        marginTop: horizScale(16),
         color: 'black'
     },
 });

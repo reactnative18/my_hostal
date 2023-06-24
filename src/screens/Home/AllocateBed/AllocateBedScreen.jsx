@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, Button, TouchableOpacity, Image } from 'react-native';
 
 import CustomImage from '../../../util/Images';
-import fontSize from '../../../util/Fonts';
+import { fontSize } from '../../../util/Fonts';
 import { Colors } from '../../../util/Colors';
 const AllocateBedScreen = ({ route, navigation }) => {
     const { item } = route.params;

@@ -1,8 +1,17 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, StyleSheet, ScrollView, ImageBackground } from 'react-native';
+import {
+    View, TextInput, Button, Text, StyleSheet, ImageBackground,
+    TouchableOpacity, StatusBar, Pressable,
+    ScrollView, SafeAreaView, Image
+} from 'react-native';
 import CustomImage from '../../../util/Images';
+import { Colors } from '../../../util/Colors';
+import { fontFamily, fontSize } from '../../../util/Fonts';
+import { Spacer, horizScale, normScale, vertScale } from '../../../util/Layout';
+import FocusStatusBar from '../../../Components/FocusStatusBar/FocusStatusBar';
+import InputFilled from '../../../Components/InputFilled/InputFilled';
 
-const SignupScreen = () => {
+const SignupScreen = ({ navigation }) => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -13,27 +22,39 @@ const SignupScreen = () => {
     const handleSignup = () => {
         if (name === '') {
             setError('Please enter your name');
+            setTimeout(() => {
+                setError('');
+            }, 2000);
             return;
         }
         if (email === '') {
             setError('Please enter your email');
+            setTimeout(() => {
+                setError('');
+            }, 2000);
             return;
         }
         if (password === '') {
             setError('Please enter your password');
+            setTimeout(() => {
+                setError('');
+            }, 2000);
             return;
         }
         if (confirmPassword !== password) {
             setError('Passwords do not match');
+            setTimeout(() => {
+                setError('');
+            }, 2000);
             return;
         }
         if (phoneNumber === '') {
             setError('Please enter your phone number');
+            setTimeout(() => {
+                setError('');
+            }, 2000);
             return;
         }
-
-        // Implement your signup logic here
-        // Clear the input fields and error state after successful signup
         setName('');
         setEmail('');
         setPassword('');
@@ -43,78 +64,174 @@ const SignupScreen = () => {
     };
 
     return (
-        <ImageBackground
-            source={CustomImage.logo}
-            style={styles.backgroundImage}
-        >
-            <ScrollView contentContainerStyle={styles.container}>
-                <TextInput
+        <SafeAreaView style={styles.container}>
+            <FocusStatusBar backgroundColor={Colors.white} barStyle='dark-content' />
+            <ScrollView showsVerticalScrollIndicator={false}>
+                <Image source={CustomImage.signup} style={styles.topImage} />
+                <Text style={styles.loginText}>Sign Up</Text>
+
+                <Spacer height={10} />
+                <InputFilled
+                    type="Email"
                     placeholder="Name"
-                    style={styles.input}
                     value={name}
                     onChangeText={text => setName(text)}
-
+                    icon={CustomImage.user}
                 />
-                <TextInput
-                    placeholder="Email"
-                    style={styles.input}
-                    value={email}
-                    onChangeText={text => setEmail(text)}
-                />
-                <TextInput
-                    placeholder="Password"
-                    style={styles.input}
-                    secureTextEntry
-                    value={password}
-                    onChangeText={text => setPassword(text)}
-                />
-                <TextInput
-                    placeholder="Confirm Password"
-                    style={styles.input}
-                    secureTextEntry
-                    value={confirmPassword}
-                    onChangeText={text => setConfirmPassword(text)}
-                />
-                <TextInput
-                    placeholder="Phone Number"
-                    style={styles.input}
-                    keyboardType="phone-pad"
+                <Spacer height={10} />
+                <InputFilled
+                    type="Email"
+                    placeholder="Mobile Number"
                     value={phoneNumber}
                     onChangeText={text => setPhoneNumber(text)}
+                    icon={CustomImage.phone}
                 />
+                <Spacer height={10} />
+                <InputFilled
+                    type="Email"
+                    placeholder="Email"
+                    value={email}
+                    onChangeText={text => setEmail(text)}
+                    icon={CustomImage.email}
+                />
+                <Spacer height={10} />
+                <InputFilled
+                    type="Password"
+                    placeholder="Password"
+                    value={password}
+                    onChangeText={text => setPassword(text)}
+                    icon={CustomImage.padlock}
+                />
+                <Spacer height={10} />
+                <InputFilled
+                    type="Password"
+                    placeholder="Confirm Password"
+                    value={confirmPassword}
+                    onChangeText={text => setConfirmPassword(text)}
+                    icon={CustomImage.padlock}
+                />
+                <Spacer height={5} />
                 {error !== '' && <Text style={styles.errorText}>{error}</Text>}
-                <Button title="Sign Up" onPress={handleSignup} />
+                <Spacer height={15} />
+                <Text style={styles.termsConditionText}>By signing up, you're agree to our <Text style={{ color: Colors.black, fontFamily: fontFamily.black }}>Terms & Condition</Text> and <Text style={{ color: Colors.black, fontFamily: fontFamily.black }}>Privacy Policy.</Text></Text>
+                <Spacer height={8} />
+                <Pressable onPress={handleSignup} style={styles.button}>
+                    <Text style={styles.buttonText}>Continue</Text>
+                </Pressable>
+                <Spacer height={15} />
+                <Pressable onPress={() => { navigation.navigate('LoginScreen') }} >
+                    <Text style={styles.loginButtonText}>Already have an account? <Text style={{ color: Colors.black, fontFamily: fontFamily.black }}>Login</Text></Text>
+                </Pressable>
             </ScrollView>
-        </ImageBackground>
+        </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
-    backgroundImage: {
-        flex: 1,
-        resizeMode: 'cover',
+    headerView: {
+        alignSelf: 'center',
+        alignItems: 'center',
         justifyContent: 'center',
-
-
+        marginTop: StatusBar.currentHeight,
+        zIndex: 1,
+        flexDirection: 'row'
     },
-    container: {
-        flexGrow: 1,
+    appText: {
+        color: Colors.black,
+        fontSize: fontSize.h5,
+        marginLeft: normScale(8),
+        fontFamily: fontFamily.blackItalic
+    },
+    forgetText: {
+        fontSize: fontSize.medium,
+        color: Colors.black,
+        fontFamily: fontFamily.black
+    },
+    forgetButton: {
+        right: 20,
+        alignSelf: 'flex-end'
+    },
+    button: {
+        backgroundColor: Colors.black,
+        borderRadius: normScale(60),
+        // height: vertScale(60),
+        width: '80%',
+        // width: fullWidth - horizScale(80),/
+        paddingHorizontal: horizScale(10),
+        paddingVertical: vertScale(15),
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 20,
+        alignSelf: 'center',
+        marginVertical: vertScale(10)
     },
-    input: {
+    buttonText: {
+        color: Colors.white,
+        fontSize: fontSize.regular,
+        letterSpacing: normScale(1),
+        fontFamily: fontFamily.boldItalic
+    },
+    tegLine: {
+        color: Colors.black,
+        padding: vertScale(15),
+        fontSize: fontSize.h4,
+        textAlign: 'center',
+        fontFamily: fontFamily.black
+    },
+    secondTegLine: {
+        color: Colors.grey,
+        fontSize: fontSize.medium,
+        textAlign: 'center',
+        fontFamily: fontFamily.regular,
+        paddingHorizontal: horizScale(20)
+    },
+    loginButtonText: {
+        color: Colors.grey,
+        fontSize: fontSize.medium,
+        textAlign: 'center',
+        fontFamily: fontFamily.regular
+
+    },
+    termsConditionText: {
+        color: Colors.grey,
+        fontSize: fontSize.small,
+        fontFamily: fontFamily.regular,
+        marginHorizontal: horizScale(22)
+
+    },
+
+    smallLogo: {
+        width: horizScale(25),
+        height: horizScale(25),
+        resizeMode: 'contain',
+    },
+    logo: {
+        width: horizScale(50),
+        height: horizScale(50),
+        resizeMode: 'contain',
+    },
+    loginText: {
+        color: Colors.theme,
+        fontSize: fontSize.h4,
+        marginLeft: normScale(20),
+        fontFamily: fontFamily.black,
+        letterSpacing: horizScale(1)
+    },
+    container: {
+        flex: 1,
+        backgroundColor: Colors.white
+    },
+    topImage: {
         width: '100%',
-        height: 40,
-        borderWidth: 1,
-        borderColor: '#ccc',
-        marginBottom: 10,
-        paddingLeft: 10,
-        backgroundColor: '#fff'
+        alignSelf: 'center',
+        height: vertScale(150),
+        borderBottomLeftRadius: normScale(20),
+        borderBottomRightRadius: normScale(20),
+        resizeMode: 'contain'
     },
     errorText: {
-        color: 'red',
-        marginBottom: 10,
+        color: Colors.red,
+        fontSize: fontSize.das,
+        marginLeft: horizScale(20)
     },
 });
 
