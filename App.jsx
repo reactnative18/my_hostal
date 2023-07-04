@@ -19,9 +19,20 @@ import SingleFloorScreen from './src/screens/Home/SingleFloor/SingleFloorScreen'
 import AuthMainScreen from './src/screens/Auth/AuthMain/AuthMainScreen';
 import TermsConditionScreen from './src/screens/Auth/TermsCondition/TermsConditionScreen';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { fontFamily } from './src/util/Fonts';
-import { StyleSheet, View } from 'react-native';
+import { fontFamily, fontSize } from './src/util/Fonts';
+import { Image, StyleSheet, View } from 'react-native';
 import Home from './src/screens/Home/Home';
+import DrawerContentScreen from './src/screens/Navigation/DrawerContent/DrawerContentScreen';
+import { horizScale, vertScale } from './src/util/Layout';
+import HostelManagmentScreen from './src/screens/Home/DrawerScreens/HostelManagment/HostelManagmentMain/HostelManagmentScreen';
+import HostelFloorManagment from './src/screens/Home/DrawerScreens/HostelManagment/HostelFloor/HostelFloorManagment';
+import HostelRoomManagment from './src/screens/Home/DrawerScreens/HostelManagment/HostelRoomManagment/HostelRoomManagment';
+import HostelBedManagment from './src/screens/Home/DrawerScreens/HostelManagment/HostelBedManagment/HostelBedManagment';
+import TenantProfileScreen from './src/screens/Home/DrawerScreens/HostelManagment/TenantProfile/TenantProfileScreen';
+import ViewFullImage from './src/Components/ViewFullImage/ViewFullImage';
+import AddHostel from './src/screens/Home/DrawerScreens/HostelManagment/HostelManagmentMain/AddHostel';
+import AddFloor from './src/screens/Home/DrawerScreens/HostelManagment/HostelFloor/AddFloor';
+import AddRoom from './src/screens/Home/DrawerScreens/HostelManagment/HostelRoomManagment/AddRoom';
 
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
@@ -43,6 +54,19 @@ const App = () => {
           <Stack.Screen name="SingleRoomScreen" component={SingleRoomScreen} />
           <Stack.Screen name="AllocateBedScreen" component={AllocateBedScreen} />
           <Stack.Screen name="SingleFloorScreen" component={SingleFloorScreen} />
+
+
+          <Stack.Screen name="HostelManagmentScreen" component={HostelManagmentScreen} />
+          <Stack.Screen name="AddHostel" component={AddHostel} />
+          <Stack.Screen name="HostelFloorManagment" component={HostelFloorManagment} />
+          <Stack.Screen name="AddFloor" component={AddFloor} />
+          <Stack.Screen name="HostelRoomManagment" component={HostelRoomManagment} />
+          <Stack.Screen name="AddRoom" component={AddRoom} />
+          <Stack.Screen name="HostelBedManagment" component={HostelBedManagment} />
+          <Stack.Screen name="TenantProfileScreen" component={TenantProfileScreen} />
+          <Stack.Screen name="ViewFullImage" component={ViewFullImage} />
+
+
         </Stack.Navigator>
       </NavigationContainer>
     </Provider>
@@ -70,12 +94,24 @@ const AuthStack = () => {
 const HomeDrawer = () => {
   return (
     <Drawer.Navigator
-      initialRouteName='Home'
+      initialRouteName='BottomTabBar'
       screenOptions={{
-        headerShown: false
+        headerShown: false,
+        drawerStyle: {
+          width: horizScale(250),
+        },
+        drawerType: 'frunt',
+        overlayColor: 'transparent',
+        drawerStatusBarAnimation: 'fade',
+        drawerItemStyle: {
+          height: vertScale(200),
+          backgroundColor: 'red'
+        }
       }}
+
+      drawerContent={(props) => <DrawerContentScreen {...props} />}
     >
-      <Drawer.Screen name="Home" component={Home} options={{
+      <Drawer.Screen name="BottomTabBar" component={BottomTabBar} options={{
         title: 'Home',
         drawerType: 'slide',
 
@@ -84,28 +120,67 @@ const HomeDrawer = () => {
 
   )
 }
-
-const HomeTab = () => {
+import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import CustomImage from './src/util/Images';
+const Tab = createMaterialBottomTabNavigator();
+const BottomTabBar = () => {
   return (
     <Tab.Navigator
-      screenOptions={
-        {
-          tabBarContentContainerStyle: {
-            backgroundColor: Colors.black
-          },
-          tabBarActiveTintColor: Colors.white,
-          tabBarLabelStyle: { fontFamily: fontFamily.black, fontSize: 15 }
-        }
-      }
+      shifting={true}
+      activeColor={Colors.white}
+      barStyle={{
+        backgroundColor: Colors.theme, height: vertScale(50),
+        // paddingBottom: 5,
+        backgroundColor: 'rgba(111, 35, 110 ,0.6)',
+        position: 'absolute',
+        borderRadius: horizScale(50),
+        marginHorizontal: horizScale(20),
+        overflow: 'hidden',
+        marginBottom: vertScale(10),
+        alignItems: 'center',
+        justifyContent: 'space-around',
+
+      }}
+      labeled={false}
+      style={{ backgroundColor: 'red' }}
     >
       <Tab.Screen name="HomeScreen" component={HomeScreen} options={{
-        title: 'Home'
+        tabBarLabel: 'Home',
+
+        tabBarIcon: ({ focused }) => (
+          <MaterialCommunityIcons name="home" color={focused ? Colors.theme : Colors.white} size={26} />
+        ),
       }} />
       <Tab.Screen name="AvailableRoomScreen" component={AvailableRoomScreen} options={{
-        title: 'Available Rooms'
+        tabBarLabel: 'Available Rooms',
+        tabBarIcon: ({ focused }) => {
+          return (
+            <Image
+              source={CustomImage.AvailableRoom}
+              style={{
+                height: horizScale(20),
+                width: horizScale(20),
+                tintColor: focused ? Colors.theme : Colors.white,
+              }}
+            />
+          );
+        },
       }} />
       <Tab.Screen name="FilledRoomScreen" component={FilledRoomScreen} options={{
-        title: 'Filled Rooms'
+        tabBarLabel: 'Filled Rooms',
+        tabBarIcon: ({ focused }) => {
+          return (
+            <Image
+              source={CustomImage.Door}
+              style={{
+                height: horizScale(20),
+                width: horizScale(20),
+                tintColor: focused ? Colors.theme : Colors.white,
+              }}
+            />
+          );
+        },
       }} />
     </Tab.Navigator>
 

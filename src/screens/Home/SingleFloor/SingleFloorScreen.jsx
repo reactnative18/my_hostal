@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, Pressable } from 'react-native';
 import CustomImage from '../../../util/Images';
 import { Colors } from '../../../util/Colors';
-import { fontSize } from '../../../util/Fonts';
+import { fontFamily, fontSize } from '../../../util/Fonts';
+import { horizScale, vertScale } from '../../../util/Layout';
 
 const SingleFloorScreen = ({ navigation }) => {
 
@@ -23,7 +24,7 @@ const SingleFloorScreen = ({ navigation }) => {
             address: 'Avai. Bad 2',
             price: '80',
             number: '9876543210',
-            roominfo: [{ username: 'Asutosh shing tomer', seetNo: 1, rent: 1 }, { username: 'raja', seetNo: 2, rent: 0 }, { seetNo: 3 }]
+            roominfo: [{ username: 'Asutosh shing tomer', seetNo: 1, rent: 1 }, { username: 'raja', seetNo: 2, rent: 0 }]
         },
         {
             id: '3',
@@ -32,7 +33,7 @@ const SingleFloorScreen = ({ navigation }) => {
             address: 'Avai. Bad 1',
             price: '60',
             number: '1234598760',
-            roominfo: [{ username: 'Asutosh shing tomer', seetNo: 1, rent: 1 }, { username: 'raja', seetNo: 2, rent: 0 }, { seetNo: 3 }]
+            roominfo: [{ username: 'Asutosh shing tomer', seetNo: 1, rent: 1 }, { seetNo: 3 }]
         },
         {
             id: '4',
@@ -47,30 +48,31 @@ const SingleFloorScreen = ({ navigation }) => {
     ];
 
 
-    const renderItemRoom = ({ item }) => (
-        <TouchableOpacity style={styles.roomContainer} onPress={() => {
-            navigation.navigate('SingleRoomScreen')
-        }}>
+    const renderItemRoom = ({ item }) => {
+        let length = item?.roominfo?.length ? item?.roominfo?.length : 1
+        return (
+            <Pressable style={styles.roomContainer} onPress={() => {
+                navigation.navigate('SingleRoomScreen')
+            }}>
 
-            <View style={{ flex: 0.5 }}>
-                <Text style={styles.cardTitle}>{item.name}</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Text style={styles.cardTitle}>{item.name}</Text>
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly' }}>
+                    {item?.roominfo?.map((item, index) => (
+                        <View style={{
+                            ...styles.subSeater,
+                            flex: 10 / length, backgroundColor: item?.username ? Colors.greylight : Colors.yellow
+                        }}>
+                            {item?.username && <Image source={item?.rent == 1 ? CustomImage.verify : CustomImage.cross} style={{ ...styles.smallIcon, tintColor: item?.rent == 1 ? Colors.green : Colors.red }} />}
+                            <Text numberOfLines={2} style={{ ...styles.userName, }}>{item?.username ? item?.username : `Seet No. ${item.seetNo}`}</Text>
+                        </View>
+                    ))}
 
-                {item?.roominfo?.map((item, index) => (<Text numberOfLines={2} style={{ ...styles.userName, backgroundColor: item?.username ? Colors.green : Colors.red }}>{item?.username ? item?.username : `Seet No. ${item.seetNo}`}</Text>))}
-            </View>
-            <View style={{ flex: 0.5 }}>
-                <Text style={styles.cardTitle}></Text>
-                {item?.roominfo?.map((item, index) => (
-                    <>
-                        {item.username ? <View style={{ alignItems: 'center', justifyContent: 'center', flexDirection: 'row' }}>
-                            <Image source={item?.rent == 1 ? CustomImage.check : CustomImage.clock} style={{ width: 18, height: 18, resizeMode: 'contain', tintColor: item?.rent == 0 ? Colors.red : null }} />
-                            <Text numberOfLines={2} style={{ ...styles.userName, color: Colors.black, marginLeft: 8 }}>{item?.rent == 1 ? 'Clear' : 'Due'}</Text>
-                        </View> : <View style={{ height: 55 }}></View>}
-                    </>
-                ))}
-
-            </View>
-        </TouchableOpacity>
-    );
+                </View>
+            </Pressable>
+        )
+    };
 
     return (
         <View style={styles.container}>
@@ -104,25 +106,29 @@ const SingleFloorScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+    subSeater: {
+        backgroundColor: Colors.lightsky,
+        elevation: 2,
+        borderRadius: horizScale(7),
+        marginHorizontal: horizScale(2),
+        minHeight: vertScale(40),
+    },
     roomContainer: {
 
-        borderWidth: 0.8,
         borderRadius: 15,
         marginVertical: 5,
         padding: 15,
         width: '100%',
-        alignSelf: 'center',
-        backgroundColor: 'white',
+        backgroundColor: Colors.white,
         elevation: 2,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center'
+        alignSelf: 'center',
+
     },
     container: {
         flex: 1,
     },
     listContainer: {
-        paddingHorizontal: 20,
+        paddingHorizontal: horizScale(5),
         // alignItems: 'center's
     },
     card: {
@@ -139,21 +145,26 @@ const styles = StyleSheet.create({
         height: 80,
         borderRadius: 5,
     },
+    smallIcon: {
+        width: horizScale(16),
+        height: horizScale(16),
+        borderRadius: horizScale(8),
+        position: 'absolute',
+        marginTop: vertScale(-7),
+        right: horizScale(-1)
+    },
     cardTitle: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        textAlign: 'center',
+        fontSize: fontSize.regular,
+        fontFamily: fontFamily.bold,
+        textAlign: 'left',
         color: Colors.black
     },
     userName: {
-        fontSize: 15,
-        fontWeight: 'bold',
+        fontSize: fontSize.medium,
         textAlign: 'center',
-        color: Colors.white,
-        borderRadius: 10,
-        margin: 3,
-        minHeight: 50,
-        textAlignVertical: 'center'
+        color: Colors.black,
+        textAlignVertical: 'center',
+        minHeight: vertScale(40),
     },
     cardInfo: {
         fontSize: 14,

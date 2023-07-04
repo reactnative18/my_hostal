@@ -3,6 +3,7 @@ import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, ScrollView, 
 import CustomImage from '../../../util/Images';
 import { Colors } from '../../../util/Colors';
 import { fontSize } from '../../../util/Fonts';
+import HeaderView from '../../../Components/HeaderView';
 
 const AvailableRoomScreen = ({ navigation }) => {
 
@@ -65,6 +66,7 @@ const AvailableRoomScreen = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
+            <HeaderView navigation={navigation} />
             <TextInput
                 style={styles.search}
                 placeholder='Search Here ...'

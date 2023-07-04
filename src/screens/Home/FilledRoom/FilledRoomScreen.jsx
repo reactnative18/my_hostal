@@ -6,6 +6,7 @@ import {
     TextInput
 } from 'react-native';
 import { Colors } from '../../../util/Colors';
+import HeaderView from '../../../Components/HeaderView';
 
 const FilledRoomScreen = ({ navigation }) => {
 
@@ -75,6 +76,7 @@ const FilledRoomScreen = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
+            <HeaderView navigation={navigation} />
             <TextInput
                 style={styles.search}
                 placeholder='Search Here ...'

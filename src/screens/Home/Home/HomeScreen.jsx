@@ -1,6 +1,10 @@
 import React from 'react';
-import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
 import CustomImage from '../../../util/Images';
+import HeaderView from '../../../Components/HeaderView';
+import { Colors } from '../../../util/Colors';
+import { horizScale, vertScale } from '../../../util/Layout';
+import { fontFamily, fontSize } from '../../../util/Fonts';
 
 const HomeScreen = ({ navigation }) => {
     const hostels = [
@@ -29,7 +33,23 @@ const HomeScreen = ({ navigation }) => {
             category: 'Boys'
         },
         {
-            id: '3',
+            id: '4',
+            name: 'AP 30',
+            location: 'Bholaram indore',
+            image: CustomImage.logo,
+            availableRoom: 5,
+            category: 'Boys'
+        },
+        {
+            id: '5',
+            name: 'Hostel C',
+            location: 'City C',
+            image: CustomImage.logo,
+            availableRoom: 7,
+            category: 'Boys'
+        },
+        {
+            id: '6',
             name: 'AP 3',
             location: 'Bholaram indore',
             image: CustomImage.logo,
@@ -54,32 +74,40 @@ const HomeScreen = ({ navigation }) => {
         </TouchableOpacity>
     );
     return (
-        <View style={styles.container}>
-            <FlatList
-                data={hostels}
-                renderItem={renderItem}
-                keyExtractor={item => item.id}
-                contentContainerStyle={styles.listContainer}
-            />
-        </View>
+        <SafeAreaView style={styles.container}>
+            <HeaderView navigation={navigation} />
+            <View>
+
+                <FlatList
+                    data={hostels}
+                    renderItem={renderItem}
+                    keyExtractor={item => item.id}
+                    contentContainerStyle={styles.listContainer}
+                    showsVerticalScrollIndicator={false}
+                />
+            </View>
+        </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: Colors.white
     },
     listContainer: {
-        paddingVertical: 10,
-        paddingHorizontal: 20,
+        paddingVertical: vertScale(10),
+        paddingHorizontal: horizScale(5),
     },
     hostelItem: {
-        marginVertical: 10,
+        marginVertical: vertScale(9),
         flexDirection: 'row',
-        backgroundColor: 'white',
-        borderRadius: 15,
-        padding: 10,
-        elevation: 8
+        backgroundColor: Colors.white,
+        borderRadius: horizScale(15),
+        padding: 5,
+        shadowColor: Colors.black,
+
+        elevation: 10,
     },
     hostelImage: {
         width: 130,
@@ -87,12 +115,14 @@ const styles = StyleSheet.create({
         borderRadius: 5,
     },
     hostelName: {
-        fontSize: 18,
-        fontWeight: 'bold',
+        fontSize: fontSize.regular,
+        fontFamily: fontFamily.black,
+        color: Colors.black
     },
     hostelLocation: {
-        fontSize: 14,
-        color: 'gray',
+        fontSize: fontSize.medium,
+        fontFamily: fontFamily.regular,
+        color: Colors.darkgrey2
     },
 });
 
