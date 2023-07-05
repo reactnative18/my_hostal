@@ -3,7 +3,7 @@ import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, ScrollView, 
 import CustomImage from '../../../util/Images';
 import HeaderView from '../../../Components/HeaderView';
 import { Colors } from '../../../util/Colors';
-import { horizScale, vertScale } from '../../../util/Layout';
+import { Spacer, horizScale, vertScale } from '../../../util/Layout';
 import { fontFamily, fontSize } from '../../../util/Fonts';
 
 const HomeScreen = ({ navigation }) => {
@@ -76,21 +76,31 @@ const HomeScreen = ({ navigation }) => {
     return (
         <SafeAreaView style={styles.container}>
             <HeaderView navigation={navigation} />
-            <View>
 
-                <FlatList
-                    data={hostels}
-                    renderItem={renderItem}
-                    keyExtractor={item => item.id}
-                    contentContainerStyle={styles.listContainer}
-                    showsVerticalScrollIndicator={false}
-                />
-            </View>
+            <FlatList
+                data={hostels}
+                renderItem={renderItem}
+                keyExtractor={item => item.id}
+                contentContainerStyle={styles.listContainer}
+                showsVerticalScrollIndicator={false}
+                ListFooterComponent={() => (<Spacer height={50} />)}
+            />
+            <TouchableOpacity style={styles.button} onPress={() => {
+                navigation.navigate('TenantProfileScreen')
+            }}>
+                <Image source={CustomImage.add} style={{ tintColor: Colors.theme }} />
+            </TouchableOpacity>
+
         </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
+    button: {
+        position: 'absolute',
+        right: horizScale(20),
+        bottom: vertScale(65)
+    },
     container: {
         flex: 1,
         backgroundColor: Colors.white

@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 import { Colors } from '../../../util/Colors';
 import HeaderView from '../../../Components/HeaderView';
+import { Spacer } from '../../../util/Layout';
 
 const FilledRoomScreen = ({ navigation }) => {
 
@@ -77,21 +78,30 @@ const FilledRoomScreen = ({ navigation }) => {
     return (
         <View style={styles.container}>
             <HeaderView navigation={navigation} />
-            <TextInput
-                style={styles.search}
-                placeholder='Search Here ...'
-                placeholderTextColor={Colors.black}
-                onChangeText={(value) => {
-                    setSearch(value)
-                }}
-            />
+
             <FlatList
                 data={UserInfo}
+                ListHeaderComponent={() => {
+                    return (
+                        <View>
+                            <TextInput
+                                style={styles.search}
+                                placeholder='Search Here ...'
+                                placeholderTextColor={Colors.black}
+                                onChangeText={(value) => {
+                                    setSearch(value)
+                                }}
+                            />
+                        </View>
+                    )
+                }}
+
                 renderItem={renderItemUserInfo}
                 keyExtractor={item => item.id}
                 showsVerticalScrollIndicator={false}
-
+                ListFooterComponent={() => (<Spacer height={55} />)}
             />
+
         </View>
     );
 };
@@ -140,7 +150,6 @@ const styles = StyleSheet.create({
 
     container: {
         flex: 1,
-        marginBottom: 10
     },
     listContainer: {
         paddingHorizontal: 20,

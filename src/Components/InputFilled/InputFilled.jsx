@@ -6,8 +6,6 @@ import { fontFamily, fontSize } from '../../util/Fonts';
 import CustomImage from '../../util/Images';
 import DatePicker from 'react-native-date-picker';
 import { Dropdown } from 'react-native-element-dropdown';
-
-import AntDesign from 'react-native-vector-icons/AntDesign';
 const InputFilled = (props) => {
     const [eye, setEye] = useState(true)
     const [date, setDate] = useState(new Date());

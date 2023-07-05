@@ -34,7 +34,7 @@ const normScale = (val) => moderateScale(val)
 
 
 const Spacer = (props) => (
-    <View style={{ width: '100%', height: vertScale(props.height) }} />
+    <View style={{ width: '100%', height: vertScale(props.height), backgroundColor: 'transparent' }} />
 );
 Spacer.propTypes = {
     height: PropTypes.number,

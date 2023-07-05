@@ -34,10 +34,13 @@ const CustomImage = {
   Door: require("../assets/Icons/Door.png"),
   verify: require("../assets/Icons/verify.png"),
   cross: require("../assets/Icons/cross.png"),
+  add: require("../assets/Icons/add.png"),
 
 
 
   //images
+  splash: require("../assets/Images/splash.gif"),
+  splashI: require("../assets/Images/splash.png"),
   splash_1: require('../assets/Images/splash_1.jpg'),
   login: require('../assets/Images/login.png'),
   signup: require('../assets/Images/signup.jpg'),

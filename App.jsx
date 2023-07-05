@@ -123,37 +123,47 @@ const HomeDrawer = () => {
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import CustomImage from './src/util/Images';
-const Tab = createMaterialBottomTabNavigator();
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+// const Tab = createMaterialBottomTabNavigator();
+const Tab = createBottomTabNavigator();
 const BottomTabBar = () => {
   return (
     <Tab.Navigator
-      shifting={true}
-      activeColor={Colors.white}
-      barStyle={{
-        backgroundColor: Colors.theme, height: vertScale(50),
-        // paddingBottom: 5,
-        backgroundColor: 'rgba(111, 35, 110 ,0.6)',
-        position: 'absolute',
-        borderRadius: horizScale(50),
-        marginHorizontal: horizScale(20),
-        overflow: 'hidden',
-        marginBottom: vertScale(10),
-        alignItems: 'center',
-        justifyContent: 'space-around',
+      initialRouteName='HomeScreen'
+      screenOptions={{
+        tabBarActiveBackgroundColor: Colors.theme,
+        tabBarInactiveBackgroundColor: Colors.theme,
+        tabBarActiveTintColor: Colors.white,
+        tabBarInactiveTintColor: Colors.black,
+        tabBarStyle: {
+          height: horizScale(50),
+          backgroundColor: 'rgba(52,52,52,0.000001)',
+          position: 'absolute',
+          borderWidth: 0,
+          marginHorizontal: horizScale(16),
+          marginBottom: horizScale(5),
+          borderBottomLeftRadius: horizScale(30),
+          borderBottomRightRadius: horizScale(30),
+          borderTopLeftRadius: horizScale(10),
+          borderTopRightRadius: horizScale(10),
+          overflow: 'hidden'
+        },
+        headerShown: false,
+        tabBarHideOnKeyboard: true,
 
       }}
-      labeled={false}
-      style={{ backgroundColor: 'red' }}
+
     >
+
       <Tab.Screen name="HomeScreen" component={HomeScreen} options={{
         tabBarLabel: 'Home',
-
         tabBarIcon: ({ focused }) => (
-          <MaterialCommunityIcons name="home" color={focused ? Colors.theme : Colors.white} size={26} />
+          <MaterialCommunityIcons name="home" color={focused ? Colors.white : Colors.black} size={26} />
         ),
       }} />
       <Tab.Screen name="AvailableRoomScreen" component={AvailableRoomScreen} options={{
         tabBarLabel: 'Available Rooms',
+
         tabBarIcon: ({ focused }) => {
           return (
             <Image
@@ -161,7 +171,7 @@ const BottomTabBar = () => {
               style={{
                 height: horizScale(20),
                 width: horizScale(20),
-                tintColor: focused ? Colors.theme : Colors.white,
+                tintColor: focused ? Colors.white : Colors.black,
               }}
             />
           );
@@ -176,7 +186,7 @@ const BottomTabBar = () => {
               style={{
                 height: horizScale(20),
                 width: horizScale(20),
-                tintColor: focused ? Colors.theme : Colors.white,
+                tintColor: focused ? Colors.white : Colors.black,
               }}
             />
           );

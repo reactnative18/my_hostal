@@ -65,13 +65,30 @@ const TenantProfileScreen = ({ navigation }) => {
             <FocusStatusBar translucent={false} backgroundColor={Colors.white} barStyle={'dark-content'} />
             <View style={styles.headerView}>
                 <BackButton navigation={navigation} text={"Tenant Profile"} />
+                <Pressable onPress={() => { alert('Cooming Soon') }} style={{
+                    ...styles.button2,
+                    marginRight: horizScale(15),
+                    backgroundColor: Colors.white,
+                    width: '30%',
+                    borderWidth: horizScale(0.8)
+                }}>
+                    <Text style={styles.buttonText2}>Save</Text>
+                </Pressable>
             </View>
-            <Spacer height={30} />
             <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+                {/* <Spacer height={10} /> */}
                 <Image
                     source={CustomImage.dummyuser}
                     style={styles.profilePicture}
                 />
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly' }}>
+                    <Pressable onPress={() => { navigation.navigate('AvailableRoomScreen', { userID: 1 }) }} style={styles.button2}>
+                        <Text style={styles.buttonText}>Shift</Text>
+                    </Pressable>
+                    <Pressable onPress={() => { alert('Cooming Soon') }} style={styles.button2}>
+                        <Text style={styles.buttonText}>Swipe</Text>
+                    </Pressable>
+                </View>
                 <Spacer height={20} />
                 <InputFilled
                     type="Dropdown"
@@ -201,9 +218,7 @@ const TenantProfileScreen = ({ navigation }) => {
                     </View>
 
                 </View>
-                <Pressable onPress={() => { alert('Cooming Soon') }} style={styles.button}>
-                    <Text style={styles.buttonText}>Save</Text>
-                </Pressable>
+
             </ScrollView>
         </SafeAreaView>
     )
@@ -212,6 +227,25 @@ const TenantProfileScreen = ({ navigation }) => {
 export default TenantProfileScreen
 
 const styles = StyleSheet.create({
+    button2: {
+        backgroundColor: Colors.black,
+        borderRadius: normScale(60),
+        // height: vertScale(60),
+        width: '40%',
+        // width: fullWidth - horizScale(80),/
+        paddingHorizontal: horizScale(10),
+        paddingVertical: vertScale(7),
+        justifyContent: 'center',
+        alignItems: 'center',
+        alignSelf: 'center',
+        marginVertical: vertScale(10)
+    },
+    buttonText2: {
+        color: Colors.black,
+        fontSize: fontSize.regular,
+        letterSpacing: normScale(1),
+        fontFamily: fontFamily.boldItalic
+    },
     button: {
         backgroundColor: Colors.black,
         borderRadius: normScale(60),
@@ -231,6 +265,7 @@ const styles = StyleSheet.create({
         letterSpacing: normScale(1),
         fontFamily: fontFamily.boldItalic
     },
+
     imgName: {
         color: Colors.black,
         fontSize: fontSize.small,

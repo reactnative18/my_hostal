@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
-import { View, Image, Text, StyleSheet, Animated } from 'react-native';
+import { View, Image, Text, StyleSheet, Animated, ImageBackground } from 'react-native';
 import CustomImage from '../../../util/Images';
 import { styles } from './style';
+import FocusStatusBar from '../../../Components/FocusStatusBar/FocusStatusBar';
 
 const SplashScreen = ({ navigation }) => {
     const fadeAnim = new Animated.Value(0);
@@ -22,7 +23,7 @@ const SplashScreen = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <Animated.View style={[styles.logoContainer, { opacity: fadeAnim }]}>
+            {/* <Animated.View style={[styles.logoContainer, { opacity: fadeAnim }]}>
                 <Image
                     source={CustomImage.logo}
                     style={styles.image}
@@ -30,7 +31,10 @@ const SplashScreen = ({ navigation }) => {
                 <Animated.Text style={[styles.text, { opacity: fadeAnim }]}>
                     Welcome To AP Hostel
                 </Animated.Text>
-            </Animated.View>
+            </Animated.View> */}
+            <ImageBackground source={CustomImage.splashI} style={{ flex: 1, height: '100%', width: '100%' }}>
+                <FocusStatusBar hidden={true} translucent={true} />
+            </ImageBackground>
         </View>
     );
 };

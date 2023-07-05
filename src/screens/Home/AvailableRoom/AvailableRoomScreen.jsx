@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, ScrollView, TextInput } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, SafeAreaView, TextInput, Pressable } from 'react-native';
 import CustomImage from '../../../util/Images';
 import { Colors } from '../../../util/Colors';
-import { fontSize } from '../../../util/Fonts';
+import { fontFamily, fontSize } from '../../../util/Fonts';
 import HeaderView from '../../../Components/HeaderView';
+import { Spacer, horizScale, normScale, vertScale } from '../../../util/Layout';
 
-const AvailableRoomScreen = ({ navigation }) => {
+const AvailableRoomScreen = ({ navigation, route }) => {
 
-
+    const userID = route?.params?.userID;
     const UserInfo = [
         {
             id: '1',
@@ -65,28 +66,73 @@ const AvailableRoomScreen = ({ navigation }) => {
     );
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <HeaderView navigation={navigation} />
-            <TextInput
-                style={styles.search}
-                placeholder='Search Here ...'
-                placeholderTextColor={Colors.black}
-                onChangeText={(value) => {
-                    setSearch(value)
-                }}
-            />
+
+
             <FlatList
+                ListHeaderComponent={() => (
+                    <View>
+                        {userID != null ? <View style={styles.headerView}>
+                            <Text style={{ ...styles.buttonText2, marginLeft: horizScale(15) }}>Shift : Rohit </Text>
+                            <Pressable onPress={() => { alert('Cooming Soon') }} style={{
+                                ...styles.button2,
+                                marginRight: horizScale(15),
+                                backgroundColor: Colors.white,
+                                width: '30%',
+                                borderWidth: horizScale(0.8)
+                            }}>
+                                <Text style={styles.buttonText2}>Save</Text>
+                            </Pressable>
+                        </View> : null}
+                        <TextInput
+                            style={styles.search}
+                            placeholder='Search Here ...'
+                            placeholderTextColor={Colors.black}
+                            onChangeText={(value) => {
+                                setSearch(value)
+                            }}
+                        />
+                    </View>
+                )}
+                ListFooterComponent={() => (
+                    <Spacer height={55} />
+                )}
                 data={UserInfo}
                 renderItem={renderItemUserInfo}
                 keyExtractor={item => item.id}
                 showsVerticalScrollIndicator={false}
 
             />
-        </View>
+        </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
+    headerView: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+    },
+    button2: {
+        backgroundColor: Colors.black,
+        borderRadius: normScale(60),
+        // height: vertScale(60),
+        width: '40%',
+        // width: fullWidth - horizScale(80),/
+        paddingHorizontal: horizScale(10),
+        paddingVertical: vertScale(7),
+        justifyContent: 'center',
+        alignItems: 'center',
+        alignSelf: 'center',
+        marginVertical: vertScale(10)
+    },
+    buttonText2: {
+        color: Colors.black,
+        fontSize: fontSize.regular,
+        letterSpacing: normScale(1),
+        fontFamily: fontFamily.boldItalic
+    },
     search: {
         height: 60,
         marginVertical: 15,
