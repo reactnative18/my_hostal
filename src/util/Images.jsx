@@ -11,6 +11,11 @@ const CustomImage = {
 
 
   //icons
+  telephone: require("../assets/Icons/telephone.png"),
+  description: require("../assets/Icons/description.png"),
+  salary: require("../assets/Icons/salary.png"),
+  fixexpenses: require("../assets/Icons/fixexpenses.png"),
+  all: require("../assets/Icons/all.png"),
   email: require("../assets/Icons/email.png"),
   padlock: require("../assets/Icons/padlock.png"),
   eye: require("../assets/Icons/eye.png"),
@@ -35,16 +40,37 @@ const CustomImage = {
   verify: require("../assets/Icons/verify.png"),
   cross: require("../assets/Icons/cross.png"),
   add: require("../assets/Icons/add.png"),
+  swipe: require("../assets/Icons/swipe.png"),
+  right: require("../assets/Icons/tick.png"),
+  expenses: require("../assets/Icons/expenses.png"),
+  hostel: require("../assets/Icons/hostel.png"),
+  food: require("../assets/Icons/food.png"),
+  maintenence: require("../assets/Icons/maintenence.png"),
+  gascylinder: require("../assets/Icons/gascylinder.png"),
+  fuel: require("../assets/Icons/fuel.png"),
+  arrow: require("../assets/Icons/arrow.png"),
+  onetime: require("../assets/Icons/onetime.png"),
+  complain: require('../assets/Icons/complain.png'),
+  camera: require('../assets/Icons/camera.png'),
+  feedback: require('../assets/Icons/feedback.png'),
+  help: require('../assets/Icons/help.png'),
+  logout: require('../assets/Icons/logout.png'),
+  deleteAcount: require('../assets/Icons/deleteAcount.png'),
 
 
 
   //images
-  splash: require("../assets/Images/splash.gif"),
+  feedback2: require('../assets/Images/feedback.png'),
+  help2: require('../assets/Images/help.png'),
+  cook: require("../assets/Images/cook.png"),
   splashI: require("../assets/Images/splash.png"),
   splash_1: require('../assets/Images/splash_1.jpg'),
   login: require('../assets/Images/login.png'),
   signup: require('../assets/Images/signup.jpg'),
-  backDrawer: require('../assets/Images/backDrawer.jpg'),
+  backDrawer: require('../assets/Images/drawer1.jpg'),
+  // backDrawer: require('../assets/Images/backDrawer.jpg'),
   dummyuser: require('../assets/Images/dummyuser.png'),
+  report: require('../assets/Images/report.jpg'),
+  annapurna: require('../assets/Images/annapurna3.png'),
 };
 export default CustomImage;

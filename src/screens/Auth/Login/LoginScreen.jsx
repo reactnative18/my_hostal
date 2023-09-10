@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Text, StyleSheet, ImageBackground, TouchableOpacity, StatusBar, Pressable, ScrollView, SafeAreaView, Image } from 'react-native';
+import { Text, StyleSheet, StatusBar, Pressable, ScrollView, SafeAreaView, Image } from 'react-native';
 import CustomImage from '../../../util/Images';
 import { Colors } from '../../../util/Colors';
 import FocusStatusBar from '../../../Components/FocusStatusBar/FocusStatusBar';
 import { Spacer, horizScale, normScale, vertScale } from '../../../util/Layout';
 import { fontFamily, fontSize } from '../../../util/Fonts';
 import InputFilled from '../../../Components/InputFilled/InputFilled';
+import { apiService } from '../../../API_Services';
 
 const LoginScreen = ({ navigation }) => {
     const [email, setEmail] = useState('');
@@ -13,7 +14,7 @@ const LoginScreen = ({ navigation }) => {
     const [error, setError] = useState('');
 
     const handleLogin = () => {
-        navigation.replace('HomeDrawer')
+
         if (email === '') {
             setError('Please enter your email');
             setTimeout(() => {
@@ -28,9 +29,12 @@ const LoginScreen = ({ navigation }) => {
             }, 2000);
             return;
         }
-        setEmail('');
-        setPassword('');
-        setError('');
+        const response = apiService.login({ email, password })
+        if (response) {
+            navigation.replace('HomeDrawer')
+            setEmail('')
+            setPassword('')
+        }
     };
 
     return (
@@ -70,7 +74,7 @@ const LoginScreen = ({ navigation }) => {
                     <Text style={styles.loginButtonText}>New to Annapurna ? <Text style={{ color: Colors.black, fontFamily: fontFamily.black }}>Register</Text></Text>
                 </Pressable>
             </ScrollView>
-        </SafeAreaView>
+        </SafeAreaView >
 
     );
 };

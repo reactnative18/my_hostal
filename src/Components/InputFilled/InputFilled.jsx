@@ -6,6 +6,7 @@ import { fontFamily, fontSize } from '../../util/Fonts';
 import CustomImage from '../../util/Images';
 import DatePicker from 'react-native-date-picker';
 import { Dropdown } from 'react-native-element-dropdown';
+import { launchImageLibrary } from 'react-native-image-picker';
 const InputFilled = (props) => {
     const [eye, setEye] = useState(true)
     const [date, setDate] = useState(new Date());
@@ -35,6 +36,27 @@ const InputFilled = (props) => {
 
         );
     };
+    const handleImagePicker = (type) => {
+        const options = {
+            mediaType: 'photo',
+            quality: 1,
+            maxWidth: 500,
+            maxHeight: 500,
+        };
+
+        launchImageLibrary(options, response => {
+            if (response.didCancel) {
+                console.log('User cancelled image picker');
+            } else if (response.error) {
+                console.log('Image picker error:', response.error);
+            } else if (response.customButton) {
+                console.log('User tapped custom button:', response.customButton);
+            } else {
+                const source = response.assets[0].uri
+                props.onChangeText(source)
+            }
+        });
+    };
     const renderField = () => {
         switch (props.type) {
             case "Email":
@@ -48,6 +70,8 @@ const InputFilled = (props) => {
                         style={{ ...styles.input, borderBottomColor: props.value ? Colors.blue : Colors.grey }}
                         value={props.value}
                         onChangeText={text => props.onChangeText(text)}
+                        editable={props?.editable}
+                        multiline={props?.multiline}
                     />
                 </View>
             case "Password":
@@ -131,6 +155,19 @@ const InputFilled = (props) => {
                         />
                     </View>
                 </View>
+            case "Image":
+                return <View style={{ ...styles.inputContainer, borderBottomWidth: 0 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                        {props.value ? <TouchableOpacity onPress={() => {
+                            props.navigation.navigate('ViewFullImage', { uri: props.value })
+                        }}>
+                            <Image source={{ uri: props.value }} style={styles.image} />
+                        </TouchableOpacity> : <Text style={styles.titleText}>{props.text}</Text>}
+                        <TouchableOpacity onPress={() => handleImagePicker()}>
+                            <Image source={CustomImage.camera} style={styles.eyeIcon} />
+                        </TouchableOpacity>
+                    </View>
+                </View>
             default:
                 return null;
         }
@@ -140,6 +177,8 @@ const InputFilled = (props) => {
         <View style={styles.view}>
             <View style={{ ...styles.subView, flex: 0.15 }}>
                 {props.icon == false ? <Text>{props.iconText}</Text> :
+                    props.type != 'Image' &&
+
                     <Image source={props.icon} style={{ ...styles.smallIcon, tintColor: props.value ? Colors.blue : Colors.grey }} />}
             </View>
             <View style={{ ...styles.subView, flex: 0.8 }}>
@@ -156,6 +195,11 @@ const InputFilled = (props) => {
 export default InputFilled
 
 const styles = StyleSheet.create({
+    image: {
+        height: horizScale(60),
+        width: horizScale(60),
+        resizeMode: 'cover'
+    },
 
     titleText: {
         color: Colors.black,

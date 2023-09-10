@@ -3,8 +3,6 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Provider } from 'react-redux';
 import store from './src/redux/store';
-import Main from './src/screens/Main';
-import UserInfo from './src/screens/UserInfo';
 import SplashScreen from './src/screens/Auth/Splash/SplashScreen';
 import LoginScreen from './src/screens/Auth/Login/LoginScreen';
 import SignupScreen from './src/screens/Auth/Signup/SignupScreen';
@@ -19,9 +17,7 @@ import SingleFloorScreen from './src/screens/Home/SingleFloor/SingleFloorScreen'
 import AuthMainScreen from './src/screens/Auth/AuthMain/AuthMainScreen';
 import TermsConditionScreen from './src/screens/Auth/TermsCondition/TermsConditionScreen';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { fontFamily, fontSize } from './src/util/Fonts';
-import { Image, StyleSheet, View } from 'react-native';
-import Home from './src/screens/Home/Home';
+import { Image } from 'react-native';
 import DrawerContentScreen from './src/screens/Navigation/DrawerContent/DrawerContentScreen';
 import { horizScale, vertScale } from './src/util/Layout';
 import HostelManagmentScreen from './src/screens/Home/DrawerScreens/HostelManagment/HostelManagmentMain/HostelManagmentScreen';
@@ -65,6 +61,11 @@ const App = () => {
           <Stack.Screen name="HostelBedManagment" component={HostelBedManagment} />
           <Stack.Screen name="TenantProfileScreen" component={TenantProfileScreen} />
           <Stack.Screen name="ViewFullImage" component={ViewFullImage} />
+          <Stack.Screen name="ShiftScreen" component={ShiftScreen} />
+          <Stack.Screen name="SwipeScreen" component={SwipeScreen} />
+          <Stack.Screen name="Expenses" component={Expenses} />
+          <Stack.Screen name="ExpensesEntry" component={ExpensesEntry} />
+          <Stack.Screen name="Notification" component={Notification} />
 
 
         </Stack.Navigator>
@@ -116,6 +117,9 @@ const HomeDrawer = () => {
         drawerType: 'slide',
 
       }} />
+      <Drawer.Screen name="ReportComplain" component={ReportComplain} />
+      <Drawer.Screen name="Feedback" component={Feedback} />
+      <Drawer.Screen name="Help" component={Help} />
     </Drawer.Navigator>
 
   )
@@ -124,6 +128,14 @@ import { createMaterialBottomTabNavigator } from '@react-navigation/material-bot
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import CustomImage from './src/util/Images';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import ShiftScreen from './src/screens/Home/AvailableRoom/ShiftScreen';
+import SwipeScreen from './src/screens/Home/FilledRoom/SwipeScreen';
+import Expenses from './src/screens/Home/DrawerScreens/HostelManagment/Expenses';
+import ExpensesEntry from './src/screens/Home/DrawerScreens/HostelManagment/Expenses/ExpensesEntry';
+import ReportComplain from './src/screens/Home/DrawerScreens/Report';
+import Feedback from './src/screens/Home/DrawerScreens/Feedback';
+import Help from './src/screens/Home/DrawerScreens/Help';
+import Notification from './src/screens/Home/Notification';
 // const Tab = createMaterialBottomTabNavigator();
 const Tab = createBottomTabNavigator();
 const BottomTabBar = () => {
@@ -134,20 +146,34 @@ const BottomTabBar = () => {
         tabBarActiveBackgroundColor: Colors.theme,
         tabBarInactiveBackgroundColor: Colors.theme,
         tabBarActiveTintColor: Colors.white,
-        tabBarInactiveTintColor: Colors.black,
+        tabBarInactiveTintColor: Colors.darkgrey,
         tabBarStyle: {
           height: horizScale(50),
           backgroundColor: 'rgba(52,52,52,0.000001)',
           position: 'absolute',
           borderWidth: 0,
           marginHorizontal: horizScale(16),
-          marginBottom: horizScale(5),
-          borderBottomLeftRadius: horizScale(30),
-          borderBottomRightRadius: horizScale(30),
-          borderTopLeftRadius: horizScale(10),
-          borderTopRightRadius: horizScale(10),
-          overflow: 'hidden'
+          marginBottom: vertScale(5),
+
+          borderBottomLeftRadius: horizScale(40),
+          borderBottomRightRadius: horizScale(40),
+          borderTopLeftRadius: horizScale(40),
+          borderTopRightRadius: horizScale(40),
+          overflow: 'hidden',
+          justifyContent: 'center',
+          alignItems: 'center'
         },
+        tabBarLabelStyle: {
+
+          paddingBottom: vertScale(10),
+        },
+        tabBarIconStyle: {
+          height: vertScale(20),
+          width: horizScale(20),
+          marginTop: horizScale(7)
+        },
+
+
         headerShown: false,
         tabBarHideOnKeyboard: true,
 
@@ -158,7 +184,7 @@ const BottomTabBar = () => {
       <Tab.Screen name="HomeScreen" component={HomeScreen} options={{
         tabBarLabel: 'Home',
         tabBarIcon: ({ focused }) => (
-          <MaterialCommunityIcons name="home" color={focused ? Colors.white : Colors.black} size={26} />
+          <MaterialCommunityIcons name="home" color={focused ? Colors.white : Colors.darkgrey} size={26} />
         ),
       }} />
       <Tab.Screen name="AvailableRoomScreen" component={AvailableRoomScreen} options={{
@@ -171,7 +197,7 @@ const BottomTabBar = () => {
               style={{
                 height: horizScale(20),
                 width: horizScale(20),
-                tintColor: focused ? Colors.white : Colors.black,
+                tintColor: focused ? Colors.white : Colors.darkgrey,
               }}
             />
           );
@@ -186,7 +212,7 @@ const BottomTabBar = () => {
               style={{
                 height: horizScale(20),
                 width: horizScale(20),
-                tintColor: focused ? Colors.white : Colors.black,
+                tintColor: focused ? Colors.white : Colors.darkgrey,
               }}
             />
           );

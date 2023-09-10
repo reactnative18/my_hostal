@@ -3,11 +3,14 @@ import React, { useState } from 'react';
 import {
     View, Text, FlatList, StyleSheet, Image,
     TouchableOpacity, ScrollView, Alert, ToastAndroid,
-    TextInput
+    TextInput,
+    SafeAreaView
 } from 'react-native';
 import { Colors } from '../../../util/Colors';
 import HeaderView from '../../../Components/HeaderView';
-import { Spacer } from '../../../util/Layout';
+import { Spacer, horizScale, normScale, vertScale } from '../../../util/Layout';
+import BouncyCheckbox from 'react-native-bouncy-checkbox';
+import { fontFamily, fontSize } from '../../../util/Fonts';
 
 const FilledRoomScreen = ({ navigation }) => {
 
@@ -18,22 +21,27 @@ const FilledRoomScreen = ({ navigation }) => {
             hostelName: 'Ap 1',
             floorNo: '02',
             roomNo: '203',
-            bedNo: '02'
-
+            bedNo: '02',
+            joiningDate: '02/05/2023',
+            name: 'Ajit modi'
         },
         {
             id: '2',
             hostelName: 'Ap 3',
             floorNo: '02',
             roomNo: '102',
-            bedNo: '03'
+            bedNo: '03',
+            joiningDate: '02/05/2023',
+            name: 'rahul patel'
         },
         {
             id: '3',
             hostelName: 'Ap 4',
             floorNo: '02',
             roomNo: '203',
-            bedNo: '02'
+            bedNo: '02',
+            joiningDate: '02/05/2023',
+            name: 'Anushka kohli'
         },
         {
             id: '4',
@@ -45,18 +53,33 @@ const FilledRoomScreen = ({ navigation }) => {
         // Add more cards as needed
     ];
 
+    const [isStaff, setIsStaff] = useState(false)
+
     const [Search, setSearch] = useState('')
     const renderItemUserInfo = ({ item }) => (
-        <TouchableOpacity style={styles.userInfoContainer} disabled>
+        <TouchableOpacity style={styles.userInfoContainer} onPress={() => {
+            navigation.navigate('TenantProfileScreen', { user: {} })
+        }}>
             <View style={styles.rowList}>
+                <View>
 
-                <Text style={styles.boldText}>Name: {item.hostelName}</Text>
-                <Text style={styles.regulerText}>Floor No: {item.floorNo}</Text>
+                    <Text style={styles.boldText}>Hostel Name: {item.hostelName}</Text>
+                    {!isStaff && <Text style={styles.regulerText}>Floor No: {item.floorNo}</Text>}
+                </View>
+                <View >
+                    <Text>{' '}</Text>
+                </View>
+                <Text style={styles.regulerText}>{item.name}</Text>
             </View>
             <View style={styles.rowList}>
-
-                <Text style={styles.regulerText}>Room No: {item.roomNo}</Text>
-                <Text style={styles.regulerText}>Bed No: {item.bedNo}</Text>
+                {!isStaff && <>
+                    <Text style={styles.regulerText}>Room No: {item.roomNo}</Text>
+                    <Text style={styles.regulerText}>Bed No: {item.bedNo}</Text>
+                </>}
+                {isStaff && <>
+                    <Text style={styles.regulerText}>Joining Date {'\n'} {item.joiningDate}</Text>
+                    <Text style={styles.regulerText}>Due Salary: {item.roomNo}</Text>
+                </>}
                 <TouchableOpacity
                     onPress={() => {
                         Alert.alert("Remove", "Are you sure to remove this user from your hostel ?", [{
@@ -68,22 +91,22 @@ const FilledRoomScreen = ({ navigation }) => {
                         }
                         ])
                     }}
-                    style={{ width: 100, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FF6F00', paddingVertical: 4, borderRadius: 5 }}>
-                    <Text style={{ color: 'white' }}>Remove User</Text>
+                    style={{ width: horizScale(90), alignItems: 'center', justifyContent: 'center', backgroundColor: '#FF6F00', paddingVertical: 4, borderRadius: 5 }}>
+                    <Text style={{ color: 'white' }}>Remove {isStaff ? "Staff" : "User"}</Text>
                 </TouchableOpacity>
             </View>
         </TouchableOpacity>
     );
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <HeaderView navigation={navigation} />
 
             <FlatList
                 data={UserInfo}
                 ListHeaderComponent={() => {
                     return (
-                        <View>
+                        <View style={{ flexDirection: 'row' }}>
                             <TextInput
                                 style={styles.search}
                                 placeholder='Search Here ...'
@@ -92,6 +115,25 @@ const FilledRoomScreen = ({ navigation }) => {
                                     setSearch(value)
                                 }}
                             />
+                            <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+
+                                <BouncyCheckbox
+                                    size={normScale(18)}
+                                    fillColor={Colors.green}
+                                    unfillColor={Colors.white}
+                                    disableText={true}
+                                    isChecked={isStaff}
+                                    iconStyle={{ marginLeft: horizScale(0) }}
+                                    innerIconStyle={{
+                                        borderWidth: normScale(2),
+                                        borderColor: isStaff ? Colors.green : Colors.red,
+                                        borderRadius: 20,
+                                        backgroundColor: isStaff ? Colors.green : Colors.red,
+                                    }}
+                                    onPress={(isChecked) => { setIsStaff(!isStaff) }}
+                                />
+                                <Text style={{ ...styles.staffText, textDecorationLine: isStaff ? 'none' : 'line-through' }}>Is Staff</Text>
+                            </View>
                         </View>
                     )
                 }}
@@ -102,15 +144,20 @@ const FilledRoomScreen = ({ navigation }) => {
                 ListFooterComponent={() => (<Spacer height={55} />)}
             />
 
-        </View>
+        </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
+    staffText: {
+        fontSize: fontSize.das,
+        color: Colors.black,
+        fontFamily: fontFamily.regular
+    },
     search: {
-        height: 60,
+        height: vertScale(50),
         marginVertical: 15,
-        width: '95%',
+        width: '80%',
         alignSelf: 'center',
         borderRadius: 30,
         elevation: 8,
@@ -118,7 +165,7 @@ const styles = StyleSheet.create({
         fontSize: 17,
         paddingHorizontal: 20,
         fontWeight: '700',
-        color: Colors.black
+        color: Colors.black, marginHorizontal: horizScale(15)
     },
     rowList: {
         flexDirection: 'row',
@@ -130,9 +177,9 @@ const styles = StyleSheet.create({
         fontSize: 14
     },
     boldText: {
-        color: 'black',
-        fontSize: 16,
-        fontWeight: '700'
+        color: Colors.black,
+        fontSize: fontSize.regular,
+        fontFamily: fontFamily.bold
     },
 
     userInfoContainer: {
@@ -150,6 +197,7 @@ const styles = StyleSheet.create({
 
     container: {
         flex: 1,
+        backgroundColor: Colors.white
     },
     listContainer: {
         paddingHorizontal: 20,

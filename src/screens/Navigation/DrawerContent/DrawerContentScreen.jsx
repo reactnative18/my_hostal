@@ -6,8 +6,8 @@ import {
     View,
     TouchableOpacity,
     StyleSheet,
-    StatusBar,
-    SafeAreaView
+    Alert,
+    ToastAndroid
 } from 'react-native';
 import { DrawerContentScrollView, DrawerItem, getDrawerStatusFromState } from '@react-navigation/drawer';
 import CustomImage from '../../../util/Images';
@@ -43,13 +43,14 @@ export default function DrawerContentScreen(props) {
 
                     <Image
                         style={{
-                            height: horizScale(70),
-                            width: horizScale(70),
+                            height: horizScale(60),
+                            width: horizScale(60),
                             borderRadius: horizScale(35),
                             resizeMode: 'cover',
-                            tintColor: Colors.white
+                            tintColor: Colors.white,
+                            backgroundColor: Colors.black
                         }}
-                        source={{ uri: state.profile }} />
+                        source={CustomImage.profileuser} />
                     <View style={{ marginLeft: horizScale(20) }}>
                         <Text style={{ color: Colors.white, }}>
                             Mr. Rohit Jaat
@@ -67,42 +68,60 @@ export default function DrawerContentScreen(props) {
                 />
                 <DrawerItem
                     labelStyle={styles.labelStyle}
-                    label="Report a Complaint"
-                    icon={() => <Image style={styles.image} source={CustomImage.noun_new_1408303} />}
-                    onPress={() => alert('Coming Soon')}
+                    label="Expenses"
+                    icon={() => <Image style={styles.image} source={CustomImage.expenses} />}
+                    onPress={() => props.navigation.navigate('Expenses')}
 
                 />
                 <DrawerItem
                     labelStyle={styles.labelStyle}
-                    label="Expenses"
-                    icon={() => <Image style={styles.image} source={CustomImage.report_icon} />}
-                    onPress={() => alert('Coming Soon')}
+                    label="Report a Complaint"
+                    icon={() => <Image style={styles.image} source={CustomImage.complain} />}
+                    onPress={() => { props.navigation.navigate('ReportComplain') }}
 
                 />
                 <DrawerItem
                     labelStyle={styles.labelStyle}
                     label="Feedback & Suggestions"
-                    icon={() => <Image style={styles.image} source={CustomImage.message27} />}
-                    onPress={() => alert('Coming Soon')}
+                    icon={() => <Image style={styles.image} source={CustomImage.feedback} />}
+                    onPress={() => { props.navigation.navigate('Feedback') }}
                 />
 
                 <DrawerItem
                     labelStyle={styles.labelStyle}
                     label="Help Center"
                     icon={() => <Image style={styles.image} source={CustomImage.help} />}
-                    onPress={() => alert('Coming Soon')}
+                    onPress={() => props.navigation.navigate('Help')}
                 />
                 <DrawerItem
                     labelStyle={styles.labelStyle}
                     label="Logout"
                     icon={() => <Image style={styles.image} source={CustomImage.logout} />}
-                    onPress={() => alert('Coming Soon')}
+                    onPress={() => {
+                        Alert.alert("Logout", "Are you sure to Logout from our HOSTEL ?", [{
+                            text: 'YES',
+                            onPress: () => { ToastAndroid.showWithGravity('Coming soon', ToastAndroid.SHORT, ToastAndroid.BOTTOM) }
+                        }, {
+                            text: 'No',
+                            onPress: () => { ToastAndroid.showWithGravity('Thank you :)', ToastAndroid.SHORT, ToastAndroid.BOTTOM) }
+                        }
+                        ])
+                    }}
                 />
                 <DrawerItem
                     labelStyle={styles.labelStyle}
                     label="Delete Account"
-                    icon={() => <Image style={styles.image} source={CustomImage.settings} />}
-                    onPress={() => alert('Coming Soon')}
+                    icon={() => <Image style={styles.image} source={CustomImage.deleteAcount} />}
+                    onPress={() => {
+                        Alert.alert("Delete Account", "Are you sure to delete your account from our HOSTEL ?", [{
+                            text: 'YES',
+                            onPress: () => { ToastAndroid.showWithGravity('Coming soon', ToastAndroid.SHORT, ToastAndroid.BOTTOM) }
+                        }, {
+                            text: 'No',
+                            onPress: () => { ToastAndroid.showWithGravity('Thank you :)', ToastAndroid.SHORT, ToastAndroid.BOTTOM) }
+                        }
+                        ])
+                    }}
 
                 />
             </DrawerContentScrollView>
@@ -113,8 +132,8 @@ export default function DrawerContentScreen(props) {
 }
 const styles = StyleSheet.create({
     image: {
-        width: horizScale(24),
-        height: vertScale(25),
+        width: horizScale(20),
+        height: vertScale(20),
         resizeMode: 'contain',
         tintColor: Colors.white
     },

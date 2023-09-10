@@ -7,6 +7,7 @@ import { Spacer, horizScale, vertScale } from '../../../util/Layout';
 import { fontFamily, fontSize } from '../../../util/Fonts';
 
 const HomeScreen = ({ navigation }) => {
+    // const color = ['#e6f7ff', "#e6ffff", "#e6ffe6", "#ffffe6", "#e6e6ff"]
     const hostels = [
         {
             id: '1',
@@ -59,7 +60,7 @@ const HomeScreen = ({ navigation }) => {
         // Add more hostels as needed
     ];
 
-    const renderItem = ({ item }) => (
+    const renderItem = ({ item, index }) => (
         <TouchableOpacity style={styles.hostelItem} onPress={() => {
             navigation.navigate('SingleHostelScreen')
         }}>
@@ -88,7 +89,11 @@ const HomeScreen = ({ navigation }) => {
             <TouchableOpacity style={styles.button} onPress={() => {
                 navigation.navigate('TenantProfileScreen')
             }}>
-                <Image source={CustomImage.add} style={{ tintColor: Colors.theme }} />
+                <Image source={CustomImage.add} style={{
+                    tintColor: Colors.theme,
+                    resizeMode: 'contain',
+                    height: horizScale(50), width: horizScale(50)
+                }} />
             </TouchableOpacity>
 
         </SafeAreaView>
@@ -110,14 +115,14 @@ const styles = StyleSheet.create({
         paddingHorizontal: horizScale(5),
     },
     hostelItem: {
-        marginVertical: vertScale(9),
+        marginVertical: vertScale(4),
         flexDirection: 'row',
         backgroundColor: Colors.white,
         borderRadius: horizScale(15),
         padding: 5,
         shadowColor: Colors.black,
 
-        elevation: 10,
+        elevation: 7,
     },
     hostelImage: {
         width: 130,

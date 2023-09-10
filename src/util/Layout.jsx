@@ -1,36 +1,20 @@
-// import React from 'react';
-// import { Dimensions } from 'react-native';
-// const REFERENCE_WIDTH = 414;
-// const REFERENCE_HEIGHT = 736;
-
-// const { height, width } = Dimensions.get('window');
-// const fullWidth = Dimensions.get('window').width;
-// const fullHeight = Dimensions.get('window').height;
-
-// const horizScale = (val) => width * (val / REFERENCE_WIDTH);
-// const normScale = (val) => width * (val / REFERENCE_WIDTH);
-
-// const vertScale = (val) => height * (val / REFERENCE_HEIGHT);
-
-// export {
-//     horizScale,
-//     vertScale,
-//     normScale,
-//     fullHeight,
-//     fullWidth
-
-// }
+import React from 'react';
 import { Dimensions, View } from 'react-native';
-import { moderateScale, scale, verticalScale } from 'react-native-size-matters';
 import PropTypes from 'prop-types';
+const REFERENCE_WIDTH = 414;
+const REFERENCE_HEIGHT = 736;
 
+const { height, width } = Dimensions.get('window');
 const fullWidth = Dimensions.get('window').width;
 const fullHeight = Dimensions.get('window').height;
 
-const horizScale = (val) => scale(val)
+const horizScale = (val) => width * (val / REFERENCE_WIDTH);
+const normScale = (val) => width * (val / REFERENCE_WIDTH);
 
-const vertScale = (val) => verticalScale(val)
-const normScale = (val) => moderateScale(val)
+const vertScale = (val) => height * (val / REFERENCE_HEIGHT);
+
+
+
 
 
 const Spacer = (props) => (
@@ -39,6 +23,8 @@ const Spacer = (props) => (
 Spacer.propTypes = {
     height: PropTypes.number,
 };
+
+
 
 const getLocalDate = (strDate) => {
     var date = new Date(strDate);

@@ -15,13 +15,18 @@ const HeaderView = (props) => {
 
                 <Image source={CustomImage.menu} style={styles.drawerIcon} />
             </Pressable>
-            <Text style={styles.appName}>Annapurna</Text>
+            {/* <Text style={styles.appName}>Annapurna</Text> */}
+            <Image source={CustomImage.annapurna} style={styles.annapurna} />
             <View style={styles.headerSecondView}>
                 <Pressable style={styles.drawerTouch2}>
 
                     <Image source={CustomImage.profileuser} style={styles.drawerIcon2} />
                 </Pressable>
-                <Pressable style={styles.drawerTouch3}>
+                <Pressable
+                    onPress={() => {
+                        props.navigation.navigate("Notification")
+                    }}
+                    style={styles.drawerTouch3}>
                     <Image source={CustomImage.notification} style={styles.drawerIcon3} />
                 </Pressable>
 
@@ -36,10 +41,11 @@ export default HeaderView
 const styles = StyleSheet.create({
 
     appName: {
-        color: Colors.white,
-        fontSize: fontSize.h5,
-        fontFamily: fontFamily.black,
-        right: horizScale(25)
+        color: "#ffd96d",// Colors.white,//"#ffd96d" #cbb268
+        fontSize: fontSize.h6,
+        fontFamily: fontFamily.bold,
+        right: horizScale(25),
+        letterSpacing: horizScale(1)
     },
     headerSecondView: {
         flexDirection: 'row',
@@ -47,8 +53,8 @@ const styles = StyleSheet.create({
         justifyContent: 'space-around'
     },
     drawerTouch: {
-        backgroundColor: Colors.white,
-        padding: horizScale(5),
+        // backgroundColor: Colors.white,
+        padding: horizScale(7),
         borderRadius: horizScale(20)
     },
     drawerTouch2: {
@@ -68,8 +74,14 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     drawerIcon: {
-        height: horizScale(20),
-        width: horizScale(20),
+        height: horizScale(19),
+        width: horizScale(19),
+        tintColor: Colors.white
+    },
+    annapurna: {
+        height: horizScale(25),
+        width: horizScale(120),
+        marginRight: horizScale(60)
     },
     drawerIcon2: {
         height: horizScale(30),

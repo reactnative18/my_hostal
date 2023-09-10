@@ -4,6 +4,7 @@ import CustomImage from '../../../util/Images';
 import { Colors } from '../../../util/Colors';
 import { fontFamily, fontSize } from '../../../util/Fonts';
 import { Spacer, horizScale, normScale, vertScale } from '../../../util/Layout';
+import FocusStatusBar from '../../../Components/FocusStatusBar/FocusStatusBar';
 
 const SingleRoomScreen = ({ navigation }) => {
 
@@ -91,7 +92,6 @@ const SingleRoomScreen = ({ navigation }) => {
     const renderItemUserInfo = ({ item }) => {
         return (
             <View style={styles.userInfoContainer} >
-                <Spacer height={10} />
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
 
                     <View style={{
@@ -118,14 +118,13 @@ const SingleRoomScreen = ({ navigation }) => {
                     <Text style={styles.normalText2}>Start {item.startDate}</Text>
                     <Text style={styles.normalText2}>End {item.endDate}</Text>
                 </View>
-                <Spacer height={10} />
             </View>
         )
     }
 
     return (
         <SafeAreaView style={styles.container}>
-
+            <FocusStatusBar backgroundColor={Colors.white} barStyle={'dark-content'} />
             <View style={{
                 height: vertScale(65), width: '100%',
             }}>
@@ -251,14 +250,14 @@ const styles = StyleSheet.create({
         height: vertScale(28)
     },
     userInfoContainer: {
-        marginVertical: vertScale(9),
-        // flexDirection: 'row',
+        marginVertical: vertScale(4),
         backgroundColor: Colors.white,
         borderRadius: horizScale(15),
         padding: 5,
         shadowColor: Colors.black,
-        elevation: 10,
-        marginHorizontal: horizScale(5)
+        elevation: 7,
+        marginHorizontal: horizScale(5),
+        paddingVertical: vertScale(9)
     },
     availableText: {
         color: 'white'
@@ -285,6 +284,7 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
+        backgroundColor: Colors.white
     },
 
     card: {

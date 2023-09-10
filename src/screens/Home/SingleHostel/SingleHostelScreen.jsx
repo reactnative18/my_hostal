@@ -1,8 +1,11 @@
 import React from 'react';
-import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, SafeAreaView } from 'react-native';
 import CustomImage from '../../../util/Images';
 import { Colors } from '../../../util/Colors';
 import { fontSize } from '../../../util/Fonts';
+import BackButton from '../../../Components/BackButton/BackButton';
+import { Spacer, horizScale } from '../../../util/Layout';
+import FocusStatusBar from '../../../Components/FocusStatusBar/FocusStatusBar';
 
 const SingleHostelScreen = ({ navigation }) => {
     const cards = [
@@ -52,44 +55,39 @@ const SingleHostelScreen = ({ navigation }) => {
             onPress={() => {
                 navigation.navigate('SingleFloorScreen')
             }}
-            style={{ ...styles.card, borderColor: item.active ? 'green' : 'black', borderWidth: item.active ? 3 : 0.8 }}>
+            style={{ ...styles.card, borderColor: Colors.black }}>
             <Image source={item.image} style={styles.cardImage} />
-            <Text style={styles.cardTitle}>{item.name}</Text>
-            <Text style={styles.cardInfo}>{item.totalBeds}</Text>
-            <Text style={styles.cardInfo}>{item.address}</Text>
+            <View style={{ marginLeft: horizScale(10) }}>
+
+                <Text style={styles.cardTitle}>{item.name}</Text>
+                <Text style={styles.cardInfo}>{item.totalBeds}</Text>
+                <Text style={styles.cardInfo}>{item.address}</Text>
+            </View>
         </TouchableOpacity>
     );
 
 
     return (
-        <View style={styles.container}>
-            <View style={{
-                height: 70, width: '100%', flex: 0.1
-            }}>
-                <TouchableOpacity
-                    onPress={() => { navigation.goBack('HomeScreen') }}
-                    style={{
-                        flexDirection: 'row',
-                        alignItems: 'center', margin: 20,
-                    }}>
-                    <Image source={CustomImage.back} style={{
-                        height: 20, width: 20, tintColor: Colors.black,
+        <SafeAreaView style={styles.container}>
+            <FocusStatusBar barStyle={'dark-content'} backgroundColor={Colors.white} />
 
-                    }} />
-                    <Text style={{ fontSize: fontSize.input, color: Colors.black, marginLeft: 10 }}>Hostel Floor</Text>
-                </TouchableOpacity>
-            </View>
-            <View style={{ flex: 0.9 }}>
-                <FlatList
-                    data={cards}
-                    renderItem={renderItem}
-                    keyExtractor={item => item.id}
-                    numColumns={2}
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.listContainer}
-                />
-            </View>
-        </View >
+            <FlatList
+                data={cards}
+                renderItem={renderItem}
+                keyExtractor={item => item.id}
+                ListHeaderComponent={() => {
+                    return (
+                        <View>
+                            <Spacer height={10} />
+                            <BackButton navigation={navigation} text={'Hostel Floor'} />
+                            <Spacer height={20} />
+
+                        </View>
+                    )
+                }}
+                showsHorizontalScrollIndicator={false}
+            />
+        </SafeAreaView>
     );
 };
 
@@ -109,6 +107,7 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
+        backgroundColor: Colors.white
     },
     listContainer: {
         paddingHorizontal: 20,
@@ -123,24 +122,23 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         elevation: 5,
         margin: 10,
-        width: '45%'
+        width: '95%',
+        flexDirection: 'row',
+        alignItems: 'center'
 
     },
     cardImage: {
         width: 80,
         height: 80,
         borderRadius: 5,
-        alignSelf: 'center'
     },
     cardTitle: {
         fontSize: 16,
         fontWeight: 'bold',
-        textAlign: 'center',
         color: Colors.black
     },
     cardInfo: {
         fontSize: 14,
-        textAlign: 'center',
         marginBottom: 5,
 
         color: Colors.black

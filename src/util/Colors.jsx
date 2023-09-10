@@ -1,6 +1,6 @@
 export const Colors = {
   white: "#FFF",
-  black: "#000",
+  black: "#07161b",
   blue: "#03A9F4",//"#2269f4",//#03A9F4 
   blue2: '#82eefd',
   blueLight: '#64beff',
@@ -11,8 +11,9 @@ export const Colors = {
   yellow: "#fbc10d",
   transparent: "#00000040",
   button: "#607D8B",
-  theme: "#359095",//"#3c6ca8",//"#3CA2A8",//"#66226b",//'#2B3467',
-  themeLight: "#efe5ef",//'#2B3467',
+  theme: "#014455",//"#3d737f",//"#3c6ca8",//"#3CA2A8",//"#66226b",//'#2B3467',
+  theme2: "#aed3dd",
+  themeLight: "#cec7bf",//'#2B3467',
   themeLight2: "#f5dbf5",
   red: '#EB455F',
   lightsky: '#BAD7E9',

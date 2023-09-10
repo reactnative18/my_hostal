@@ -6,9 +6,8 @@ import { fontFamily, fontSize } from '../../../util/Fonts';
 import HeaderView from '../../../Components/HeaderView';
 import { Spacer, horizScale, normScale, vertScale } from '../../../util/Layout';
 
-const AvailableRoomScreen = ({ navigation, route }) => {
+const AvailableRoomScreen = ({ navigation }) => {
 
-    const userID = route?.params?.userID;
     const UserInfo = [
         {
             id: '1',
@@ -41,7 +40,6 @@ const AvailableRoomScreen = ({ navigation, route }) => {
         },
         // Add more cards as needed
     ];
-
     const [search, setSearch] = useState('')
     const renderItemUserInfo = ({ item }) => (
         <TouchableOpacity style={styles.userInfoContainer} disabled>
@@ -56,9 +54,10 @@ const AvailableRoomScreen = ({ navigation, route }) => {
                 <Text style={styles.regulerText}>Bed No: {item.bedNo}</Text>
                 <TouchableOpacity
                     onPress={() => {
-                        navigation.navigate('AllocateBedScreen', { item })
+                        navigation.navigate('TenantProfileScreen', { item })
+
                     }}
-                    style={{ width: 100, alignItems: 'center', justifyContent: 'center', backgroundColor: 'green', paddingVertical: 4, borderRadius: 5 }}>
+                    style={{ width: 100, alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.green, paddingVertical: 4, borderRadius: 5 }}>
                     <Text style={{ color: 'white' }}>Allocate</Text>
                 </TouchableOpacity>
             </View>
@@ -72,28 +71,15 @@ const AvailableRoomScreen = ({ navigation, route }) => {
 
             <FlatList
                 ListHeaderComponent={() => (
-                    <View>
-                        {userID != null ? <View style={styles.headerView}>
-                            <Text style={{ ...styles.buttonText2, marginLeft: horizScale(15) }}>Shift : Rohit </Text>
-                            <Pressable onPress={() => { alert('Cooming Soon') }} style={{
-                                ...styles.button2,
-                                marginRight: horizScale(15),
-                                backgroundColor: Colors.white,
-                                width: '30%',
-                                borderWidth: horizScale(0.8)
-                            }}>
-                                <Text style={styles.buttonText2}>Save</Text>
-                            </Pressable>
-                        </View> : null}
-                        <TextInput
-                            style={styles.search}
-                            placeholder='Search Here ...'
-                            placeholderTextColor={Colors.black}
-                            onChangeText={(value) => {
-                                setSearch(value)
-                            }}
-                        />
-                    </View>
+
+                    <TextInput
+                        style={styles.search}
+                        placeholder='Search Here ...'
+                        placeholderTextColor={Colors.black}
+                        onChangeText={(value) => {
+                            setSearch(value)
+                        }}
+                    />
                 )}
                 ListFooterComponent={() => (
                     <Spacer height={55} />
@@ -176,7 +162,9 @@ const styles = StyleSheet.create({
 
     container: {
         flex: 1,
-        marginBottom: 10
+        marginBottom: 10,
+
+        backgroundColor: Colors.white
     },
     listContainer: {
         paddingHorizontal: 20,

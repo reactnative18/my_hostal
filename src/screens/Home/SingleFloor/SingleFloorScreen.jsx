@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, Pressable } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, Pressable, SafeAreaView } from 'react-native';
 import CustomImage from '../../../util/Images';
 import { Colors } from '../../../util/Colors';
 import { fontFamily, fontSize } from '../../../util/Fonts';
 import { horizScale, vertScale } from '../../../util/Layout';
+import FocusStatusBar from '../../../Components/FocusStatusBar/FocusStatusBar';
 
 const SingleFloorScreen = ({ navigation }) => {
 
@@ -75,7 +76,8 @@ const SingleFloorScreen = ({ navigation }) => {
     };
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
+            <FocusStatusBar backgroundColor={Colors.white} barStyle={'dark-content'} />
             <View style={{
                 height: 70, width: '100%', flex: 0.1
             }}>
@@ -101,7 +103,7 @@ const SingleFloorScreen = ({ navigation }) => {
                     contentContainerStyle={styles.listContainer}
                 />
             </View>
-        </View >
+        </SafeAreaView>
     );
 };
 
@@ -126,6 +128,7 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
+        backgroundColor: Colors.white
     },
     listContainer: {
         paddingHorizontal: horizScale(5),

@@ -9,8 +9,13 @@ import { fontFamily, fontSize } from '../../../../../util/Fonts'
 import CustomImage from '../../../../../util/Images'
 import InputFilled from '../../../../../Components/InputFilled/InputFilled'
 import { launchImageLibrary } from 'react-native-image-picker';
+import BouncyCheckbox from 'react-native-bouncy-checkbox'
 
-const TenantProfileScreen = ({ navigation }) => {
+const TenantProfileScreen = ({ navigation, route }) => {
+
+    const [isStaff, setIsStaff] = useState(false)
+    const staff = route?.params?.isStaff;
+
     const [name, setName] = useState('Rohit jaat');
     const [mobile, setMobile] = useState('8959402332');
     const [pmobile, setPMobile] = useState('8959402332');
@@ -24,6 +29,7 @@ const TenantProfileScreen = ({ navigation }) => {
     const [seat, setseat] = useState('')
     const [frunt, setFrunt] = useState('');
     const [back, setBack] = useState('');
+    const [userPhoto, setUserPhoto] = useState('')
     const hostelList = [{ label: 'AP1', value: 'AP 1' },
     { label: 'AP 2', value: 'AP 2' }]
     const FloorList = [{ label: 'Ground', value: '1' },
@@ -53,8 +59,10 @@ const TenantProfileScreen = ({ navigation }) => {
                 if (type == 1) {
 
                     setFrunt(source);
-                } else {
+                } else if (type == 2) {
                     setBack(source);
+                } else {
+                    setUserPhoto(source)
                 }
             }
         });
@@ -64,68 +72,101 @@ const TenantProfileScreen = ({ navigation }) => {
             <Spacer height={8} />
             <FocusStatusBar translucent={false} backgroundColor={Colors.white} barStyle={'dark-content'} />
             <View style={styles.headerView}>
-                <BackButton navigation={navigation} text={"Tenant Profile"} />
+                <BackButton navigation={navigation} text={staff ? "Staff Profile" : "Tenant Profile"} />
                 <Pressable onPress={() => { alert('Cooming Soon') }} style={{
-                    ...styles.button2,
+                    ...styles.button,
                     marginRight: horizScale(15),
-                    backgroundColor: Colors.white,
                     width: '30%',
                     borderWidth: horizScale(0.8)
                 }}>
                     <Text style={styles.buttonText2}>Save</Text>
+                    <Image
+                        source={CustomImage.right} style={{ tintColor: Colors.white, height: horizScale(10), width: horizScale(10) }}
+                    />
                 </Pressable>
             </View>
             <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
                 {/* <Spacer height={10} /> */}
                 <Image
-                    source={CustomImage.dummyuser}
-                    style={styles.profilePicture}
+                    source={staff ? CustomImage.cook : CustomImage.dummyuser}
+                    style={{ ...styles.profilePicture, resizeMode: 'contain' }}
                 />
+                <Spacer height={20} />
+
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly' }}>
-                    <Pressable onPress={() => { navigation.navigate('AvailableRoomScreen', { userID: 1 }) }} style={styles.button2}>
+                    <Pressable
+                        disabled={staff}
+                        onPress={() => { navigation.navigate('ShiftScreen', { userID: 1 }) }} style={styles.button2}>
                         <Text style={styles.buttonText}>Shift</Text>
                     </Pressable>
-                    <Pressable onPress={() => { alert('Cooming Soon') }} style={styles.button2}>
+                    <Pressable
+                        disabled={staff}
+                        onPress={() => { navigation.navigate('SwipeScreen', { userID: 1 }) }} style={styles.button2}>
                         <Text style={styles.buttonText}>Swipe</Text>
                     </Pressable>
+                    <BouncyCheckbox
+                        size={normScale(18)}
+                        fillColor={Colors.green}
+                        unfillColor={Colors.white}
+                        disableText={false}
+                        text='Is Staff'
+                        disabled={staff}
+                        isChecked={staff || isStaff}
+                        textStyle={{ textDecorationLine: 'underline' }}
+                        iconStyle={{ marginLeft: horizScale(0) }}
+                        innerIconStyle={{
+                            borderWidth: normScale(2),
+                            borderColor: staff || isStaff ? Colors.green : Colors.red,
+                            borderRadius: 20,
+                            backgroundColor: staff || isStaff ? Colors.green : Colors.red,
+                        }}
+                        onPress={(isChecked) => { setIsStaff(isChecked) }}
+                    />
+
                 </View>
                 <Spacer height={20} />
+
                 <InputFilled
                     type="Dropdown"
                     placeholder="Select a hostel..."
                     data={hostelList}
                     value={hostel}
                     onChangeText={text => setHostel(text)}
-                    icon={CustomImage.calendar1}
+                    icon={CustomImage.hostel}
                 />
                 <Spacer height={20} />
-                <InputFilled
-                    type="Dropdown"
-                    placeholder="Select a Floor..."
-                    data={FloorList}
-                    value={floor}
-                    onChangeText={text => setfloor(text)}
-                    icon={CustomImage.calendar1}
-                />
-                <Spacer height={20} />
-                <InputFilled
-                    type="Dropdown"
-                    placeholder="Select a Room..."
-                    data={RoomlList}
-                    value={room}
-                    onChangeText={text => setroom(text)}
-                    icon={CustomImage.calendar1}
-                />
-                <Spacer height={20} />
-                <InputFilled
-                    type="Dropdown"
-                    placeholder="Select a Seat..."
-                    data={BedList}
-                    value={seat}
-                    onChangeText={text => setseat(text)}
-                    icon={CustomImage.calendar1}
-                />
-                <Spacer height={20} />
+                {
+                    staff || !isStaff &&
+                    <>
+                        <InputFilled
+                            type="Dropdown"
+                            placeholder="Select a Floor..."
+                            data={FloorList}
+                            value={floor}
+                            onChangeText={text => setfloor(text)}
+                            icon={CustomImage.calendar1}
+                        />
+                        <Spacer height={20} />
+                        <InputFilled
+                            type="Dropdown"
+                            placeholder="Select a Room..."
+                            data={RoomlList}
+                            value={room}
+                            onChangeText={text => setroom(text)}
+                            icon={CustomImage.calendar1}
+                        />
+                        <Spacer height={20} />
+                        <InputFilled
+                            type="Dropdown"
+                            placeholder="Select a Seat..."
+                            data={BedList}
+                            value={seat}
+                            onChangeText={text => setseat(text)}
+                            icon={CustomImage.calendar1}
+                        />
+                        <Spacer height={20} />
+                    </>
+                }
                 <InputFilled
                     type="Email"
                     placeholder="Name here"
@@ -152,7 +193,7 @@ const TenantProfileScreen = ({ navigation }) => {
                 <Spacer height={20} />
                 <InputFilled
                     type="Mobile"
-                    placeholder="Monthly Rent"
+                    placeholder={isStaff ? "Monthly Salary" : "Monthly Rent"}
                     value={monthlyRent}
                     onChangeText={text => setmonthlyRent(text)}
                     icon={CustomImage.SecurityDeposit}
@@ -169,7 +210,7 @@ const TenantProfileScreen = ({ navigation }) => {
                 <Spacer height={20} />
                 <InputFilled
                     type="Mobile"
-                    placeholder="Due Rent"
+                    placeholder={isStaff ? "Due Salary" : "Due Rent"}
                     value={rent}
                     onChangeText={text => setRent(text)}
                     icon={CustomImage.rent}
@@ -184,6 +225,13 @@ const TenantProfileScreen = ({ navigation }) => {
                 />
                 <Spacer height={20} />
                 <View style={styles.imageContainer}>
+                    <Pressable style={styles.image} onPress={() => {
+                        handleImagePicker(3)
+                    }}>
+                        <Image source={CustomImage.plus} style={styles.plusImage} />
+
+                        <Text style={styles.imgName}>Profile</Text>
+                    </Pressable>
                     <Pressable style={styles.image} onPress={() => {
                         handleImagePicker(1)
                     }}>
@@ -201,7 +249,15 @@ const TenantProfileScreen = ({ navigation }) => {
                 </View>
                 <Spacer height={30} />
                 <View style={styles.imageContainer2}>
-                    <View style={{ flex: 0.5, alignItems: 'center', justifyContent: 'center' }}>
+                    <View style={{ flex: 0.3, alignItems: 'center', justifyContent: 'center' }}>
+                        {userPhoto !== '' &&
+                            <Pressable onPress={() => {
+                                navigation.navigate('ViewFullImage', { uri: userPhoto })
+                            }}>
+                                <Image source={{ uri: userPhoto }} style={styles.docImage} />
+                            </Pressable>}
+                    </View>
+                    <View style={{ flex: 0.3, alignItems: 'center', justifyContent: 'center' }}>
                         {frunt !== '' &&
                             <Pressable onPress={() => {
                                 navigation.navigate('ViewFullImage', { uri: frunt })
@@ -209,7 +265,7 @@ const TenantProfileScreen = ({ navigation }) => {
                                 <Image source={{ uri: frunt }} style={styles.docImage} />
                             </Pressable>}
                     </View>
-                    <View style={{ flex: 0.5, alignItems: 'center', justifyContent: 'center' }}>
+                    <View style={{ flex: 0.3, alignItems: 'center', justifyContent: 'center' }}>
                         {back !== '' && <Pressable onPress={() => {
                             navigation.navigate('ViewFullImage', { uri: back })
                         }}>
@@ -218,7 +274,7 @@ const TenantProfileScreen = ({ navigation }) => {
                     </View>
 
                 </View>
-
+                <Spacer height={30} />
             </ScrollView>
         </SafeAreaView>
     )
@@ -228,23 +284,21 @@ export default TenantProfileScreen
 
 const styles = StyleSheet.create({
     button2: {
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.white,
         borderRadius: normScale(60),
-        // height: vertScale(60),
-        width: '40%',
-        // width: fullWidth - horizScale(80),/
+        borderWidth: horizScale(0.8),
         paddingHorizontal: horizScale(10),
-        paddingVertical: vertScale(7),
+        paddingVertical: vertScale(3),
         justifyContent: 'center',
         alignItems: 'center',
         alignSelf: 'center',
         marginVertical: vertScale(10)
     },
     buttonText2: {
-        color: Colors.black,
-        fontSize: fontSize.regular,
+        color: Colors.white,
+        fontSize: fontSize.medium,
         letterSpacing: normScale(1),
-        fontFamily: fontFamily.boldItalic
+        fontFamily: fontFamily.regular
     },
     button: {
         backgroundColor: Colors.black,
@@ -253,17 +307,18 @@ const styles = StyleSheet.create({
         width: '80%',
         // width: fullWidth - horizScale(80),/
         paddingHorizontal: horizScale(10),
-        paddingVertical: vertScale(15),
-        justifyContent: 'center',
+        paddingVertical: vertScale(5),
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
         alignItems: 'center',
         alignSelf: 'center',
         marginVertical: vertScale(10)
     },
     buttonText: {
-        color: Colors.white,
-        fontSize: fontSize.regular,
+        color: Colors.black,
+        fontSize: fontSize.small,
         letterSpacing: normScale(1),
-        fontFamily: fontFamily.boldItalic
+        fontFamily: fontFamily.black
     },
 
     imgName: {
@@ -286,7 +341,7 @@ const styles = StyleSheet.create({
         resizeMode: 'contain',
     },
     docImage: {
-        width: horizScale(150),
+        width: horizScale(100),
         height: horizScale(100),
         resizeMode: 'contain',
     },
