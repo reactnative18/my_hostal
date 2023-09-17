@@ -1,65 +1,40 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, Pressable, SafeAreaView } from 'react-native';
 import CustomImage from '../../../util/Images';
 import { Colors } from '../../../util/Colors';
 import { fontFamily, fontSize } from '../../../util/Fonts';
 import { horizScale, vertScale } from '../../../util/Layout';
 import FocusStatusBar from '../../../Components/FocusStatusBar/FocusStatusBar';
+import { useDispatch, useSelector } from 'react-redux';
+import { loaderAction } from '../../../redux/Actions/UserAction';
+import { apiService } from '../../../API_Services';
 
-const SingleFloorScreen = ({ navigation }) => {
-
-    const room = [
-        {
-            id: '1',
-            name: 'No 1',
-            image: CustomImage.logo,
-            address: 'Avai. Bad 1',
-            price: '50',
-            number: '1234567890',
-            roominfo: [{ username: 'Asutosh shing tomer', seetNo: 1, rent: 1 }, { username: 'raja', seetNo: 2, rent: 0 }, { seetNo: 3 }]
-        },
-        {
-            id: '2',
-            name: 'No 2',
-            image: CustomImage.logo,
-            address: 'Avai. Bad 2',
-            price: '80',
-            number: '9876543210',
-            roominfo: [{ username: 'Asutosh shing tomer', seetNo: 1, rent: 1 }, { username: 'raja', seetNo: 2, rent: 0 }]
-        },
-        {
-            id: '3',
-            name: 'No 3',
-            image: CustomImage.logo,
-            address: 'Avai. Bad 1',
-            price: '60',
-            number: '1234598760',
-            roominfo: [{ username: 'Asutosh shing tomer', seetNo: 1, rent: 1 }, { seetNo: 3 }]
-        },
-        {
-            id: '4',
-            name: 'No 4',
-            image: CustomImage.logo,
-            address: 'Avai. Bad 0',
-            price: '60',
-            number: '1234598760',
-            roominfo: [{ username: 'Asutosh shing tomer', seetNo: 1, rent: 'Clear' }, { username: 'raja', seetNo: 2, rent: 'Due' }, { seetNo: 3 }]
-        },
-        // Add more cards as needed
-    ];
-
+const SingleFloorScreen = ({ navigation, route }) => {
+    const [rooms, setRooms] = useState([])
+    const dispatch = useDispatch()
+    const { floor } = route.params
+    const getData = async () => {
+        dispatch(loaderAction(true))
+        const response = await apiService.getRooms({ hostelId: floor.hostelId, floorId: floor._id })
+        if (response) {
+            dispatch(loaderAction(false))
+            setRooms(response.data)
+        }
+    }
+    useEffect(() => {
+        getData()
+    }, [])
 
     const renderItemRoom = ({ item }) => {
         let length = item?.roominfo?.length ? item?.roominfo?.length : 1
         return (
             <Pressable style={styles.roomContainer} onPress={() => {
-                navigation.navigate('SingleRoomScreen')
+                navigation.navigate('SingleRoomScreen', { room: item })
             }}>
-
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Text style={styles.cardTitle}>{item.name}</Text>
+                    <Text style={styles.cardTitle}>{item.roomName}</Text>
                 </View>
-                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly' }}>
+                {item?.roominfo && <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly' }}>
                     {item?.roominfo?.map((item, index) => (
                         <View style={{
                             ...styles.subSeater,
@@ -70,7 +45,7 @@ const SingleFloorScreen = ({ navigation }) => {
                         </View>
                     ))}
 
-                </View>
+                </View>}
             </Pressable>
         )
     };
@@ -96,7 +71,7 @@ const SingleFloorScreen = ({ navigation }) => {
             </View>
             <View style={{ flex: 0.9 }}>
                 <FlatList
-                    data={room}
+                    data={rooms}
                     renderItem={renderItemRoom}
                     keyExtractor={item => item.id}
                     showsHorizontalScrollIndicator={false}

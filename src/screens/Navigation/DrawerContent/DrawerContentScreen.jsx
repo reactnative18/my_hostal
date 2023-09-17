@@ -14,6 +14,7 @@ import CustomImage from '../../../util/Images';
 import { horizScale, vertScale } from '../../../util/Layout';
 import { fontSize } from '../../../util/Fonts';
 import { Colors } from '../../../util/Colors';
+import ShowAlert from '../../../util/Alert';
 export default function DrawerContentScreen(props) {
     const [state, setState] = useState({
         profile: Image.resolveAssetSource(CustomImage.profileuser).uri,
@@ -112,17 +113,18 @@ export default function DrawerContentScreen(props) {
                     labelStyle={styles.labelStyle}
                     label="Delete Account"
                     icon={() => <Image style={styles.image} source={CustomImage.deleteAcount} />}
-                    onPress={() => {
-                        Alert.alert("Delete Account", "Are you sure to delete your account from our HOSTEL ?", [{
-                            text: 'YES',
-                            onPress: () => { ToastAndroid.showWithGravity('Coming soon', ToastAndroid.SHORT, ToastAndroid.BOTTOM) }
-                        }, {
-                            text: 'No',
-                            onPress: () => { ToastAndroid.showWithGravity('Thank you :)', ToastAndroid.SHORT, ToastAndroid.BOTTOM) }
-                        }
-                        ])
-                    }}
+                    onPress={async () => {
+                        const response = await ShowAlert({
+                            title: "Delete Account",
+                            message: "Are you sure to delete your account from our HOSTEL ?"
+                        })
+                        if (response) {
+                            ToastAndroid.showWithGravity('Coming soon', ToastAndroid.SHORT, ToastAndroid.BOTTOM)
+                        } else {
 
+                            ToastAndroid.showWithGravity('Thank you :)', ToastAndroid.SHORT, ToastAndroid.BOTTOM)
+                        }
+                    }}
                 />
             </DrawerContentScrollView>
 

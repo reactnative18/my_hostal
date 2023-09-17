@@ -10,8 +10,11 @@ import { fontFamily, fontSize } from '../../../util/Fonts';
 import { Spacer, horizScale, normScale, vertScale } from '../../../util/Layout';
 import FocusStatusBar from '../../../Components/FocusStatusBar/FocusStatusBar';
 import InputFilled from '../../../Components/InputFilled/InputFilled';
+import { apiService } from '../../../API_Services';
+import { useDispatch } from 'react-redux';
 
 const SignupScreen = ({ navigation }) => {
+    const dispatch = useDispatch()
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -19,7 +22,7 @@ const SignupScreen = ({ navigation }) => {
     const [phoneNumber, setPhoneNumber] = useState('');
     const [error, setError] = useState('');
 
-    const handleSignup = () => {
+    const handleSignup = async () => {
         if (name === '') {
             setError('Please enter your name');
             setTimeout(() => {
@@ -55,12 +58,18 @@ const SignupScreen = ({ navigation }) => {
             }, 2000);
             return;
         }
-        setName('');
-        setEmail('');
-        setPassword('');
-        setConfirmPassword('');
-        setPhoneNumber('');
-        setError('');
+        const response = apiService.signup({ email, password })
+        if (response) {
+            await dispatch(userInfoAction(response?.data))
+            navigation.replace('HomeDrawer')
+            setName('');
+            setEmail('');
+            setPassword('');
+            setConfirmPassword('');
+            setPhoneNumber('');
+            setError('');
+        }
+
     };
 
     return (

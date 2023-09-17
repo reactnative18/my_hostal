@@ -1,7 +1,7 @@
 import React from 'react'
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { Provider } from 'react-redux';
+import { Provider, useSelector } from 'react-redux';
 import store from './src/redux/store';
 import SplashScreen from './src/screens/Auth/Splash/SplashScreen';
 import LoginScreen from './src/screens/Auth/Login/LoginScreen';
@@ -34,8 +34,20 @@ const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
 
 const App = () => {
+
   return (
     <Provider store={store}>
+      <NavigationMain />
+    </Provider>
+  )
+}
+
+export default App
+const NavigationMain = () => {
+  const { loading } = useSelector(state => state.loader)
+  return (
+    <>
+      <Loader loading={loading} />
       <NavigationContainer>
         <Stack.Navigator
           initialRouteName='SplashScreen'
@@ -59,6 +71,7 @@ const App = () => {
           <Stack.Screen name="HostelRoomManagment" component={HostelRoomManagment} />
           <Stack.Screen name="AddRoom" component={AddRoom} />
           <Stack.Screen name="HostelBedManagment" component={HostelBedManagment} />
+          <Stack.Screen name="AddBed" component={AddBed} />
           <Stack.Screen name="TenantProfileScreen" component={TenantProfileScreen} />
           <Stack.Screen name="ViewFullImage" component={ViewFullImage} />
           <Stack.Screen name="ShiftScreen" component={ShiftScreen} />
@@ -70,11 +83,10 @@ const App = () => {
 
         </Stack.Navigator>
       </NavigationContainer>
-    </Provider>
+    </>
+
   )
 }
-
-export default App
 
 const AuthStack = () => {
   return (
@@ -87,6 +99,7 @@ const AuthStack = () => {
       <Stack.Screen name="TermsConditionScreen" component={TermsConditionScreen} />
       <Stack.Screen name="LoginScreen" component={LoginScreen} />
       <Stack.Screen name="SignupScreen" component={SignupScreen} />
+
     </Stack.Navigator>
   )
 }
@@ -136,6 +149,8 @@ import ReportComplain from './src/screens/Home/DrawerScreens/Report';
 import Feedback from './src/screens/Home/DrawerScreens/Feedback';
 import Help from './src/screens/Home/DrawerScreens/Help';
 import Notification from './src/screens/Home/Notification';
+import Loader from './src/util/Loader';
+import AddBed from './src/screens/Home/DrawerScreens/HostelManagment/HostelBedManagment/AddBed';
 // const Tab = createMaterialBottomTabNavigator();
 const Tab = createBottomTabNavigator();
 const BottomTabBar = () => {

@@ -1,76 +1,39 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
 import CustomImage from '../../../util/Images';
 import HeaderView from '../../../Components/HeaderView';
 import { Colors } from '../../../util/Colors';
 import { Spacer, horizScale, vertScale } from '../../../util/Layout';
 import { fontFamily, fontSize } from '../../../util/Fonts';
+import { useDispatch, useSelector } from 'react-redux';
+import { apiService } from '../../../API_Services';
+import { loaderAction } from '../../../redux/Actions/UserAction';
 
 const HomeScreen = ({ navigation }) => {
-    // const color = ['#e6f7ff', "#e6ffff", "#e6ffe6", "#ffffe6", "#e6e6ff"]
-    const hostels = [
-        {
-            id: '1',
-            name: 'Ap 1',
-            location: 'City A',
-            image: CustomImage.logo,
-            availableRoom: 3,
-            category: 'Boys'
-        },
-        {
-            id: '2',
-            name: 'AP 2 ',
-            location: 'City B',
-            image: CustomImage.logo,
-            availableRoom: 12,
-            category: 'Girls'
-        },
-        {
-            id: '3',
-            name: 'Hostel C',
-            location: 'City C',
-            image: CustomImage.logo,
-            availableRoom: 7,
-            category: 'Boys'
-        },
-        {
-            id: '4',
-            name: 'AP 30',
-            location: 'Bholaram indore',
-            image: CustomImage.logo,
-            availableRoom: 5,
-            category: 'Boys'
-        },
-        {
-            id: '5',
-            name: 'Hostel C',
-            location: 'City C',
-            image: CustomImage.logo,
-            availableRoom: 7,
-            category: 'Boys'
-        },
-        {
-            id: '6',
-            name: 'AP 3',
-            location: 'Bholaram indore',
-            image: CustomImage.logo,
-            availableRoom: 5,
-            category: 'Boys'
-        },
-        // Add more hostels as needed
-    ];
-
+    const dispatch = useDispatch()
+    const { userInfo } = useSelector(state => state.userInfo)
+    const [hostels, setHostels] = useState([])
+    const getData = async () => {
+        dispatch(loaderAction(true))
+        const response = await apiService.getHostels({ userId: userInfo._id })
+        if (response) {
+            dispatch(loaderAction(false))
+            setHostels(response.data)
+        }
+    }
+    useEffect(() => {
+        getData()
+    }, [])
     const renderItem = ({ item, index }) => (
         <TouchableOpacity style={styles.hostelItem} onPress={() => {
-            navigation.navigate('SingleHostelScreen')
+            navigation.navigate('SingleHostelScreen', { hostel: item })
         }}>
-            <Image source={item.image} style={styles.hostelImage} />
+            <Image source={item?.image || CustomImage.logo} style={styles.hostelImage} />
             <View style={{ paddingHorizontal: 10 }}>
 
-                <Text style={styles.hostelName}>Name: {item.name}</Text>
-                <Text style={styles.hostelLocation}>Address: {item.location}</Text>
-                <Text style={styles.hostelLocation}>Total available room: {item.availableRoom}</Text>
-                <Text style={styles.hostelLocation}>Category: {item.category}</Text>
+                <Text style={styles.hostelName}>{item.hostelName}</Text>
+                <Text style={styles.hostelLocation}>{item.hostelAddress}</Text>
+                {item?.availableRoom && <Text style={styles.hostelLocation}>Total available room: {item?.availableRoom}</Text>}
             </View>
         </TouchableOpacity>
     );
@@ -121,13 +84,13 @@ const styles = StyleSheet.create({
         borderRadius: horizScale(15),
         padding: 5,
         shadowColor: Colors.black,
-
+        alignItems: 'center',
         elevation: 7,
     },
     hostelImage: {
-        width: 130,
-        height: 130,
-        borderRadius: 5,
+        width: horizScale(70),
+        height: horizScale(70),
+        borderRadius: horizScale(70),
     },
     hostelName: {
         fontSize: fontSize.regular,

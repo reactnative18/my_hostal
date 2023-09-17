@@ -14,6 +14,9 @@ export default class ApiService {
     static get POST() {
         return 'POST';
     }
+    static get DELETE() {
+        return 'DELETE';
+    }
     static get TOKEN() {
         return true;
     }
@@ -26,6 +29,7 @@ export default class ApiService {
         return req.data;
     }
     async makeRequest(method, path, data = {}, isSetToken = false, isLogin = false) {
+
         if (method == "GET") {
             const req = await axios
                 .get(`${Config.base_URL}/api/${path}`)
@@ -49,10 +53,10 @@ export default class ApiService {
                 }
                 console.log('Api Settings==>', settings)
                 return axios(settings).then(async (response) => {
-                    console.log("Api Response==>", response.status)
+                    console.log("Api Response " + path + " ==>", response.status)
                     if (response.status == 403) {
-                        this.removeAuth()
-                        return response
+                        await this.removeAuth()
+                        return false
                     } else if (response.status == 200) {
                         if (isSetToken) {
                             await Auth.setToken(response.data.token)
@@ -60,6 +64,8 @@ export default class ApiService {
                         if (isLogin) {
                             await Auth.setAuth(response.data.data)
                         }
+                        return response.data;
+                    } else {
                         return response.data;
                     }
                 })
@@ -74,7 +80,7 @@ export default class ApiService {
     }
 
     removeAuth = () => {
-        // Auth.removeAuth()
+        Auth.removeAuth()
     }
 
 
@@ -115,11 +121,62 @@ export default class ApiService {
         const path = Path.login;
         return this.makeRequest(ApiService.POST, path, JSON.stringify(data), ApiService.TOKEN, ApiService.LOGIN);
     }
+    signup(data) {
+        const path = Path.signup;
+        return this.makeRequest(ApiService.POST, path, JSON.stringify(data), ApiService.TOKEN, ApiService.LOGIN);
+    }
 
     getUser(data) {
         const path = Path.getUser;
-        console.log('data==>', data)
         return this.makeRequest(ApiService.POST, path, JSON.stringify(data), ApiService.TOKEN);
+    }
+    getHostels(data) {
+        const path = Path.getHostels;
+        return this.makeRequest(ApiService.POST, path, JSON.stringify(data));
+    }
+    addHostel(data) {
+        const path = Path.addHostel;
+        return this.makeRequest(ApiService.POST, path, JSON.stringify(data));
+    }
+    deleteHostel(data) {
+        const path = Path.deleteHostel;
+        return this.makeRequest(ApiService.DELETE, path, JSON.stringify(data));
+    }
+    getFloors(data) {
+        const path = Path.getFloors;
+        return this.makeRequest(ApiService.POST, path, JSON.stringify(data));
+    }
+    deleteFloor(data) {
+        const path = Path.deleteFloor;
+        return this.makeRequest(ApiService.DELETE, path, JSON.stringify(data));
+    }
+    addFloor(data) {
+        const path = Path.addFloor;
+        return this.makeRequest(ApiService.POST, path, JSON.stringify(data));
+    }
+    getRooms(data) {
+        const path = Path.getRooms;
+        return this.makeRequest(ApiService.POST, path, JSON.stringify(data));
+    }
+    deleteRoom(data) {
+        const path = Path.deleteRoom;
+        return this.makeRequest(ApiService.DELETE, path, JSON.stringify(data));
+    }
+    addRoom(data) {
+        const path = Path.addRoom;
+        return this.makeRequest(ApiService.POST, path, JSON.stringify(data));
+    }
+    addBed(data) {
+        const path = Path.addBed;
+        return this.makeRequest(ApiService.POST, path, JSON.stringify(data));
+    }
+    getBeds(data) {
+        const path = Path.getBeds;
+        return this.makeRequest(ApiService.POST, path, JSON.stringify(data));
+    }
+    deleteBed(data) {
+        const path = Path.deleteBed;
+        return this.makeRequest(ApiService.DELETE, path, JSON.stringify(data));
     }
 
 }

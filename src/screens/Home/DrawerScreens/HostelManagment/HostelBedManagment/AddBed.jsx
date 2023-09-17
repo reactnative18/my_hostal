@@ -1,8 +1,5 @@
-import {
-    FlatList, Image,
-    Pressable, SafeAreaView, StyleSheet, Text, View
-} from 'react-native'
-import React, { useState } from 'react'
+import { Pressable, SafeAreaView, StyleSheet, Text, View, } from 'react-native'
+import React, { useMemo, useState } from 'react'
 import BackButton from '../../../../../Components/BackButton/BackButton'
 import { Spacer, horizScale, normScale, vertScale } from '../../../../../util/Layout'
 import FocusStatusBar from '../../../../../Components/FocusStatusBar/FocusStatusBar'
@@ -10,65 +7,62 @@ import { Colors } from '../../../../../util/Colors'
 import { fontFamily, fontSize } from '../../../../../util/Fonts'
 import CustomImage from '../../../../../util/Images'
 import InputFilled from '../../../../../Components/InputFilled/InputFilled'
-import { useDispatch, useSelector } from 'react-redux'
-import { loaderAction } from '../../../../../redux/Actions/UserAction'
+import RadioGroup from 'react-native-radio-buttons-group';
 import { apiService } from '../../../../../API_Services'
-
-const AddHostel = ({ navigation }) => {
+import { useDispatch } from 'react-redux'
+import { loaderAction } from '../../../../../redux/Actions/UserAction'
+const AddBed = ({ navigation, route }) => {
     const dispatch = useDispatch()
-    const { userInfo } = useSelector(state => state.userInfo)
-
-    const [name, setName] = useState('');
-    const [address, setAddress] = useState('')
-    const [mapLink, setMapLink] = useState('')
-    const addHostel = async () => {
+    const { floor, room } = route.params
+    const [RoomNumber, setRoomNumber] = useState('')
+    const [rent, setRent] = useState('')
+    const addRoom = async () => {
         dispatch(loaderAction(true))
         const data = {
-            userId: userInfo._id,
-            hostelName: name,
-            hostelAddress: address
+            userId: floor.userId,
+            hostelId: floor.hostelId,
+            floorId: floor._id,
+            roomId: room._id,
+            "bedName": RoomNumber,
+            "amont": rent,
+            "seatAvailible": true
         }
-        const response = await apiService.addHostel(data)
+        const response = await apiService.addBed(data)
         if (response) {
             dispatch(loaderAction(false))
             navigation.goBack()
         }
     }
+
+
     return (
         <SafeAreaView style={styles.container}>
             <Spacer height={8} />
             <FocusStatusBar translucent={false} backgroundColor={Colors.white} barStyle={'dark-content'} />
             <View style={styles.headerView}>
-                <BackButton navigation={navigation} text={"Add Hostel"} />
+                <BackButton navigation={navigation} text={"Add Bed on " + floor.floorName} />
             </View>
             <Spacer height={30} />
             <View style={styles.container}>
 
                 <InputFilled
                     type="Email"
-                    placeholder="Name here"
-                    value={name}
-                    onChangeText={text => setName(text)}
-                    icon={CustomImage.user}
+                    placeholder="Bed Number/Name"
+                    value={RoomNumber}
+                    onChangeText={text => setRoomNumber(text)}
+                    icon={CustomImage.logo}
                 />
                 <Spacer height={20} />
                 <InputFilled
-                    type="Email"
-                    placeholder="Address"
-                    value={address}
-                    onChangeText={text => setAddress(text)}
-                    icon={CustomImage.location}
+                    type="Mobile"
+                    placeholder="Rent Ammount"
+                    value={rent}
+                    onChangeText={text => setRent(text)}
+                    icon={CustomImage.logo}
                 />
+
                 <Spacer height={20} />
-                <InputFilled
-                    type="Email"
-                    placeholder="Map Link"
-                    value={mapLink}
-                    onChangeText={text => setMapLink(text)}
-                    icon={CustomImage.map}
-                />
-                <Spacer height={20} />
-                <Pressable onPress={() => { addHostel() }} style={styles.button}>
+                <Pressable onPress={() => { addRoom() }} style={styles.button}>
                     <Text style={styles.buttonText}>Save</Text>
                 </Pressable>
             </View>
@@ -76,7 +70,7 @@ const AddHostel = ({ navigation }) => {
     )
 }
 
-export default AddHostel
+export default AddBed
 
 const styles = StyleSheet.create({
     container: {
@@ -107,26 +101,5 @@ const styles = StyleSheet.create({
         letterSpacing: normScale(1),
         fontFamily: fontFamily.boldItalic
     },
-    appText: {
-        color: Colors.black,
-        fontSize: fontSize.medium,
-        marginLeft: normScale(8),
-        fontFamily: fontFamily.regular
-    },
-    smallLogo: {
-        width: horizScale(12),
-        height: horizScale(12),
-        resizeMode: 'contain',
-    },
-    buttonView: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        alignSelf: 'flex-end',
-        borderRadius: horizScale(30),
-        borderWidth: horizScale(0.8),
-        borderColor: Colors.black,
-        paddingHorizontal: horizScale(8),
-        right: horizScale(20),
-        marginTop: vertScale(5)
-    }
+
 })

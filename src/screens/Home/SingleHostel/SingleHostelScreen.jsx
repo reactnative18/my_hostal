@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, SafeAreaView } from 'react-native';
 import CustomImage from '../../../util/Images';
 import { Colors } from '../../../util/Colors';
@@ -6,62 +6,38 @@ import { fontSize } from '../../../util/Fonts';
 import BackButton from '../../../Components/BackButton/BackButton';
 import { Spacer, horizScale } from '../../../util/Layout';
 import FocusStatusBar from '../../../Components/FocusStatusBar/FocusStatusBar';
+import { useDispatch } from 'react-redux';
+import { loaderAction } from '../../../redux/Actions/UserAction';
+import { apiService } from '../../../API_Services';
 
-const SingleHostelScreen = ({ navigation }) => {
-    const cards = [
-        {
-            id: '1',
-            name: 'First Floor',
-            image: CustomImage.logo,
-            address: 'Available Bads 3',
-            totalBeds: 'Total Bads 12',
-            price: '$50',
-            number: '1234567890',
-            active: true
-        },
-        {
-            id: '2',
-            name: 'Second Floor',
-            image: CustomImage.logo,
-            address: 'Available Bads 4',
-            price: '$80',
-            number: '9876543210',
-            totalBeds: 'Total Bads 12',
-        },
-        {
-            id: '3',
-            name: 'Third Floor',
-            image: CustomImage.logo,
-            address: 'Available Bads 3',
-            price: '$60',
-            number: '1234598760',
-            totalBeds: 'Total Bads 12',
-        },
-        {
-            id: '4',
-            name: 'Forth Floor',
-            image: CustomImage.logo,
-            address: 'Available Bads 3',
-            price: '$60',
-            totalBeds: 'Total Bads 12',
-            number: '1234598760',
-        },
-        // Add more cards as needed
-    ];
+const SingleHostelScreen = ({ navigation, route }) => {
 
+    const [Floor, setFloor] = useState([])
+    const dispatch = useDispatch()
+    const { hostel } = route.params
+    const [hostels, setHostels] = useState([])
+    const getData = async () => {
+        dispatch(loaderAction(true))
+        const response = await apiService.getFloors({ hostelId: hostel._id })
+        if (response) {
+            dispatch(loaderAction(false))
+            setFloor(response.data)
+        }
+    }
+    useEffect(() => {
+        getData()
+    }, [])
 
     const renderItem = ({ item }) => (
         <TouchableOpacity
             onPress={() => {
-                navigation.navigate('SingleFloorScreen')
+                navigation.navigate('SingleFloorScreen', { floor: item })
             }}
             style={{ ...styles.card, borderColor: Colors.black }}>
-            <Image source={item.image} style={styles.cardImage} />
+            <Image source={item?.image || CustomImage.floor} style={styles.cardImage} />
             <View style={{ marginLeft: horizScale(10) }}>
-
-                <Text style={styles.cardTitle}>{item.name}</Text>
-                <Text style={styles.cardInfo}>{item.totalBeds}</Text>
-                <Text style={styles.cardInfo}>{item.address}</Text>
+                <Text style={styles.cardTitle}>{item.floorName}</Text>
+                {item.totalBeds && <Text style={styles.cardInfo}>{item.totalBeds}</Text>}
             </View>
         </TouchableOpacity>
     );
@@ -72,7 +48,7 @@ const SingleHostelScreen = ({ navigation }) => {
             <FocusStatusBar barStyle={'dark-content'} backgroundColor={Colors.white} />
 
             <FlatList
-                data={cards}
+                data={Floor}
                 renderItem={renderItem}
                 keyExtractor={item => item.id}
                 ListHeaderComponent={() => {
@@ -81,7 +57,6 @@ const SingleHostelScreen = ({ navigation }) => {
                             <Spacer height={10} />
                             <BackButton navigation={navigation} text={'Hostel Floor'} />
                             <Spacer height={20} />
-
                         </View>
                     )
                 }}
@@ -128,9 +103,9 @@ const styles = StyleSheet.create({
 
     },
     cardImage: {
-        width: 80,
-        height: 80,
-        borderRadius: 5,
+        width: horizScale(60),
+        height: horizScale(60),
+        borderRadius: horizScale(30),
     },
     cardTitle: {
         fontSize: 16,

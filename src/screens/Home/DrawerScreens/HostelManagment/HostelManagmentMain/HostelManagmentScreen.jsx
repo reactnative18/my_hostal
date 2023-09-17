@@ -1,32 +1,64 @@
-import { FlatList, Image, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import { Alert, FlatList, Image, Pressable, SafeAreaView, StyleSheet, Text, ToastAndroid, View } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import BackButton from '../../../../../Components/BackButton/BackButton'
 import { Spacer, horizScale, normScale, vertScale } from '../../../../../util/Layout'
 import FocusStatusBar from '../../../../../Components/FocusStatusBar/FocusStatusBar'
 import { Colors } from '../../../../../util/Colors'
 import { fontFamily, fontSize } from '../../../../../util/Fonts'
 import CustomImage from '../../../../../util/Images'
-
+import { useDispatch, useSelector } from 'react-redux'
+import { loaderAction } from '../../../../../redux/Actions/UserAction'
+import { apiService } from '../../../../../API_Services'
 const HostelManagmentScreen = ({ navigation }) => {
-    const data = [
-        { icon: CustomImage.logo, name: 'Ap boys hostel', address: 'bholaram ustad near by bhawarkuaa indore mp' },
-        { icon: CustomImage.logo, name: 'Ap boys hostel', address: 'bholaram ustad near by bhawarkuaa indore mp' },
-        { icon: CustomImage.logo, name: 'Ap boys hostel', address: 'bholaram ustad near by bhawarkuaa indore mp' },
-        { icon: CustomImage.logo, name: 'Ap boys hostel', address: 'bholaram ustad near by bhawarkuaa indore mp' },
-
-    ]
+    const { loading } = useSelector(state => state.loader)
+    const dispatch = useDispatch()
+    const { userInfo } = useSelector(state => state.userInfo)
+    const [hostels, setHostels] = useState([])
+    const getData = async () => {
+        dispatch(loaderAction(true))
+        const response = await apiService.getHostels({ userId: userInfo._id })
+        if (response) {
+            dispatch(loaderAction(false))
+            setHostels(response.data)
+        }
+    }
+    useEffect(() => {
+        getData()
+    }, [navigation])
+    const deleteHostel = async (id) => {
+        dispatch(loaderAction(true))
+        const response = await apiService.deleteHostel({ hostelId: id })
+        if (response) {
+            const data = await hostels?.filter(item => item._id !== id)
+            setHostels(data)
+            dispatch(loaderAction(false))
+        }
+    }
     const renderItem = ({ item, index }) => {
-        return <Pressable style={styles.hostelContainer} onPress={() => navigation.navigate('HostelFloorManagment')}>
+        return <Pressable style={styles.hostelContainer} onPress={() => navigation.navigate('HostelFloorManagment', {
+            hostel: item
+        })}>
             <View style={{ flex: 0.2, alignItems: 'center' }}>
 
-                <Image source={item.icon} style={styles.hostelImage} />
+                <Image source={item.icon || CustomImage.logo} style={styles.hostelImage} />
             </View>
             <View style={styles.hostelContainer2}>
-                <Text style={styles.hostelName}>{item.name}</Text>
-                <Text numberOfLines={2} style={styles.hostelAddress}>{item.address}</Text>
+                <Text style={styles.hostelName}>{item.hostelName}</Text>
+                <Text numberOfLines={2} style={styles.hostelAddress}>{item.hostelAddress}</Text>
             </View>
-            <Pressable style={styles.deleteButton}>
+            <Pressable style={styles.deleteButton} onPress={async () => {
+                Alert.alert("Delete Hostel", "Are you sure to delete hostel ?", [{
+                    text: 'YES',
+                    onPress: () => { deleteHostel(item._id) }
+                }, {
+                    text: 'No',
+                    onPress: () => {
+                        ToastAndroid.showWithGravity('Hostel Delete Canceled...', ToastAndroid.TOP, ToastAndroid.SHORT)
+                    }
+                },
+                ])
 
+            }}>
                 <Image source={CustomImage.bin} style={styles.deleteIcon} />
             </Pressable>
         </Pressable>
@@ -47,8 +79,21 @@ const HostelManagmentScreen = ({ navigation }) => {
             <Spacer height={30} />
 
             <FlatList
-                data={data}
+                data={hostels}
                 renderItem={renderItem}
+                ListEmptyComponent={() => {
+                    return (
+                        <>
+                            {!loading && <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                                <Image source={CustomImage.no} style={{
+                                    height: horizScale(120),
+                                    width: horizScale(120),
+                                }} />
+                                <Text>Hostel Available</Text>
+                            </View>}
+                        </>
+                    )
+                }}
             />
         </SafeAreaView>
     )

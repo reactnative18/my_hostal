@@ -176,10 +176,8 @@ const InputFilled = (props) => {
     return (
         <View style={styles.view}>
             <View style={{ ...styles.subView, flex: 0.15 }}>
-                {props.icon == false ? <Text>{props.iconText}</Text> :
-                    props.type != 'Image' &&
-
-                    <Image source={props.icon} style={{ ...styles.smallIcon, tintColor: props.value ? Colors.blue : Colors.grey }} />}
+                {props.icon == false && <Text>{props.iconText}</Text>}
+                {props.type != 'Image' && <Image source={props.icon} style={{ ...styles.smallIcon, tintColor: props.value ? Colors.blue : Colors.grey }} />}
             </View>
             <View style={{ ...styles.subView, flex: 0.8 }}>
                 {

@@ -1,42 +1,74 @@
-import { FlatList, Image, Linking, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import { FlatList, Image, Alert, Pressable, SafeAreaView, StyleSheet, Text, View, ToastAndroid } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import BackButton from '../../../../../Components/BackButton/BackButton'
 import { Spacer, horizScale, normScale, vertScale } from '../../../../../util/Layout'
 import FocusStatusBar from '../../../../../Components/FocusStatusBar/FocusStatusBar'
 import { Colors } from '../../../../../util/Colors'
 import { fontFamily, fontSize } from '../../../../../util/Fonts'
 import CustomImage from '../../../../../util/Images'
+import { useDispatch, useSelector } from 'react-redux'
+import { loaderAction } from '../../../../../redux/Actions/UserAction'
+import { apiService } from '../../../../../API_Services'
+import { useIsFocused } from '@react-navigation/native'
 
-const HostelBedManagment = ({ navigation }) => {
-    const data = [
-        { icon: CustomImage.logo, monthDate: '01/07', name: 'Rohit jaat', remainingDue: 0, mobile: '8959402332' },
-        { icon: CustomImage.logo, monthDate: '12/07', name: 'Raja', remainingDue: 700, mobile: '8959402332' },
-        { icon: CustomImage.logo, monthDate: '23/07', name: 'Anuj', remainingDue: 100, mobile: '8959402332' },
-        { icon: CustomImage.logo, monthDate: '18/07', name: 'Ashu', remainingDue: 1400, mobile: '8959402332' },
-
-    ]
+const HostelBedManagment = ({ navigation, route }) => {
+    const { loading } = useSelector(state => state.loader)
+    const dispatch = useDispatch()
+    const { floor, room } = route.params
+    const [bed, setBed] = useState([])
+    const getData = async () => {
+        dispatch(loaderAction(true))
+        const response = await apiService.getBeds({
+            "userId": floor.userId,
+            hostelId: floor.hostelId,
+            floorId: floor._id,
+            "roomId": room._id
+        })
+        if (response) {
+            dispatch(loaderAction(false))
+            console.log("bed====>", response.data)
+            setBed(response.data)
+        }
+    }
+    const isFocus = useIsFocused()
+    useEffect(() => {
+        getData()
+    }, [isFocus])
+    const deleteRoom = async (id) => {
+        dispatch(loaderAction(true))
+        const response = await apiService.deleteRoom({ roomId: id })
+        if (response) {
+            const data = await bed?.filter(item => item._id !== id)
+            setBed(data)
+            dispatch(loaderAction(false))
+        }
+    }
     const renderItem = ({ item, index }) => {
         return <Pressable style={styles.roomContainer} onPress={() => { navigation.navigate('TenantProfileScreen') }}>
             <View style={styles.hostelContainer}>
-                <View style={{ flex: 0.2, alignItems: 'center' }}>
-                    <Image source={item.icon} style={styles.hostelImage} />
-                </View>
                 <View style={styles.hostelContainer2}>
-                    <Text style={styles.hostelName}>{item.name}</Text>
-                    <Text numberOfLines={2} style={styles.hostelAddress}>Due Date {item.monthDate} </Text>
+                    <Text style={styles.hostelName}>{item.bedName}</Text>
+                    <Text numberOfLines={2} style={styles.hostelAddress}>₹ {item.amont} </Text>
                 </View>
-                <Pressable style={styles.deleteButton}>
+                <Pressable style={styles.deleteButton}
+                    onPress={async () => {
+                        Alert.alert("Delete Bed", "Are you sure to delete Bed ?", [{
+                            text: 'YES',
+                            onPress: () => { deleteRoom(item._id) }
+                        }, {
+                            text: 'No',
+                            onPress: () => {
+                                ToastAndroid.showWithGravity('Bed Delete Canceled...', ToastAndroid.TOP, ToastAndroid.SHORT)
+                            }
+                        },
+                        ])
+
+                    }}
+                >
                     <Image source={CustomImage.bin} style={styles.deleteIcon} />
                 </Pressable>
             </View>
-            <View style={styles.hostelContainer}>
-                <Text style={styles.normText}>Due Rent {item.remainingDue}</Text>
-                <Pressable style={styles.deleteButton} onPress={() => {
-                    Linking.openURL(`tel:${item.mobile}`)
-                }}>
-                    <Image source={CustomImage.call} style={styles.deleteIcon} />
-                </Pressable>
-            </View>
+
         </Pressable>
     }
     return (
@@ -44,9 +76,12 @@ const HostelBedManagment = ({ navigation }) => {
             <Spacer height={8} />
             <FocusStatusBar translucent={false} backgroundColor={Colors.white} barStyle={'dark-content'} />
             <View style={styles.headerView}>
-                <BackButton navigation={navigation} text={"Ap3 201"} />
+                <BackButton navigation={navigation} text={"Beds In " + room.roomName} />
                 <Pressable style={styles.buttonView} onPress={() => {
-                    navigation.navigate('TenantProfileScreen')
+                    navigation.navigate('AddBed', {
+                        room: room,
+                        floor: floor
+                    })
                 }}>
                     <Image source={CustomImage.plus} style={styles.smallLogo} />
                     <Text style={styles.appText}>Add</Text>
@@ -55,8 +90,21 @@ const HostelBedManagment = ({ navigation }) => {
             <Spacer height={30} />
 
             <FlatList
-                data={data}
+                data={bed}
                 renderItem={renderItem}
+                ListEmptyComponent={() => {
+                    return (
+                        <>
+                            {!loading && <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                                <Image source={CustomImage.no} style={{
+                                    height: horizScale(120),
+                                    width: horizScale(120),
+                                }} />
+                                <Text>Bed Available</Text>
+                            </View>}
+                        </>
+                    )
+                }}
             />
         </SafeAreaView>
     )

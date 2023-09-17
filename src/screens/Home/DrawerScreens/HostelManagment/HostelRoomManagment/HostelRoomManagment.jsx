@@ -1,31 +1,72 @@
-import { FlatList, Image, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import { Alert, FlatList, Image, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import BackButton from '../../../../../Components/BackButton/BackButton'
 import { Spacer, horizScale, normScale, vertScale } from '../../../../../util/Layout'
 import FocusStatusBar from '../../../../../Components/FocusStatusBar/FocusStatusBar'
 import { Colors } from '../../../../../util/Colors'
 import { fontFamily, fontSize } from '../../../../../util/Fonts'
 import CustomImage from '../../../../../util/Images'
+import { useDispatch, useSelector } from 'react-redux'
+import { loaderAction } from '../../../../../redux/Actions/UserAction'
+import { apiService } from '../../../../../API_Services'
+import { useIsFocused } from '@react-navigation/native'
 
-const HostelRoomManagment = ({ navigation }) => {
-    const data = [
-        { icon: CustomImage.logo, name: '1', rooms: '4' },
-        { icon: CustomImage.logo, name: '2', rooms: '4' },
-        { icon: CustomImage.logo, name: '3', rooms: '4' },
-        { icon: CustomImage.logo, name: '4', rooms: '4' },
-
-    ]
+const HostelRoomManagment = ({ navigation, route }) => {
+    const { loading } = useSelector(state => state.loader)
+    const dispatch = useDispatch()
+    const { floor } = route.params
+    const [Rooms, setRooms] = useState([])
+    const getData = async () => {
+        dispatch(loaderAction(true))
+        const response = await apiService.getRooms({
+            hostelId: floor.hostelId,
+            floorId: floor._id
+        })
+        if (response) {
+            dispatch(loaderAction(false))
+            setRooms(response.data)
+        }
+    }
+    const isFocus = useIsFocused()
+    useEffect(() => {
+        getData()
+    }, [isFocus])
+    const deleteRoom = async (id) => {
+        dispatch(loaderAction(true))
+        const response = await apiService.deleteRoom({ roomId: id })
+        if (response) {
+            const data = await Rooms?.filter(item => item._id !== id)
+            setRooms(data)
+            dispatch(loaderAction(false))
+        }
+    }
     const renderItem = ({ item, index }) => {
-        return <Pressable style={styles.hostelContainer} onPress={() => navigation.navigate('HostelBedManagment')}>
+        return <Pressable style={styles.hostelContainer} onPress={() => navigation.navigate('HostelBedManagment', {
+            floor: floor,
+            room: item
+        })}>
             <View style={{ flex: 0.2, alignItems: 'center' }}>
 
                 <Image source={item.icon} style={styles.hostelImage} />
             </View>
             <View style={styles.hostelContainer2}>
-                <Text style={styles.hostelName}>Room No. {item.name}</Text>
-                <Text numberOfLines={2} style={styles.hostelAddress}>Totel {item.rooms} Beds</Text>
+                <Text style={styles.hostelName}>{item.roomName}</Text>
             </View>
-            <Pressable style={styles.deleteButton}>
+            <Pressable style={styles.deleteButton}
+                onPress={async () => {
+                    Alert.alert("Delete Room", "Are you sure to delete Room ?", [{
+                        text: 'YES',
+                        onPress: () => { deleteRoom(item._id) }
+                    }, {
+                        text: 'No',
+                        onPress: () => {
+                            ToastAndroid.showWithGravity('Room Delete Canceled...', ToastAndroid.TOP, ToastAndroid.SHORT)
+                        }
+                    },
+                    ])
+
+                }}
+            >
 
                 <Image source={CustomImage.bin} style={styles.deleteIcon} />
             </Pressable>
@@ -36,8 +77,8 @@ const HostelRoomManagment = ({ navigation }) => {
             <Spacer height={8} />
             <FocusStatusBar translucent={false} backgroundColor={Colors.white} barStyle={'dark-content'} />
             <View style={styles.headerView}>
-                <BackButton navigation={navigation} text={"Ground Floor Rooms"} />
-                <Pressable style={styles.buttonView} onPress={() => navigation.navigate('AddRoom')}>
+                <BackButton navigation={navigation} text={floor.floorName + " Rooms"} />
+                <Pressable style={styles.buttonView} onPress={() => navigation.navigate('AddRoom', { floor })}>
                     <Image source={CustomImage.plus} style={styles.smallLogo} />
                     <Text style={styles.appText}>Add</Text>
                 </Pressable>
@@ -45,8 +86,21 @@ const HostelRoomManagment = ({ navigation }) => {
             <Spacer height={30} />
 
             <FlatList
-                data={data}
+                data={Rooms}
                 renderItem={renderItem}
+                ListEmptyComponent={() => {
+                    return (
+                        <>
+                            {!loading && <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                                <Image source={CustomImage.no} style={{
+                                    height: horizScale(120),
+                                    width: horizScale(120),
+                                }} />
+                                <Text>Floor Available</Text>
+                            </View>}
+                        </>
+                    )
+                }}
             />
         </SafeAreaView>
     )

@@ -72,5 +72,7 @@ const CustomImage = {
   dummyuser: require('../assets/Images/dummyuser.png'),
   report: require('../assets/Images/report.jpg'),
   annapurna: require('../assets/Images/annapurna3.png'),
+  floor: require('../assets/Images/floor.png'),
+  no: require('../assets/Images/no.jpg'),
 };
 export default CustomImage;

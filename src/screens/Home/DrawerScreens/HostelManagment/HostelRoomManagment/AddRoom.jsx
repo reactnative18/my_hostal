@@ -8,82 +8,49 @@ import { fontFamily, fontSize } from '../../../../../util/Fonts'
 import CustomImage from '../../../../../util/Images'
 import InputFilled from '../../../../../Components/InputFilled/InputFilled'
 import RadioGroup from 'react-native-radio-buttons-group';
-const AddRoom = ({ navigation }) => {
+import { apiService } from '../../../../../API_Services'
+import { useDispatch } from 'react-redux'
+import { loaderAction } from '../../../../../redux/Actions/UserAction'
+const AddRoom = ({ navigation, route }) => {
+    const dispatch = useDispatch()
+    const { floor } = route.params
     const [RoomNumber, setRoomNumber] = useState('')
-    const [roomType, setroomType] = useState('')
-    const [availableSeat, setAvailableSeat] = useState('')
-    const radioButtons = useMemo(() => ([
-        {
-            id: '1', // acts as primary key, should be unique and non-empty string
-            label: '1 Seater Room',
-            value: '1'
-        },
-        {
-            id: '2',
-            label: '2 Seater Room',
-            value: '2'
-
-        },
-
-        {
-            id: '3',
-            label: '3 Seater Room',
-            value: '3'
-
-        },
-        {
-            id: '4',
-            label: '4 Seater Room',
-            value: '4'
-
-        },
-        {
-            id: '5',
-            label: '5 Seater Room',
-            value: '5'
+    const addRoom = async () => {
+        dispatch(loaderAction(true))
+        const data = {
+            userId: floor.userId,
+            hostelId: floor.hostelId,
+            floorId: floor._id,
+            roomName: RoomNumber
         }
-    ]), []);
+        const response = await apiService.addRoom(data)
+        if (response) {
+            dispatch(loaderAction(false))
+            navigation.goBack()
+        }
+    }
 
-    const [selectedId, setSelectedId] = useState();
 
     return (
         <SafeAreaView style={styles.container}>
             <Spacer height={8} />
             <FocusStatusBar translucent={false} backgroundColor={Colors.white} barStyle={'dark-content'} />
             <View style={styles.headerView}>
-                <BackButton navigation={navigation} text={"Add Floor to Ap3"} />
+                <BackButton navigation={navigation} text={"Add Room on " + floor.floorName} />
             </View>
             <Spacer height={30} />
             <View style={styles.container}>
 
                 <InputFilled
-                    type="Mobile"
-                    placeholder="Room Number"
+                    type="Email"
+                    placeholder="Room Number/Name"
                     value={RoomNumber}
                     onChangeText={text => setRoomNumber(text)}
                     icon={CustomImage.logo}
                 />
-                <Spacer height={20} />
-                <InputFilled
-                    type="Email"
-                    placeholder="Available Seat"
-                    value={availableSeat}
-                    onChangeText={text => setAvailableSeat(text)}
-                    icon={CustomImage.logo}
-                />
-                <Spacer height={20} />
-                <RadioGroup
-                    radioButtons={radioButtons}
-                    onPress={setSelectedId}
-                    selectedId={selectedId}
-                    containerStyle={{
-                        alignSelf: 'flex-start', left: horizScale(25),
 
-                    }}
-
-                />
                 <Spacer height={20} />
-                <Pressable onPress={() => { alert('Cooming Soon') }} style={styles.button}>
+                <Pressable onPress={() => { addRoom() }} style={styles.button}>
                     <Text style={styles.buttonText}>Save</Text>
                 </Pressable>
             </View>

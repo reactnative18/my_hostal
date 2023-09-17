@@ -7,13 +7,16 @@ import { Spacer, horizScale, normScale, vertScale } from '../../../util/Layout';
 import { fontFamily, fontSize } from '../../../util/Fonts';
 import InputFilled from '../../../Components/InputFilled/InputFilled';
 import { apiService } from '../../../API_Services';
+import { userInfoAction } from '../../../redux/Actions/UserAction';
+import { useDispatch } from 'react-redux';
 
 const LoginScreen = ({ navigation }) => {
+    const dispatch = useDispatch()
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
-    const handleLogin = () => {
+    const handleLogin = async () => {
 
         if (email === '') {
             setError('Please enter your email');
@@ -31,6 +34,7 @@ const LoginScreen = ({ navigation }) => {
         }
         const response = apiService.login({ email, password })
         if (response) {
+            await dispatch(userInfoAction(response?.data))
             navigation.replace('HomeDrawer')
             setEmail('')
             setPassword('')

@@ -12,7 +12,6 @@ class Auth {
     static getAuth = async () => {
         try {
             const auth = await AsyncStorage.getItem('auth');
-            console.log("called==>", auth)
             if (!auth) {
                 return null;
             }
@@ -52,7 +51,6 @@ class Auth {
 
     static removeToken = async () => {
         try {
-            console.log("clear token");
             await AsyncStorage.removeItem('token');
         } catch (error) {
             console.error(error)

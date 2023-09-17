@@ -1,49 +1,28 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, ScrollView, Linking, SafeAreaView } from 'react-native';
 import CustomImage from '../../../util/Images';
 import { Colors } from '../../../util/Colors';
 import { fontFamily, fontSize } from '../../../util/Fonts';
 import { Spacer, horizScale, normScale, vertScale } from '../../../util/Layout';
 import FocusStatusBar from '../../../Components/FocusStatusBar/FocusStatusBar';
+import { useDispatch, useSelector } from 'react-redux';
+import { loaderAction } from '../../../redux/Actions/UserAction';
+import { apiService } from '../../../API_Services';
 
-const SingleRoomScreen = ({ navigation }) => {
+const SingleRoomScreen = ({ navigation, route }) => {
+    const { userInfo } = useSelector(state => state.userInfo)
+    const { room } = route.params;
+    const [roomData, setRoomData] = useState([{
+        id: '1',
+        name: 'Bad No 1',
+        image: CustomImage.logo,
+        address: 'Ajay Carpenter',
+        price: '2400',
+        number: '7000207121',
+        due: 1,
+        MED: "28"
+    }])
 
-    const room = [
-        {
-            id: '1',
-            name: 'Bad No 1',
-            image: CustomImage.logo,
-            address: 'Ajay Carpenter',
-            price: '2400',
-            number: '7000207121',
-            due: 1,
-            MED: "28"
-        },
-        {
-            id: '2',
-            name: 'Bad No 2',
-            image: CustomImage.logo,
-            address: 'Anuj bhati',
-            price: '1900',
-            number: '9876543210',
-            MED: "16"
-        },
-        {
-            id: '3',
-            empty: true
-        },
-        {
-            id: '4',
-            name: 'Bad No 4',
-            image: CustomImage.logo,
-            address: 'Rohit Jat',
-            price: '3000',
-            number: '8959402332',
-            due: 1,
-            MED: "05"
-        },
-        // Add more cards as needed
-    ];
     const UserInfo = [
         {
             id: '1',
@@ -73,8 +52,24 @@ const SingleRoomScreen = ({ navigation }) => {
         // Add more cards as needed
     ];
 
-    const [selected, setSelected] = useState(room[0].id)
-    const [selectedItem, setSelectedItem] = useState(room[0])
+    const dispatch = useDispatch()
+    const getData = async () => {
+        dispatch(loaderAction(true))
+        const response = await apiService.getBeds({ hostelId: room.hostelId, floorId: room.floorId, roomId: room._id, userId: userInfo._id })
+        if (response) {
+            dispatch(loaderAction(false))
+            console.log(response.data)
+            setRoomData(response.data)
+        }
+    }
+    useEffect(() => {
+        getData()
+    }, [])
+
+
+
+    const [selected, setSelected] = useState(roomData[0].id)
+    const [selectedItem, setSelectedItem] = useState(roomData[0])
 
     const renderItemRoom2 = ({ item, index }) => (
         <TouchableOpacity
@@ -82,7 +77,7 @@ const SingleRoomScreen = ({ navigation }) => {
                 setSelectedItem(item)
                 setSelected(item.id)
             }}
-            style={{ ...styles.roomContainer2, backgroundColor: !item.empty ? item?.due == 1 ? Colors.green : Colors.red : Colors.yellow }}>
+            style={{ ...styles.roomContainer2, backgroundColor: !item.seatAvailible ? item?.due == 1 ? Colors.green : Colors.red : Colors.yellow }}>
             {selected == item.id && <Image source={CustomImage.verify} style={styles.smallIcon} />}
             <Text style={styles.cardTitle2}>Seat {index + 1}</Text>
 
@@ -146,7 +141,7 @@ const SingleRoomScreen = ({ navigation }) => {
                 <View style={{ paddingVertical: vertScale(2), height: vertScale(120), marginLeft: horizScale(20) }}>
 
                     <FlatList
-                        data={room}
+                        data={roomData}
                         renderItem={renderItemRoom2}
                         keyExtractor={item => item.id}
                         horizontal

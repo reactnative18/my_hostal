@@ -7,12 +7,28 @@ import { Colors } from '../../../../../util/Colors'
 import { fontFamily, fontSize } from '../../../../../util/Fonts'
 import CustomImage from '../../../../../util/Images'
 import InputFilled from '../../../../../Components/InputFilled/InputFilled'
+import { useDispatch, useSelector } from 'react-redux'
+import { loaderAction } from '../../../../../redux/Actions/UserAction'
+import { apiService } from '../../../../../API_Services'
 
-const AddFloor = ({ navigation }) => {
+const AddFloor = ({ navigation, route }) => {
+    const { hostel } = route.params
     const [floorNumber, setFloorNumber] = useState('')
-    const [totelRoom, setTotelRoom] = useState('')
-    const [totelSeat, setTotelSeat] = useState('')
-    const [availableSeat, setAvailableSeat] = useState('')
+    const dispatch = useDispatch()
+    const { userInfo } = useSelector(state => state.userInfo)
+    const addFloor = async () => {
+        dispatch(loaderAction(true))
+        const data = {
+            userId: userInfo._id,
+            hostelId: hostel._id,
+            floorName: floorNumber
+        }
+        const response = await apiService.addFloor(data)
+        if (response) {
+            dispatch(loaderAction(false))
+            navigation.goBack()
+        }
+    }
     return (
         <SafeAreaView style={styles.container}>
             <Spacer height={8} />
@@ -25,38 +41,17 @@ const AddFloor = ({ navigation }) => {
 
                 <InputFilled
                     type="Mobile"
-                    placeholder="Floor Number"
+                    placeholder="Floor Number/Name"
                     value={floorNumber}
                     onChangeText={text => setFloorNumber(text)}
                     icon={CustomImage.logo}
                 />
-                <Spacer height={20} />
-                <InputFilled
-                    type="Email"
-                    placeholder="Totel Room"
-                    value={totelRoom}
-                    onChangeText={text => setTotelRoom(text)}
-                    icon={CustomImage.logo}
-                />
-                <Spacer height={20} />
-                <InputFilled
-                    type="Email"
-                    placeholder="Totel Seat"
-                    value={totelSeat}
-                    onChangeText={text => setTotelSeat(text)}
-                    icon={CustomImage.logo}
-                />
-                <Spacer height={20} />
-                <InputFilled
-                    type="Email"
-                    placeholder="Available Seat"
-                    value={availableSeat}
-                    onChangeText={text => setAvailableSeat(text)}
-                    icon={CustomImage.logo}
-                />
+
 
                 <Spacer height={20} />
-                <Pressable onPress={() => { alert('Cooming Soon') }} style={styles.button}>
+                <Pressable onPress={() => {
+                    addFloor()
+                }} style={styles.button}>
                     <Text style={styles.buttonText}>Save</Text>
                 </Pressable>
             </View>
