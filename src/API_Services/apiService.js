@@ -1,6 +1,6 @@
 import axios from 'axios';
 import Path from './Path';
-import { Platform } from "react-native";
+import { Platform, ToastAndroid } from "react-native";
 import NetInfo from "@react-native-community/netinfo";
 import { Toast } from 'react-native-toast-message';
 import { Config } from '../Config';
@@ -39,39 +39,57 @@ export default class ApiService {
                 var token = await Auth.getToken();
                 console.log("Token===>", token)
                 this.CheckConnectivity()
-                let headers = {
-                    'Content-Type': 'application/json; charset=utf-8',
-                    'Accept': 'application/json, text/plain, */*',
-                    'Authorization': `Bearer ${token}`
+                let headers;
+                if (token == null) {
+                    headers = {
+                        'Content-Type': 'application/json'
+                    }
+                } else {
+                    headers = {
+                        'Content-Type': 'application/json; charset=utf-8',
+                        'Accept': 'application/json, text/plain, */*',
+                        'Authorization': `Bearer ${token}`
+                    }
                 }
                 var settings = {}
                 settings = {
                     headers,
                     method,
                     url: `${Config.base_URL}${path}`,
-                    data
+                    data,
+                    maxBodyLength: Infinity,
                 }
                 console.log('Api Settings==>', settings)
                 return axios(settings).then(async (response) => {
                     console.log("Api Response " + path + " ==>", response.status)
+                    console.log("Api Response data===>", response)
+                    if (!response.data.success) {
+                        ToastAndroid.showWithGravity(response.message, ToastAndroid.SHORT, ToastAndroid.BOTTOM)
+                        return response.data
+                    }
                     if (response.status == 403) {
                         await this.removeAuth()
                         return false
-                    } else if (response.status == 200) {
+                    } else if (response.status == 200 || response.status == 201) {
                         if (isSetToken) {
                             await Auth.setToken(response.data.token)
                         }
                         if (isLogin) {
                             await Auth.setAuth(response.data.data)
                         }
+                        console.log("80==>", response.data)
                         return response.data;
                     } else {
+
                         return response.data;
                     }
                 })
-                    .catch((error) => {
-
-                    });
+                    .catch(async (error) => {
+                        ToastAndroid.showWithGravity("Invalid Credentials, Please Enter Valid Data", ToastAndroid.SHORT, ToastAndroid.BOTTOM)
+                        await this.removeAuth()
+                        console.log("Api error==>", error)
+                        return false
+                    })
 
             } catch (err) {
                 throw err;
@@ -88,10 +106,10 @@ export default class ApiService {
         if (Platform.OS === "android") {
             NetInfo.fetch().then(isConnected => {
                 if (!isConnected) {
-                    Toast.show({
-                        type: 'info',
-                        text1: 'No Internet Connection'
-                    });
+
+
+                    ToastAndroid.showWithGravity('No Internet Connection', ToastAndroid.SHORT, ToastAndroid.TOP)
+
                 }
             });
         } else {
@@ -109,74 +127,76 @@ export default class ApiService {
             this.handleFirstConnectivityChange
         );
         if (isConnected === false) {
-            Toast.show({
-                type: 'info',
-                text1: 'No Internet Connection'
-            });
+
+
+            ToastAndroid.showWithGravity('No Internet Connection', ToastAndroid.SHORT, ToastAndroid.TOP)
+
         }
     };
 
     // USER
-    login(data) {
+    async login(data) {
         const path = Path.login;
-        return this.makeRequest(ApiService.POST, path, JSON.stringify(data), ApiService.TOKEN, ApiService.LOGIN);
+        const res = await this.makeRequest(ApiService.POST, path, JSON.stringify(data), ApiService.TOKEN, ApiService.LOGIN);
+        console.log("log in data ==>", res)
+        return res
     }
-    signup(data) {
+    async signup(data) {
         const path = Path.signup;
-        return this.makeRequest(ApiService.POST, path, JSON.stringify(data), ApiService.TOKEN, ApiService.LOGIN);
+        return await this.makeRequest(ApiService.POST, path, JSON.stringify(data), ApiService.TOKEN, ApiService.LOGIN);
     }
 
-    getUser(data) {
+    async getUser(data) {
         const path = Path.getUser;
-        return this.makeRequest(ApiService.POST, path, JSON.stringify(data), ApiService.TOKEN);
+        return await this.makeRequest(ApiService.POST, path, JSON.stringify(data), ApiService.TOKEN);
     }
-    getHostels(data) {
+    async getHostels(data) {
         const path = Path.getHostels;
-        return this.makeRequest(ApiService.POST, path, JSON.stringify(data));
+        return await this.makeRequest(ApiService.POST, path, JSON.stringify(data));
     }
-    addHostel(data) {
+    async addHostel(data) {
         const path = Path.addHostel;
-        return this.makeRequest(ApiService.POST, path, JSON.stringify(data));
+        return await this.makeRequest(ApiService.POST, path, JSON.stringify(data));
     }
-    deleteHostel(data) {
+    async deleteHostel(data) {
         const path = Path.deleteHostel;
-        return this.makeRequest(ApiService.DELETE, path, JSON.stringify(data));
+        return await this.makeRequest(ApiService.DELETE, path, JSON.stringify(data));
     }
-    getFloors(data) {
+    async getFloors(data) {
         const path = Path.getFloors;
-        return this.makeRequest(ApiService.POST, path, JSON.stringify(data));
+        return await this.makeRequest(ApiService.POST, path, JSON.stringify(data));
     }
-    deleteFloor(data) {
+    async deleteFloor(data) {
         const path = Path.deleteFloor;
-        return this.makeRequest(ApiService.DELETE, path, JSON.stringify(data));
+        return await this.makeRequest(ApiService.DELETE, path, JSON.stringify(data));
     }
-    addFloor(data) {
+    async addFloor(data) {
         const path = Path.addFloor;
-        return this.makeRequest(ApiService.POST, path, JSON.stringify(data));
+        return await this.makeRequest(ApiService.POST, path, JSON.stringify(data));
     }
-    getRooms(data) {
+    async getRooms(data) {
         const path = Path.getRooms;
-        return this.makeRequest(ApiService.POST, path, JSON.stringify(data));
+        return await this.makeRequest(ApiService.POST, path, JSON.stringify(data));
     }
-    deleteRoom(data) {
+    async deleteRoom(data) {
         const path = Path.deleteRoom;
-        return this.makeRequest(ApiService.DELETE, path, JSON.stringify(data));
+        return await this.makeRequest(ApiService.DELETE, path, JSON.stringify(data));
     }
-    addRoom(data) {
+    async addRoom(data) {
         const path = Path.addRoom;
-        return this.makeRequest(ApiService.POST, path, JSON.stringify(data));
+        return await this.makeRequest(ApiService.POST, path, JSON.stringify(data));
     }
-    addBed(data) {
+    async addBed(data) {
         const path = Path.addBed;
-        return this.makeRequest(ApiService.POST, path, JSON.stringify(data));
+        return await this.makeRequest(ApiService.POST, path, JSON.stringify(data));
     }
-    getBeds(data) {
+    async getBeds(data) {
         const path = Path.getBeds;
-        return this.makeRequest(ApiService.POST, path, JSON.stringify(data));
+        return await this.makeRequest(ApiService.POST, path, JSON.stringify(data));
     }
-    deleteBed(data) {
+    async deleteBed(data) {
         const path = Path.deleteBed;
-        return this.makeRequest(ApiService.DELETE, path, JSON.stringify(data));
+        return await this.makeRequest(ApiService.DELETE, path, JSON.stringify(data));
     }
 
 }

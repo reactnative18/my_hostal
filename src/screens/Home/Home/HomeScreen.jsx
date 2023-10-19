@@ -8,6 +8,7 @@ import { fontFamily, fontSize } from '../../../util/Fonts';
 import { useDispatch, useSelector } from 'react-redux';
 import { apiService } from '../../../API_Services';
 import { loaderAction } from '../../../redux/Actions/UserAction';
+import { useIsFocused } from '@react-navigation/native';
 
 const HomeScreen = ({ navigation }) => {
     const dispatch = useDispatch()
@@ -15,15 +16,18 @@ const HomeScreen = ({ navigation }) => {
     const [hostels, setHostels] = useState([])
     const getData = async () => {
         dispatch(loaderAction(true))
-        const response = await apiService.getHostels({ userId: userInfo._id })
+        const response = await apiService.getHostels({ userId: userInfo?._id })
+        console.log(response)
         if (response) {
             dispatch(loaderAction(false))
             setHostels(response.data)
         }
     }
+    const { loading } = useSelector(state => state.loader)
+    const focus = useIsFocused()
     useEffect(() => {
         getData()
-    }, [])
+    }, [focus])
     const renderItem = ({ item, index }) => (
         <TouchableOpacity style={styles.hostelItem} onPress={() => {
             navigation.navigate('SingleHostelScreen', { hostel: item })
@@ -48,6 +52,19 @@ const HomeScreen = ({ navigation }) => {
                 contentContainerStyle={styles.listContainer}
                 showsVerticalScrollIndicator={false}
                 ListFooterComponent={() => (<Spacer height={50} />)}
+                ListEmptyComponent={() => {
+                    return (
+                        <>
+                            {!loading && <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                                <Image source={CustomImage.no} style={{
+                                    height: horizScale(120),
+                                    width: horizScale(120),
+                                }} />
+                                <Text>Hostel Available</Text>
+                            </View>}
+                        </>
+                    )
+                }}
             />
             <TouchableOpacity style={styles.button} onPress={() => {
                 navigation.navigate('TenantProfileScreen')

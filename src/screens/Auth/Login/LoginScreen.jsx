@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Text, StyleSheet, StatusBar, Pressable, ScrollView, SafeAreaView, Image } from 'react-native';
+import { Text, StyleSheet, StatusBar, Pressable, ScrollView, SafeAreaView, Image, ToastAndroid } from 'react-native';
 import CustomImage from '../../../util/Images';
 import { Colors } from '../../../util/Colors';
 import FocusStatusBar from '../../../Components/FocusStatusBar/FocusStatusBar';
@@ -7,7 +7,7 @@ import { Spacer, horizScale, normScale, vertScale } from '../../../util/Layout';
 import { fontFamily, fontSize } from '../../../util/Fonts';
 import InputFilled from '../../../Components/InputFilled/InputFilled';
 import { apiService } from '../../../API_Services';
-import { userInfoAction } from '../../../redux/Actions/UserAction';
+import { loaderAction, userInfoAction } from '../../../redux/Actions/UserAction';
 import { useDispatch } from 'react-redux';
 
 const LoginScreen = ({ navigation }) => {
@@ -32,13 +32,21 @@ const LoginScreen = ({ navigation }) => {
             }, 2000);
             return;
         }
-        const response = apiService.login({ email, password })
-        if (response) {
+        dispatch(loaderAction(true))
+        const response = await apiService.login({ email, password })
+        console.log("login==>", response)
+        if (response && response != undefined && response.success) {
             await dispatch(userInfoAction(response?.data))
+            dispatch(loaderAction(false))
+            console.log("Api Response data at login===>", response)
             navigation.replace('HomeDrawer')
             setEmail('')
             setPassword('')
         }
+        else {
+            dispatch(loaderAction(false))
+        }
+
     };
 
     return (

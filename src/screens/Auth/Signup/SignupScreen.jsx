@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
-    View, TextInput, Button, Text, StyleSheet, ImageBackground,
-    TouchableOpacity, StatusBar, Pressable,
+    ToastAndroid, Text, StyleSheet,
+    StatusBar, Pressable,
     ScrollView, SafeAreaView, Image
 } from 'react-native';
 import CustomImage from '../../../util/Images';
@@ -12,6 +12,7 @@ import FocusStatusBar from '../../../Components/FocusStatusBar/FocusStatusBar';
 import InputFilled from '../../../Components/InputFilled/InputFilled';
 import { apiService } from '../../../API_Services';
 import { useDispatch } from 'react-redux';
+import { loaderAction, userInfoAction } from '../../../redux/Actions/UserAction';
 
 const SignupScreen = ({ navigation }) => {
     const dispatch = useDispatch()
@@ -58,18 +59,28 @@ const SignupScreen = ({ navigation }) => {
             }, 2000);
             return;
         }
-        const response = apiService.signup({ email, password })
-        if (response) {
+        let data = {
+            name, email, password, mobileNo: phoneNumber
+        }
+        dispatch(loaderAction(true))
+        const response = await apiService.signup(data)
+        if (response && response != undefined && response.success) {
+            console.log(response.data)
             await dispatch(userInfoAction(response?.data))
-            navigation.replace('HomeDrawer')
+            dispatch(loaderAction(false))
+            navigation.replace('LoginScreen')
             setName('');
             setEmail('');
             setPassword('');
             setConfirmPassword('');
             setPhoneNumber('');
             setError('');
+        } else {
+            if (response.message) {
+                ToastAndroid.showWithGravity(response.message, ToastAndroid.SHORT, ToastAndroid.BOTTOM)
+            }
+            dispatch(loaderAction(false))
         }
-
     };
 
     return (

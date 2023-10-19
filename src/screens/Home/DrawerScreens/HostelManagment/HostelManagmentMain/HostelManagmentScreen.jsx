@@ -9,6 +9,7 @@ import CustomImage from '../../../../../util/Images'
 import { useDispatch, useSelector } from 'react-redux'
 import { loaderAction } from '../../../../../redux/Actions/UserAction'
 import { apiService } from '../../../../../API_Services'
+import { useIsFocused } from '@react-navigation/native'
 const HostelManagmentScreen = ({ navigation }) => {
     const { loading } = useSelector(state => state.loader)
     const dispatch = useDispatch()
@@ -22,9 +23,10 @@ const HostelManagmentScreen = ({ navigation }) => {
             setHostels(response.data)
         }
     }
+    const focus = useIsFocused()
     useEffect(() => {
         getData()
-    }, [navigation])
+    }, [focus])
     const deleteHostel = async (id) => {
         dispatch(loaderAction(true))
         const response = await apiService.deleteHostel({ hostelId: id })
