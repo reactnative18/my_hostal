@@ -15,6 +15,7 @@ import { horizScale, vertScale } from '../../../util/Layout';
 import { fontSize } from '../../../util/Fonts';
 import { Colors } from '../../../util/Colors';
 import ShowAlert from '../../../util/Alert';
+import Auth from '../../../Auth';
 export default function DrawerContentScreen(props) {
     const [state, setState] = useState({
         profile: Image.resolveAssetSource(CustomImage.profileuser).uri,
@@ -101,7 +102,10 @@ export default function DrawerContentScreen(props) {
                     onPress={() => {
                         Alert.alert("Logout", "Are you sure to Logout from our HOSTEL ?", [{
                             text: 'YES',
-                            onPress: () => { ToastAndroid.showWithGravity('Coming soon', ToastAndroid.SHORT, ToastAndroid.BOTTOM) }
+                            onPress: async () => {
+                                await Auth.removeAuth();
+                                props.navigation.replace("AuthStack")
+                            }
                         }, {
                             text: 'No',
                             onPress: () => { ToastAndroid.showWithGravity('Thank you :)', ToastAndroid.SHORT, ToastAndroid.BOTTOM) }

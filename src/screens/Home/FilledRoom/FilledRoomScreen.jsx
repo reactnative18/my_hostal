@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View, Text, FlatList, StyleSheet, Image,
     TouchableOpacity, ScrollView, Alert, ToastAndroid,
@@ -11,6 +11,10 @@ import HeaderView from '../../../Components/HeaderView';
 import { Spacer, horizScale, normScale, vertScale } from '../../../util/Layout';
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
 import { fontFamily, fontSize } from '../../../util/Fonts';
+import { useDispatch, useSelector } from 'react-redux';
+import { loaderAction } from '../../../redux/Actions/UserAction';
+import { apiService } from '../../../API_Services';
+import { useIsFocused } from '@react-navigation/native';
 
 const FilledRoomScreen = ({ navigation }) => {
 
@@ -53,6 +57,24 @@ const FilledRoomScreen = ({ navigation }) => {
         // Add more cards as needed
     ];
 
+    const [seat, setSeat] = useState([])
+    const dispatch = useDispatch()
+    const { userInfo } = useSelector(state => state.userInfo)
+    const getData = async () => {
+        dispatch(loaderAction(true))
+        const response = await apiService.getAvailableRoom({ userId: userInfo?._id, "seatAvailible": false })
+        console.log(response)
+        if (response) {
+            dispatch(loaderAction(false))
+            setSeat(response.data)
+        }
+    }
+    const isFocus = useIsFocused()
+    useEffect(() => {
+        getData()
+    }, [isFocus])
+
+
     const [isStaff, setIsStaff] = useState(false)
 
     const [Search, setSearch] = useState('')
@@ -64,7 +86,7 @@ const FilledRoomScreen = ({ navigation }) => {
                 <View>
 
                     <Text style={styles.boldText}>Hostel Name: {item.hostelName}</Text>
-                    {!isStaff && <Text style={styles.regulerText}>Floor No: {item.floorNo}</Text>}
+                    {!isStaff && <Text style={styles.regulerText}>Floor No: {item.floorName}</Text>}
                 </View>
                 <View >
                     <Text>{' '}</Text>
@@ -73,8 +95,8 @@ const FilledRoomScreen = ({ navigation }) => {
             </View>
             <View style={styles.rowList}>
                 {!isStaff && <>
-                    <Text style={styles.regulerText}>Room No: {item.roomNo}</Text>
-                    <Text style={styles.regulerText}>Bed No: {item.bedNo}</Text>
+                    <Text style={styles.regulerText}>Room No: {item.roomName}</Text>
+                    <Text style={styles.regulerText}>Bed No: {item.bedName}</Text>
                 </>}
                 {isStaff && <>
                     <Text style={styles.regulerText}>Joining Date {'\n'} {item.joiningDate}</Text>
@@ -103,7 +125,7 @@ const FilledRoomScreen = ({ navigation }) => {
             <HeaderView navigation={navigation} />
 
             <FlatList
-                data={UserInfo}
+                data={seat}
                 ListHeaderComponent={() => {
                     return (
                         <View style={{ flexDirection: 'row' }}>

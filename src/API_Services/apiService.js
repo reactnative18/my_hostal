@@ -51,46 +51,34 @@ export default class ApiService {
                         'Authorization': `Bearer ${token}`
                     }
                 }
-                var settings = {}
-                settings = {
+
+                var requestOptions = {
                     headers,
                     method,
-                    url: `${Config.base_URL}${path}`,
-                    data,
-                    maxBodyLength: Infinity,
-                }
-                console.log('Api Settings==>', settings)
-                return axios(settings).then(async (response) => {
+                    body: data,
+                    redirect: 'follow'
+                };
+                const URL = `${Config.base_URL}${path}`
+                return fetch(URL, requestOptions).then(data => data.json()).then(async (response) => {
                     console.log("Api Response " + path + " ==>", response.status)
                     console.log("Api Response data===>", response)
-                    if (!response.data.success) {
+                    if (!response.success) {
                         ToastAndroid.showWithGravity(response.message, ToastAndroid.SHORT, ToastAndroid.BOTTOM)
-                        return response.data
+                        return response
                     }
-                    if (response.status == 403) {
-                        await this.removeAuth()
-                        return false
-                    } else if (response.status == 200 || response.status == 201) {
-                        if (isSetToken) {
-                            await Auth.setToken(response.data.token)
-                        }
-                        if (isLogin) {
-                            await Auth.setAuth(response.data.data)
-                        }
-                        console.log("80==>", response.data)
-                        return response.data;
-                    } else {
-
-                        return response.data;
+                    if (isSetToken) {
+                        await Auth.setToken(response.token)
                     }
+                    if (isLogin) {
+                        await Auth.setAuth(response.data)
+                    }
+                    return response;
                 })
                     .catch(async (error) => {
-                        ToastAndroid.showWithGravity("Invalid Credentials, Please Enter Valid Data", ToastAndroid.SHORT, ToastAndroid.BOTTOM)
+                        ToastAndroid.showWithGravity(error?.message, ToastAndroid.SHORT, ToastAndroid.BOTTOM)
                         await this.removeAuth()
-                        console.log("Api error==>", error)
                         return false
                     })
-
             } catch (err) {
                 throw err;
             }
@@ -106,14 +94,10 @@ export default class ApiService {
         if (Platform.OS === "android") {
             NetInfo.fetch().then(isConnected => {
                 if (!isConnected) {
-
-
                     ToastAndroid.showWithGravity('No Internet Connection', ToastAndroid.SHORT, ToastAndroid.TOP)
-
                 }
             });
         } else {
-
             NetInfo.addEventListener(
                 "connectionChange",
                 this.handleFirstConnectivityChange
@@ -127,10 +111,7 @@ export default class ApiService {
             this.handleFirstConnectivityChange
         );
         if (isConnected === false) {
-
-
             ToastAndroid.showWithGravity('No Internet Connection', ToastAndroid.SHORT, ToastAndroid.TOP)
-
         }
     };
 
@@ -198,5 +179,10 @@ export default class ApiService {
         const path = Path.deleteBed;
         return await this.makeRequest(ApiService.DELETE, path, JSON.stringify(data));
     }
+    async getAvailableRoom(data) {
+        const path = Path.getAvailableRoom;
+        return await this.makeRequest(ApiService.POST, path, JSON.stringify(data));
+    }
+
 
 }

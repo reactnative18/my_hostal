@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, SafeAreaView, TextInput, Pressable } from 'react-native';
 import CustomImage from '../../../util/Images';
 import { Colors } from '../../../util/Colors';
 import { fontFamily, fontSize } from '../../../util/Fonts';
 import HeaderView from '../../../Components/HeaderView';
 import { Spacer, horizScale, normScale, vertScale } from '../../../util/Layout';
-
+import { useDispatch, useSelector } from 'react-redux';
+import { useIsFocused } from '@react-navigation/native';
+import { loaderAction } from '../../../redux/Actions/UserAction';
+import { apiService } from '../../../API_Services';
 const AvailableRoomScreen = ({ navigation }) => {
 
     const UserInfo = [
@@ -40,18 +43,35 @@ const AvailableRoomScreen = ({ navigation }) => {
         },
         // Add more cards as needed
     ];
+    const [seat, setSeat] = useState([])
+    const dispatch = useDispatch()
+    const { userInfo } = useSelector(state => state.userInfo)
+    const getData = async () => {
+        dispatch(loaderAction(true))
+        const response = await apiService.getAvailableRoom({ userId: userInfo?._id, "seatAvailible": true })
+        console.log(response)
+        if (response) {
+            dispatch(loaderAction(false))
+            setSeat(response.data)
+        }
+    }
+    const isFocus = useIsFocused()
+    useEffect(() => {
+        getData()
+    }, [isFocus])
+
     const [search, setSearch] = useState('')
     const renderItemUserInfo = ({ item }) => (
         <TouchableOpacity style={styles.userInfoContainer} disabled>
             <View style={styles.rowList}>
 
                 <Text style={styles.boldText}>Name: {item.hostelName}</Text>
-                <Text style={styles.regulerText}>Floor No: {item.floorNo}</Text>
+                <Text style={styles.regulerText}>Floor No: {item.floorName}</Text>
             </View>
             <View style={styles.rowList}>
 
-                <Text style={styles.regulerText}>Room No: {item.roomNo}</Text>
-                <Text style={styles.regulerText}>Bed No: {item.bedNo}</Text>
+                <Text style={styles.regulerText}>Room No: {item.roomName}</Text>
+                <Text style={styles.regulerText}>Bed No: {item.bedName}</Text>
                 <TouchableOpacity
                     onPress={() => {
                         navigation.navigate('TenantProfileScreen', { item })
@@ -84,7 +104,7 @@ const AvailableRoomScreen = ({ navigation }) => {
                 ListFooterComponent={() => (
                     <Spacer height={55} />
                 )}
-                data={UserInfo}
+                data={seat}
                 renderItem={renderItemUserInfo}
                 keyExtractor={item => item.id}
                 showsVerticalScrollIndicator={false}

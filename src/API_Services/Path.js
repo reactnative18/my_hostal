@@ -14,7 +14,7 @@ const Path = {
     getBeds: 'api/getBeds',
     addBed: 'api/addBed',
     deleteBed: 'api/deleteBed',
-
+    getAvailableRoom: 'api/getAllRooms'
 
 }
 

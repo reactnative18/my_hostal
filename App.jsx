@@ -163,7 +163,7 @@ const BottomTabBar = () => {
         tabBarActiveTintColor: Colors.white,
         tabBarInactiveTintColor: Colors.darkgrey,
         tabBarStyle: {
-          height: horizScale(50),
+          height: horizScale(55),
           backgroundColor: 'rgba(52,52,52,0.000001)',
           position: 'absolute',
           borderWidth: 0,
@@ -198,9 +198,18 @@ const BottomTabBar = () => {
 
       <Tab.Screen name="HomeScreen" component={HomeScreen} options={{
         tabBarLabel: 'Home',
-        tabBarIcon: ({ focused }) => (
-          <MaterialCommunityIcons name="home" color={focused ? Colors.white : Colors.darkgrey} size={26} />
-        ),
+        tabBarIcon: ({ focused }) => {
+          return (
+            <Image
+              source={CustomImage.home}
+              style={{
+                height: horizScale(20),
+                width: horizScale(20),
+                tintColor: focused ? Colors.white : Colors.darkgrey,
+              }}
+            />
+          );
+        },
       }} />
       <Tab.Screen name="AvailableRoomScreen" component={AvailableRoomScreen} options={{
         tabBarLabel: 'Available Rooms',
