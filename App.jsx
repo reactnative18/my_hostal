@@ -57,13 +57,10 @@ const NavigationMain = () => {
           <Stack.Screen name="SplashScreen" component={SplashScreen} />
           <Stack.Screen name="AuthStack" component={AuthStack} />
           <Stack.Screen name="HomeDrawer" component={HomeDrawer} />
-
           <Stack.Screen name="SingleHostelScreen" component={SingleHostelScreen} />
           <Stack.Screen name="SingleRoomScreen" component={SingleRoomScreen} />
           <Stack.Screen name="AllocateBedScreen" component={AllocateBedScreen} />
           <Stack.Screen name="SingleFloorScreen" component={SingleFloorScreen} />
-
-
           <Stack.Screen name="HostelManagmentScreen" component={HostelManagmentScreen} />
           <Stack.Screen name="AddHostel" component={AddHostel} />
           <Stack.Screen name="HostelFloorManagment" component={HostelFloorManagment} />
@@ -79,12 +76,9 @@ const NavigationMain = () => {
           <Stack.Screen name="Expenses" component={Expenses} />
           <Stack.Screen name="ExpensesEntry" component={ExpensesEntry} />
           <Stack.Screen name="Notification" component={Notification} />
-
-
         </Stack.Navigator>
       </NavigationContainer>
     </>
-
   )
 }
 
@@ -137,8 +131,6 @@ const HomeDrawer = () => {
 
   )
 }
-import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import CustomImage from './src/util/Images';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import ShiftScreen from './src/screens/Home/AvailableRoom/ShiftScreen';
@@ -151,7 +143,6 @@ import Help from './src/screens/Home/DrawerScreens/Help';
 import Notification from './src/screens/Home/Notification';
 import Loader from './src/util/Loader';
 import AddBed from './src/screens/Home/DrawerScreens/HostelManagment/HostelBedManagment/AddBed';
-// const Tab = createMaterialBottomTabNavigator();
 const Tab = createBottomTabNavigator();
 const BottomTabBar = () => {
   return (

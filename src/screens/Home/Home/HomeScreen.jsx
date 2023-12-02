@@ -18,7 +18,7 @@ const HomeScreen = ({ navigation }) => {
         dispatch(loaderAction(true))
         const response = await apiService.getHostels({ userId: userInfo?._id })
         console.log(response)
-        if (response) {
+        if (response.success) {
             dispatch(loaderAction(false))
             setHostels(response.data)
         }

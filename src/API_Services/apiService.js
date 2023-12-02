@@ -8,14 +8,14 @@ import Auth from '../Auth';
 export default class ApiService {
 
     static get GET() {
-        return 'GET';
+        return 'get';
     }
 
     static get POST() {
-        return 'POST';
+        return 'post';
     }
     static get DELETE() {
-        return 'DELETE';
+        return 'delete';
     }
     static get TOKEN() {
         return true;
@@ -30,7 +30,7 @@ export default class ApiService {
     }
     async makeRequest(method, path, data = {}, isSetToken = false, isLogin = false) {
 
-        if (method == "GET") {
+        if (method == "get") {
             const req = await axios
                 .get(`${Config.base_URL}/api/${path}`)
             return req.data;
@@ -39,47 +39,43 @@ export default class ApiService {
                 var token = await Auth.getToken();
                 console.log("Token===>", token)
                 this.CheckConnectivity()
-                let headers;
+                const url = `${Config.base_URL}${path}`
+                var headers
                 if (token == null) {
                     headers = {
                         'Content-Type': 'application/json'
                     }
                 } else {
                     headers = {
-                        'Content-Type': 'application/json; charset=utf-8',
-                        'Accept': 'application/json, text/plain, */*',
+                        'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     }
                 }
-
-                var requestOptions = {
-                    headers,
+                var settings = {}
+                settings = {
                     method,
-                    body: data,
-                    redirect: 'follow'
-                };
-                const URL = `${Config.base_URL}${path}`
-                return fetch(URL, requestOptions).then(data => data.json()).then(async (response) => {
-                    console.log("Api Response " + path + " ==>", response.status)
-                    console.log("Api Response data===>", response)
-                    if (!response.success) {
-                        ToastAndroid.showWithGravity(response.message, ToastAndroid.SHORT, ToastAndroid.BOTTOM)
-                        return response
-                    }
-                    if (isSetToken) {
-                        await Auth.setToken(response.token)
-                    }
-                    if (isLogin) {
-                        await Auth.setAuth(response.data)
-                    }
-                    return response;
-                })
-                    .catch(async (error) => {
-                        ToastAndroid.showWithGravity(error?.message, ToastAndroid.SHORT, ToastAndroid.BOTTOM)
-                        await this.removeAuth()
-                        return false
-                    })
+                    url,
+                    headers,
+                    data,
+                }
+                console.log("settings===>", settings)
+                const req = await axios(settings);
+                const response = req.data
+                console.log("response===>", response)
+                if (!response.success) {
+                    ToastAndroid.showWithGravity(response.message, ToastAndroid.SHORT, ToastAndroid.BOTTOM)
+                    return response
+                }
+                if (isSetToken) {
+                    await Auth.setToken(response.token)
+                }
+                if (isLogin) {
+                    await Auth.setAuth(response.data)
+                }
+                return response
+
             } catch (err) {
+                ToastAndroid.showWithGravity('Please Check Internet Connection', ToastAndroid.SHORT, ToastAndroid.TOP)
                 throw err;
             }
         }
@@ -88,7 +84,6 @@ export default class ApiService {
     removeAuth = () => {
         Auth.removeAuth()
     }
-
 
     CheckConnectivity = () => {
         if (Platform.OS === "android") {

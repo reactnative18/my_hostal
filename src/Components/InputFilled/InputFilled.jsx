@@ -139,16 +139,15 @@ const InputFilled = (props) => {
                             search
                             mode='modal'
                             maxHeight={vertScale(500)}
-
-                            labelField="label"
-                            valueField="value"
+                            labelField={props.labelField}
+                            valueField={props.valueField}
                             placeholder={!isFocus ? props.placeholder : '...'}
                             searchPlaceholder={props.placeholder}
                             value={props.value}
                             onFocus={() => setIsFocus(true)}
                             onBlur={() => setIsFocus(false)}
                             onChange={item => {
-                                props.onChangeText(item.value);
+                                props.onChangeText(item);
                                 setIsFocus(false);
                             }}
 

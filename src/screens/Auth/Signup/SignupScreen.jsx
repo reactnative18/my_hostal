@@ -64,7 +64,7 @@ const SignupScreen = ({ navigation }) => {
         }
         dispatch(loaderAction(true))
         const response = await apiService.signup(data)
-        if (response && response != undefined && response.success) {
+        if (response.success) {
             console.log(response.data)
             await dispatch(userInfoAction(response?.data))
             dispatch(loaderAction(false))
