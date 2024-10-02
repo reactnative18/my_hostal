@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
     ToastAndroid, Text, StyleSheet,
     StatusBar, Pressable,
-    ScrollView, SafeAreaView, Image
+    ScrollView, SafeAreaView, Image, Platform, Alert
 } from 'react-native';
 import CustomImage from '../../../util/Images';
 import { Colors } from '../../../util/Colors';
@@ -63,8 +63,9 @@ const SignupScreen = ({ navigation }) => {
             name, email, password, mobileNo: phoneNumber
         }
         dispatch(loaderAction(true))
+        console.log("data==>",data)
         const response = await apiService.signup(data)
-        if (response.success) {
+        if (response && response != undefined && response.success) {
             console.log(response.data)
             await dispatch(userInfoAction(response?.data))
             dispatch(loaderAction(false))
@@ -77,6 +78,7 @@ const SignupScreen = ({ navigation }) => {
             setError('');
         } else {
             if (response.message) {
+                Platform.OS==='ios'?Alert.alert(response.message):
                 ToastAndroid.showWithGravity(response.message, ToastAndroid.SHORT, ToastAndroid.BOTTOM)
             }
             dispatch(loaderAction(false))

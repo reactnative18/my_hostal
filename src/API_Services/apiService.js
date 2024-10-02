@@ -1,6 +1,6 @@
 import axios from 'axios';
 import Path from './Path';
-import { Platform, ToastAndroid } from "react-native";
+import { Alert, Platform, ToastAndroid } from "react-native";
 import NetInfo from "@react-native-community/netinfo";
 import { Toast } from 'react-native-toast-message';
 import { Config } from '../Config';
@@ -8,14 +8,14 @@ import Auth from '../Auth';
 export default class ApiService {
 
     static get GET() {
-        return 'get';
+        return 'GET';
     }
 
     static get POST() {
-        return 'post';
+        return 'POST';
     }
     static get DELETE() {
-        return 'delete';
+        return 'DELETE';
     }
     static get TOKEN() {
         return true;
@@ -30,7 +30,7 @@ export default class ApiService {
     }
     async makeRequest(method, path, data = {}, isSetToken = false, isLogin = false) {
 
-        if (method == "get") {
+        if (method == "GET") {
             const req = await axios
                 .get(`${Config.base_URL}/api/${path}`)
             return req.data;
@@ -39,43 +39,50 @@ export default class ApiService {
                 var token = await Auth.getToken();
                 console.log("Token===>", token)
                 this.CheckConnectivity()
-                const url = `${Config.base_URL}${path}`
-                var headers
+                let headers;
                 if (token == null) {
                     headers = {
                         'Content-Type': 'application/json'
                     }
                 } else {
                     headers = {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/json; charset=utf-8',
+                        'Accept': 'application/json, text/plain, */*',
                         'Authorization': `Bearer ${token}`
                     }
                 }
-                var settings = {}
-                settings = {
-                    method,
-                    url,
-                    headers,
-                    data,
-                }
-                console.log("settings===>", settings)
-                const req = await axios(settings);
-                const response = req.data
-                console.log("response===>", response)
-                if (!response.success) {
-                    ToastAndroid.showWithGravity(response.message, ToastAndroid.SHORT, ToastAndroid.BOTTOM)
-                    return response
-                }
-                if (isSetToken) {
-                    await Auth.setToken(response.token)
-                }
-                if (isLogin) {
-                    await Auth.setAuth(response.data)
-                }
-                return response
 
+                var requestOptions = {
+                    headers,
+                    method,
+                    body: data,
+                    redirect: 'follow'
+                };
+                const URL = `${Config.base_URL}${path}`
+                console.log(URL, requestOptions)
+                return fetch(URL, requestOptions).then(data => data.json()).then(async (response) => {
+                    console.log("Api Response " + path + " ==>", response.status)
+                    console.log("Api Response data===>", response)
+                    if (!response.success) {
+                        Platform.OS === 'ios' ? Alert.alert(response.message) :
+                        ToastAndroid.showWithGravity(response.message, ToastAndroid.SHORT, ToastAndroid.BOTTOM)
+                        return response
+                    }
+                    if (isSetToken) {
+                        await Auth.setToken(response.token)
+                    }
+                    if (isLogin) {
+                        await Auth.setAuth(response.data)
+                    }
+                    return response;
+                })
+                    .catch(async (error) => {
+                        Platform.OS === 'ios' ? Alert.alert(error?.message) :
+                        ToastAndroid.showWithGravity(error?.message, ToastAndroid.SHORT, ToastAndroid.BOTTOM)
+                        await this.removeAuth()
+                        return false
+                    })
             } catch (err) {
-                ToastAndroid.showWithGravity('Please Check Internet Connection', ToastAndroid.SHORT, ToastAndroid.TOP)
                 throw err;
             }
         }
@@ -85,10 +92,12 @@ export default class ApiService {
         Auth.removeAuth()
     }
 
+
     CheckConnectivity = () => {
         if (Platform.OS === "android") {
             NetInfo.fetch().then(isConnected => {
                 if (!isConnected) {
+                    Platform.OS === 'ios' ? Alert.alert('No Internet Connection') :
                     ToastAndroid.showWithGravity('No Internet Connection', ToastAndroid.SHORT, ToastAndroid.TOP)
                 }
             });
@@ -106,6 +115,7 @@ export default class ApiService {
             this.handleFirstConnectivityChange
         );
         if (isConnected === false) {
+            Platform.OS === 'ios' ? Alert.alert('No Internet Connection') :
             ToastAndroid.showWithGravity('No Internet Connection', ToastAndroid.SHORT, ToastAndroid.TOP)
         }
     };

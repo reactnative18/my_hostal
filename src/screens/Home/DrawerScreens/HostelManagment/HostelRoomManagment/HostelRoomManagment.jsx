@@ -14,7 +14,7 @@ import { useIsFocused } from '@react-navigation/native'
 const HostelRoomManagment = ({ navigation, route }) => {
     const { loading } = useSelector(state => state.loader)
     const dispatch = useDispatch()
-    const { floor, hostel } = route.params
+    const { floor } = route.params
     const [Rooms, setRooms] = useState([])
     const getData = async () => {
         dispatch(loaderAction(true))
@@ -42,8 +42,7 @@ const HostelRoomManagment = ({ navigation, route }) => {
     }
     const renderItem = ({ item, index }) => {
         return <Pressable style={styles.hostelContainer} onPress={() => navigation.navigate('HostelBedManagment', {
-            hostel,
-            floor,
+            floor: floor,
             room: item
         })}>
             <View style={{ flex: 0.2, alignItems: 'center' }}>

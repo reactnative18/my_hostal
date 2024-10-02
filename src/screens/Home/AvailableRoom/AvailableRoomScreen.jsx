@@ -65,29 +65,17 @@ const AvailableRoomScreen = ({ navigation }) => {
         <TouchableOpacity style={styles.userInfoContainer} disabled>
             <View style={styles.rowList}>
 
-                <Text style={styles.boldText}>{item.hostelName}</Text>
-                <Text style={styles.regulerText}>{item.floorName}</Text>
+                <Text style={styles.boldText}>Name: {item.hostelName}</Text>
+                <Text style={styles.regulerText}>Floor No: {item.floorName}</Text>
             </View>
             <View style={styles.rowList}>
 
-                <Text style={styles.regulerText}>{item.roomName}</Text>
-                <Text style={styles.regulerText}>{item.bedName}</Text>
+                <Text style={styles.regulerText}>Room No: {item.roomName}</Text>
+                <Text style={styles.regulerText}>Bed No: {item.bedName}</Text>
                 <TouchableOpacity
                     onPress={() => {
-                        let hostel = {
-                            _id: item.hostelId
-                        }
-                        let floor = {
-                            _id: item.floorId
-                        }
-                        let room = {
-                            _id: item.roomId
-                        }
-                        let bed = {
-                            _id: item._id
-                        }
-                        console.log(item)
-                        navigation.navigate('TenantProfileScreen', { hostel, floor, room, bed })
+                        navigation.navigate('TenantProfileScreen', { item })
+
                     }}
                     style={{ width: 100, alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.green, paddingVertical: 4, borderRadius: 5 }}>
                     <Text style={{ color: 'white' }}>Allocate</Text>

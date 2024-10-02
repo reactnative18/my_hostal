@@ -40,7 +40,7 @@ const AddFloor = ({ navigation, route }) => {
             <View style={styles.container}>
 
                 <InputFilled
-                    type="Email"
+                    type="Mobile"
                     placeholder="Floor Number/Name"
                     value={floorNumber}
                     onChangeText={text => setFloorNumber(text)}

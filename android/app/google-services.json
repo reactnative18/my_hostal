@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "649388106591",
+    "project_id": "annapurna-hostel",
+    "storage_bucket": "annapurna-hostel.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:649388106591:android:5cea0efba41462fb220cea",
+        "android_client_info": {
+          "package_name": "com.annapurna.hostel"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "649388106591-he6vilctcugeolsbuhldq3jf2n7sl8eo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.annapurna.hostel",
+            "certificate_hash": "02ddb4da04b61ec052b5ba998bd3d45621660eea"
+          }
+        },
+        {
+          "client_id": "649388106591-as75dsssb685eka1f36nlrrcr3mboi9d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArCfRCirm-r3FoxLCFvqFPyW8hfVaJztQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "649388106591-as75dsssb685eka1f36nlrrcr3mboi9d.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "649388106591-haqiufglere1qe9bi7a50v93l3ia1p8d.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.annapurna.hostel"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

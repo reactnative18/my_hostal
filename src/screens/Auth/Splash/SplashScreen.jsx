@@ -15,7 +15,7 @@ const SplashScreen = ({ navigation }) => {
         const getAuth = await Auth.getAuth()
         if (getAuth) {
             const response = await apiService.getUser({ userId: getAuth?._id })
-            if (response.success == false) {
+            if (response == false) {
                 navigation.replace('AuthStack');
             } else if (response?.data?._id) {
                 await dispatch(userInfoAction(response?.data))

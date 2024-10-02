@@ -14,7 +14,7 @@ import { useIsFocused } from '@react-navigation/native'
 const HostelBedManagment = ({ navigation, route }) => {
     const { loading } = useSelector(state => state.loader)
     const dispatch = useDispatch()
-    const { hostel, floor, room } = route.params
+    const { floor, room } = route.params
     const [bed, setBed] = useState([])
     const getData = async () => {
         dispatch(loaderAction(true))
@@ -34,9 +34,9 @@ const HostelBedManagment = ({ navigation, route }) => {
     useEffect(() => {
         getData()
     }, [isFocus])
-    const deleteBed = async (id) => {
+    const deleteRoom = async (id) => {
         dispatch(loaderAction(true))
-        const response = await apiService.deleteBed({ bedId: id })
+        const response = await apiService.deleteRoom({ roomId: id })
         if (response) {
             const data = await bed?.filter(item => item._id !== id)
             setBed(data)
@@ -44,11 +44,7 @@ const HostelBedManagment = ({ navigation, route }) => {
         }
     }
     const renderItem = ({ item, index }) => {
-        return <Pressable style={styles.roomContainer} onPress={() => {
-            navigation.navigate('TenantProfileScreen', {
-                hostel, floor, room, bed: item
-            })
-        }}>
+        return <Pressable style={styles.roomContainer} onPress={() => { navigation.navigate('TenantProfileScreen') }}>
             <View style={styles.hostelContainer}>
                 <View style={styles.hostelContainer2}>
                     <Text style={styles.hostelName}>{item.bedName}</Text>
@@ -58,7 +54,7 @@ const HostelBedManagment = ({ navigation, route }) => {
                     onPress={async () => {
                         Alert.alert("Delete Bed", "Are you sure to delete Bed ?", [{
                             text: 'YES',
-                            onPress: () => { deleteBed(item._id) }
+                            onPress: () => { deleteRoom(item._id) }
                         }, {
                             text: 'No',
                             onPress: () => {

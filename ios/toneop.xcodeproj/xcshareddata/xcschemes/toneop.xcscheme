@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "toneop.app"
-               BlueprintName = "toneop"
-               ReferencedContainer = "container:toneop.xcodeproj">
+               BuildableName = "annapurna.app"
+               BlueprintName = "annapurna"
+               ReferencedContainer = "container:annapurna.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -35,7 +35,7 @@
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
                BuildableName = "toneopTests.xctest"
                BlueprintName = "toneopTests"
-               ReferencedContainer = "container:toneop.xcodeproj">
+               ReferencedContainer = "container:annapurna.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "toneop.app"
-            BlueprintName = "toneop"
-            ReferencedContainer = "container:toneop.xcodeproj">
+            BuildableName = "annapurna.app"
+            BlueprintName = "annapurna"
+            ReferencedContainer = "container:annapurna.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "toneop.app"
-            BlueprintName = "toneop"
-            ReferencedContainer = "container:toneop.xcodeproj">
+            BuildableName = "annapurna.app"
+            BlueprintName = "annapurna"
+            ReferencedContainer = "container:annapurna.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

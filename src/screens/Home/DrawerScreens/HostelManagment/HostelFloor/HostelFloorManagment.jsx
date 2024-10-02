@@ -40,7 +40,6 @@ const HostelFloorManagment = ({ navigation, route }) => {
     }
     const renderItem = ({ item, index }) => {
         return <Pressable style={styles.hostelContainer} onPress={() => navigation.navigate('HostelRoomManagment', {
-            hostel,
             floor: item
         })}>
             <View style={{ flex: 0.2, alignItems: 'center' }}>

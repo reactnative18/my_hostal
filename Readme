@@ -1,0 +1,17 @@
+Variant: release
+Store: /Users/babulaljat/Workspace/my_hostal-main/android/app/annapurna.jks
+Alias: annapurna
+MD5: 92:67:C7:8C:92:B8:C8:FF:92:D1:18:C2:AE:05:9E:DF
+SHA1: 02:DD:B4:DA:04:B6:1E:C0:52:B5:BA:99:8B:D3:D4:56:21:66:0E:EA
+SHA-256: 3D:0B:17:BA:A3:72:73:BD:A9:5B:E3:FC:3A:A0:14:44:BD:0E:2D:1C:CF:4A:30:37:95:06:AA:F6:CD:75:31:AF
+Valid until: Thursday, 9 September, 2123
+
+ applicationId com.annapurna.hostel
+
+
+ Firebase Details
+
+ annapurnahostal@gmail.com
+
+ annapurna-ios    =F4415D4D-74DC-4272-96B3-7DB07494AE5B
+ annapurna-android=54AFD6F2-A78D-4AEB-94B0-2722DED6CC01

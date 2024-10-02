@@ -35,7 +35,7 @@ const LoginScreen = ({ navigation }) => {
         dispatch(loaderAction(true))
         const response = await apiService.login({ email, password })
         console.log("login==>", response)
-        if (response.success) {
+        if (response && response != undefined && response.success) {
             await dispatch(userInfoAction(response?.data))
             dispatch(loaderAction(false))
             console.log("Api Response data at login===>", response)
