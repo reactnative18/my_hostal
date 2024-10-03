@@ -9,6 +9,7 @@ import InputFilled from '../../../Components/InputFilled/InputFilled';
 import { apiService } from '../../../API_Services';
 import { loaderAction, userInfoAction } from '../../../redux/Actions/UserAction';
 import { useDispatch } from 'react-redux';
+import { firebase_login } from '../../../firebase_database';
 
 const LoginScreen = ({ navigation }) => {
     const dispatch = useDispatch()
@@ -33,12 +34,11 @@ const LoginScreen = ({ navigation }) => {
             return;
         }
         dispatch(loaderAction(true))
-        const response = await apiService.login({ email, password })
+        const response = await firebase_login({ email, password })
         console.log("login==>", response)
-        if (response && response != undefined && response.success) {
-            await dispatch(userInfoAction(response?.data))
-            dispatch(loaderAction(false))
-            console.log("Api Response data at login===>", response)
+        if (!response.isError) {
+            await dispatch(userInfoAction(response))
+            dispatch(loaderAction(false)) 
             navigation.replace('HomeDrawer')
             setEmail('')
             setPassword('')

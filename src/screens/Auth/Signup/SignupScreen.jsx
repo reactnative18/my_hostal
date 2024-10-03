@@ -13,7 +13,8 @@ import InputFilled from '../../../Components/InputFilled/InputFilled';
 import { apiService } from '../../../API_Services';
 import { useDispatch } from 'react-redux';
 import { loaderAction, userInfoAction } from '../../../redux/Actions/UserAction';
-
+import { firebase_signup } from '../../../firebase_database';
+import auth from '@react-native-firebase/auth';
 const SignupScreen = ({ navigation }) => {
     const dispatch = useDispatch()
     const [name, setName] = useState('');
@@ -64,9 +65,25 @@ const SignupScreen = ({ navigation }) => {
         }
         dispatch(loaderAction(true))
         console.log("data==>",data)
-        const response = await apiService.signup(data)
-        if (response && response != undefined && response.success) {
-            console.log(response.data)
+
+        auth()
+            .createUserWithEmailAndPassword(email, password)
+            .then((response) => {
+                console.log('User account created & signed in!',response);
+            })
+            .catch(error => {
+                if (error.code === 'auth/email-already-in-use') {
+                    console.log('That email address is already in use!');
+                }
+
+                if (error.code === 'auth/invalid-email') {
+                    console.log('That email address is invalid!');
+                }
+
+                console.error(error);
+            });
+        const response = await firebase_signup(data)
+        if (response && response != undefined) { 
             await dispatch(userInfoAction(response?.data))
             dispatch(loaderAction(false))
             navigation.replace('LoginScreen')
