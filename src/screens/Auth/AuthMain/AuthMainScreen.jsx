@@ -1,12 +1,27 @@
-import React from 'react'
-import { Image, SafeAreaView, StatusBar, StyleSheet, Text, View, Pressable, ScrollView } from 'react-native'
+import React, { useLayoutEffect } from 'react'
+import { Image, SafeAreaView, StatusBar, StyleSheet, Text, View, Pressable, ScrollView, Alert } from 'react-native'
 import { fontFamily, fontSize } from '../../../util/Fonts'
 import FocusStatusBar from '../../../Components/FocusStatusBar/FocusStatusBar'
 import { Colors } from '../../../util/Colors'
 import { fullWidth, horizScale, normScale, vertScale } from '../../../util/Layout'
 import CustomImage from '../../../util/Images'
+import Auth from '../../../Auth'
+import { useDispatch } from 'react-redux'
+import { userInfoAction } from '../../../redux/Actions/UserAction'
 
 const AuthMainScreen = ({ navigation }) => {
+    const dispatch = useDispatch()
+    const getUser = async () => {
+        const userData = await Auth.getAuth()
+        if (userData){
+            Alert.alert("hiink=>" + JSON.stringify(userData))
+            await dispatch(userInfoAction(userData))
+            navigation.replace('HomeDrawer')
+        }
+    }
+    useLayoutEffect(() => {
+        getUser()
+    }, [])
     return (
         <SafeAreaView style={styles.container}>
             <FocusStatusBar hidden transulent />

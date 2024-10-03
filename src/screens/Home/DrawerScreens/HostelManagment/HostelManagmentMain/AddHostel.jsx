@@ -12,7 +12,8 @@ import CustomImage from '../../../../../util/Images'
 import InputFilled from '../../../../../Components/InputFilled/InputFilled'
 import { useDispatch, useSelector } from 'react-redux'
 import { loaderAction } from '../../../../../redux/Actions/UserAction'
-import { apiService } from '../../../../../API_Services'
+import { firebase_addDataToTable } from '../../../../../firebase_database'
+import tableNames from '../../../../../firebase_database/constrains'
 
 const AddHostel = ({ navigation }) => {
     const dispatch = useDispatch()
@@ -24,15 +25,26 @@ const AddHostel = ({ navigation }) => {
     const addHostel = async () => {
         dispatch(loaderAction(true))
         const data = {
-            userId: userInfo._id,
+            userId: userInfo.id,
             hostelName: name,
-            hostelAddress: address
+            hostelAddress: address,
+            mapLink
         }
-        const response = await apiService.addHostel(data)
-        if (response) {
+        try {
+            const response = await firebase_addDataToTable(tableNames.hostel, data)
+            if (response) {
+                navigation.goBack()
+            } else {
+                // may be network issue
+            }
+        } catch (error) {
+console.log(error)
+        }
+        finally {
+            console.log('sethostel=>', data, "\nuser data=>", userInfo)
             dispatch(loaderAction(false))
-            navigation.goBack()
         }
+
     }
     return (
         <SafeAreaView style={styles.container}>

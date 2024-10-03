@@ -60,16 +60,38 @@ const SignupScreen = ({ navigation }) => {
             }, 2000);
             return;
         }
-        let data = {
-            name, email, password, mobileNo: phoneNumber
-        }
-        dispatch(loaderAction(true))
-        console.log("data==>",data)
 
-        auth()
+        dispatch(loaderAction(true))
+
+        await auth()
             .createUserWithEmailAndPassword(email, password)
-            .then((response) => {
-                console.log('User account created & signed in!',response);
+            .then(async (userData) => {
+                console.log('userData data=>', userData); 
+                if (userData.additionalUserInfo.isNewUser) {
+                    let data = {
+                        id: userData.user.uid,
+                        name, email, password, mobileNo: phoneNumber
+                    }
+                    const response = await firebase_signup(data)
+                    if (response && response != undefined) {
+                        await dispatch(userInfoAction(response?.data))
+                        dispatch(loaderAction(false))
+                        navigation.replace('LoginScreen')
+                        setName('');
+                        setEmail('');
+                        setPassword('');
+                        setConfirmPassword('');
+                        setPhoneNumber('');
+                        setError('');
+                    } else {
+                        if (response.message) {
+                            Platform.OS === 'ios' ? Alert.alert(response.message) :
+                                ToastAndroid.showWithGravity(response.message, ToastAndroid.SHORT, ToastAndroid.BOTTOM)
+                        }
+                    }
+                } else {
+                    console.log('That email address is already in use!');
+                }
             })
             .catch(error => {
                 if (error.code === 'auth/email-already-in-use') {
@@ -79,27 +101,10 @@ const SignupScreen = ({ navigation }) => {
                 if (error.code === 'auth/invalid-email') {
                     console.log('That email address is invalid!');
                 }
-
                 console.error(error);
+            }).finally(() => {
+                dispatch(loaderAction(false))
             });
-        const response = await firebase_signup(data)
-        if (response && response != undefined) { 
-            await dispatch(userInfoAction(response?.data))
-            dispatch(loaderAction(false))
-            navigation.replace('LoginScreen')
-            setName('');
-            setEmail('');
-            setPassword('');
-            setConfirmPassword('');
-            setPhoneNumber('');
-            setError('');
-        } else {
-            if (response.message) {
-                Platform.OS==='ios'?Alert.alert(response.message):
-                ToastAndroid.showWithGravity(response.message, ToastAndroid.SHORT, ToastAndroid.BOTTOM)
-            }
-            dispatch(loaderAction(false))
-        }
     };
 
     return (

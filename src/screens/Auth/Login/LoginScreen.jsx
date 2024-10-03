@@ -10,6 +10,7 @@ import { apiService } from '../../../API_Services';
 import { loaderAction, userInfoAction } from '../../../redux/Actions/UserAction';
 import { useDispatch } from 'react-redux';
 import { firebase_login } from '../../../firebase_database';
+import Auth from '../../../Auth';
 
 const LoginScreen = ({ navigation }) => {
     const dispatch = useDispatch()
@@ -35,8 +36,9 @@ const LoginScreen = ({ navigation }) => {
         }
         dispatch(loaderAction(true))
         const response = await firebase_login({ email, password })
-        console.log("login==>", response)
+        console.log("login response==>", response)
         if (!response.isError) {
+            Auth.setAuth(response)
             await dispatch(userInfoAction(response))
             dispatch(loaderAction(false)) 
             navigation.replace('HomeDrawer')

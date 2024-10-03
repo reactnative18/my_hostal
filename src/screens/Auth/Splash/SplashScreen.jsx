@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Animated, ImageBackground } from 'react-native';
+import { View, Animated, ImageBackground, Alert } from 'react-native';
 import CustomImage from '../../../util/Images';
 import { styles } from './style';
 import FocusStatusBar from '../../../Components/FocusStatusBar/FocusStatusBar';
@@ -13,16 +13,9 @@ const SplashScreen = ({ navigation }) => {
     const fadeAnim = new Animated.Value(0);
     const getUser = async () => {
         const getAuth = await Auth.getAuth()
-        if (getAuth) {
-            const response = await apiService.getUser({ userId: getAuth?._id })
-            if (response == false) {
-                navigation.replace('AuthStack');
-            } else if (response?.data?._id) {
-                await dispatch(userInfoAction(response?.data))
-                navigation.replace('HomeDrawer');
-            } else {
-                navigation.replace('AuthStack');
-            }
+        if (getAuth) { 
+            await dispatch(userInfoAction(getAuth))
+            navigation.replace('HomeDrawer');
         }
         else {
             navigation.replace('AuthStack');
@@ -38,15 +31,6 @@ const SplashScreen = ({ navigation }) => {
     }, [fadeAnim]);
     return (
         <View style={styles.container}>
-            {/* <Animated.View style={[styles.logoContainer, { opacity: fadeAnim }]}>
-                <Image
-                    source={CustomImage.logo}
-                    style={styles.image}
-                />
-                <Animated.Text style={[styles.text, { opacity: fadeAnim }]}>
-                    Welcome To AP Hostel
-                </Animated.Text>
-            </Animated.View> */}
             <ImageBackground source={CustomImage.splashI} style={{ flex: 1, height: '100%', width: '100%' }}>
                 <FocusStatusBar hidden={true} translucent={true} />
             </ImageBackground>

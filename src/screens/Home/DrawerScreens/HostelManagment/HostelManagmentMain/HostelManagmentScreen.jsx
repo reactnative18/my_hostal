@@ -8,8 +8,9 @@ import { fontFamily, fontSize } from '../../../../../util/Fonts'
 import CustomImage from '../../../../../util/Images'
 import { useDispatch, useSelector } from 'react-redux'
 import { loaderAction } from '../../../../../redux/Actions/UserAction'
-import { apiService } from '../../../../../API_Services'
 import { useIsFocused } from '@react-navigation/native'
+import { firebase_getAllDataFromTable, firebase_removeDataToTable } from '../../../../../firebase_database'
+import tableNames from '../../../../../firebase_database/constrains'
 const HostelManagmentScreen = ({ navigation }) => {
     const { loading } = useSelector(state => state.loader)
     const dispatch = useDispatch()
@@ -17,11 +18,11 @@ const HostelManagmentScreen = ({ navigation }) => {
     const [hostels, setHostels] = useState([])
     const getData = async () => {
         dispatch(loaderAction(true))
-        const response = await apiService.getHostels({ userId: userInfo._id })
+        const response = await firebase_getAllDataFromTable(tableNames.hostel)
         if (response) {
-            dispatch(loaderAction(false))
-            setHostels(response.data)
+            setHostels(response)
         }
+        dispatch(loaderAction(false))
     }
     const focus = useIsFocused()
     useEffect(() => {
@@ -29,9 +30,9 @@ const HostelManagmentScreen = ({ navigation }) => {
     }, [focus])
     const deleteHostel = async (id) => {
         dispatch(loaderAction(true))
-        const response = await apiService.deleteHostel({ hostelId: id })
+        const response = await firebase_removeDataToTable(tableNames.hostel, id)
         if (response) {
-            const data = await hostels?.filter(item => item._id !== id)
+            const data = await hostels?.filter(item => item.id !== id)
             setHostels(data)
             dispatch(loaderAction(false))
         }
@@ -51,7 +52,7 @@ const HostelManagmentScreen = ({ navigation }) => {
             <Pressable style={styles.deleteButton} onPress={async () => {
                 Alert.alert("Delete Hostel", "Are you sure to delete hostel ?", [{
                     text: 'YES',
-                    onPress: () => { deleteHostel(item._id) }
+                    onPress: () => { deleteHostel(item.id) }
                 }, {
                     text: 'No',
                     onPress: () => {

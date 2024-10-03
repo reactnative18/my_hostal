@@ -6,9 +6,10 @@ import { Colors } from '../../../util/Colors';
 import { Spacer, horizScale, vertScale } from '../../../util/Layout';
 import { fontFamily, fontSize } from '../../../util/Fonts';
 import { useDispatch, useSelector } from 'react-redux';
-import { apiService } from '../../../API_Services';
 import { loaderAction } from '../../../redux/Actions/UserAction';
 import { useIsFocused } from '@react-navigation/native';
+import { firebase_getAllDataFromTable } from '../../../firebase_database';
+import tableNames from '../../../firebase_database/constrains';
 
 const HomeScreen = ({ navigation }) => {
     const dispatch = useDispatch()
@@ -16,12 +17,12 @@ const HomeScreen = ({ navigation }) => {
     const [hostels, setHostels] = useState([])
     const getData = async () => {
         dispatch(loaderAction(true))
-        const response = await apiService.getHostels({ userId: userInfo?._id })
+        const response = await firebase_getAllDataFromTable(tableNames.hostel)
         console.log(response)
-        if (response) {
-            dispatch(loaderAction(false))
+        if (response.length>0) {
             setHostels(response.data)
         }
+        dispatch(loaderAction(false))
     }
     const { loading } = useSelector(state => state.loader)
     const focus = useIsFocused()
