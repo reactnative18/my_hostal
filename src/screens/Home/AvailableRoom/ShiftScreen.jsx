@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, SafeAreaView, TextInput, Pressable } from 'react-native';
 import CustomImage from '../../../util/Images';
 import { Colors } from '../../../util/Colors';
@@ -7,59 +7,52 @@ import HeaderView from '../../../Components/HeaderView';
 import { Spacer, horizScale, normScale, vertScale } from '../../../util/Layout';
 import BackButton from '../../../Components/BackButton/BackButton';
 import FocusStatusBar from '../../../Components/FocusStatusBar/FocusStatusBar';
+import { fetchAllAvailableBeds, firebase_shiftBeds } from '../../../firebase_database';
+import ToastMessage from '../../../Components/ToastMessage';
 
 const ShiftScreen = ({ navigation, route }) => {
 
-    const userID = route?.params?.userID;
-    const UserInfo = [
-        {
-            id: '1',
-            hostelName: 'Ap 1',
-            floorNo: '02',
-            roomNo: '203',
-            bedNo: '02'
-
-        },
-        {
-            id: '2',
-            hostelName: 'Ap 3',
-            floorNo: '02',
-            roomNo: '102',
-            bedNo: '03'
-        },
-        {
-            id: '3',
-            hostelName: 'Ap 4',
-            floorNo: '02',
-            roomNo: '203',
-            bedNo: '02'
-        },
-        {
-            id: '4',
-            hostelName: 'Ap 2',
-            floorNo: '02',
-            roomNo: '203',
-            bedNo: '02'
-        },
-        // Add more cards as needed
-    ];
-    const [Shift, setShift] = useState({})
+    const { tenantData } = route?.params;
+    const [BedList, setBedList] = useState([])
+    const getAllBeds = async () => {
+        const response = await fetchAllAvailableBeds(true)
+        if (response) {
+            console.log("getAllBeds=>", response)
+            const bedList = response.filter(u => u.seatAvailable == true);
+            setBedList(bedList)
+        }
+    }
+    useEffect(() => {
+        getAllBeds()
+    }, [])
+    const tenantShift = async () => {
+        if (Shift==null){
+            ToastMessage.WarningShowToast("Please select a bed first...")
+            return
+        }
+        const res = await firebase_shiftBeds(tenantData, Shift)
+        if (res) {
+            navigation.replace("HomeDrawer")
+            ToastMessage.successShowToast("Shifted successfully...")
+        }
+    }
+    const [Shift, setShift] = useState(null)
     const [search, setSearch] = useState('')
     const renderItemUserInfo = ({ item }) => (
         <TouchableOpacity style={styles.userInfoContainer} disabled>
             <View style={styles.rowList}>
 
                 <Text style={styles.boldText}>Name: {item.hostelName}</Text>
-                <Text style={styles.regulerText}>Floor No: {item.floorNo}</Text>
+                <Text style={styles.regulerText}>Floor No: {item.floorName}</Text>
             </View>
             <View style={styles.rowList}>
 
-                <Text style={styles.regulerText}>Room No: {item.roomNo}</Text>
-                <Text style={styles.regulerText}>Bed No: {item.bedNo}</Text>
+                <Text style={styles.regulerText}>Room No: {item.roomName}</Text>
+                <Text style={styles.regulerText}>Bed No: {item.bedName}</Text>
                 <TouchableOpacity
                     onPress={() => {
-                        if (userID != null) {
-                            setShift(item)
+                        if (tenantData.tenantId != null) {
+                            setShift(Shift != null ? null : item)
                         } else {
 
                             navigation.navigate('TenantProfileScreen', { item })
@@ -80,9 +73,9 @@ const ShiftScreen = ({ navigation, route }) => {
             <FlatList
                 ListHeaderComponent={() => (
                     <View>
-                        {userID != null ? <View style={styles.headerView}>
-                            <Text style={{ ...styles.buttonText2, marginLeft: horizScale(15) }}>Shift : Rohit </Text>
-                            <Pressable onPress={() => { alert('Cooming Soon') }} style={{
+                        {tenantData.tenantId != null ? <View style={styles.headerView}>
+                            <Text style={{ ...styles.buttonText2, marginLeft: horizScale(15) }}>Shift : {tenantData.name} </Text>
+                            <Pressable onPress={() => { tenantShift() }} style={{
                                 ...styles.button2,
                                 marginRight: horizScale(15),
                                 backgroundColor: Colors.white,
@@ -105,7 +98,7 @@ const ShiftScreen = ({ navigation, route }) => {
                 ListFooterComponent={() => (
                     <Spacer height={55} />
                 )}
-                data={UserInfo}
+                data={BedList}
                 renderItem={renderItemUserInfo}
                 keyExtractor={item => item.id}
                 showsVerticalScrollIndicator={false}

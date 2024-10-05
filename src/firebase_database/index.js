@@ -208,10 +208,26 @@ const firebase_updateBedData = async (table, bedId, updatedData) => {
         throw error;
     }
 };
-const firebase_swipeBeds = async (tenant1, tenant2) => {
-    var response
-    const bedRef = database().ref(`/${tableNames.bed}/${tenant1.bedId}`);
-    return response
+const firebase_shiftBeds = async (tenantData, shiftData) => {
+    let releaseCurrentBed={
+        "seatAvailable": true,
+        tenantId: null
+    }
+  await  firebase_updateBedData(tableNames.bed, tenantData.bedId, releaseCurrentBed)
+  let updateTenant={
+      monthlyRent: shiftData.amont,
+      bedId: shiftData.id,
+      roomId: shiftData.roomId,
+      floorId: shiftData.floorId,
+      hostelId: shiftData.hostelId,
+}
+    await firebase_updateBedData(tableNames.tenant, tenantData.tenantId, updateTenant)
+let shiftBed = {
+    "seatAvailable": false,
+    tenantId: tenantData.tenantId
+}
+    await firebase_updateBedData(tableNames.bed, shiftData.id, shiftBed)
+    return true
 }
 
 export {
@@ -223,5 +239,6 @@ export {
     firebase_createTenantProfile,
     firebase_getAllDataFromTableById,
     fetchAllAvailableBeds,
-    firebase_updateBedData
+    firebase_updateBedData,
+    firebase_shiftBeds
 }

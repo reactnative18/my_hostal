@@ -74,7 +74,7 @@ const FilledRoomScreen = ({ navigation }) => {
     const [Search, setSearch] = useState('')
     const renderItemUserInfo = ({ item }) => (
         <TouchableOpacity style={styles.userInfoContainer} onPress={() => {
-            navigation.navigate('TenantProfileScreen', { user: {} })
+            navigation.navigate('TenantProfileScreen', { tenant: item })
         }}>
             <View style={styles.rowList}>
                 <View>

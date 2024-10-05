@@ -1,5 +1,5 @@
 
-import { FlatList, Image, Linking, Pressable, SafeAreaView, StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView } from 'react-native'
+import { FlatList, Image, Linking, Pressable, SafeAreaView, StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import BackButton from '../../../../../Components/BackButton/BackButton'
 import { Spacer, horizScale, normScale, vertScale } from '../../../../../util/Layout'
@@ -41,6 +41,7 @@ const TenantProfileScreen = ({ navigation, route }) => {
     const [FloorList, setFloorList] = useState([])
     const [RoomlList, setRoomlList] = useState([])
     const [BedList, setBedList] = useState([])
+    const [tenantId, setTenantId] = useState('')
     const handleImagePicker = (type) => {
         const options = {
             mediaType: 'photo',
@@ -103,10 +104,12 @@ const TenantProfileScreen = ({ navigation, route }) => {
         dispatch(loaderAction(false))
     }
     useEffect(() => {
-        getAllHostels()
+        getAllHostels(route?.params?.tenant?.hostelId)
         setIsStaff(staff || false)
         if (route?.params?.tenant) {
-            const { name, mobile, pmobile, rent, securityDeposit, monthlyRent, dateOfJoining, hostelId, floorId, roomId, bedId, userPhoto, frunt_img, back_img } = route?.params?.tenant
+            console.log("route?.params?.tenant=>", route?.params?.tenant)
+            const { name, mobile, pmobile, rent, securityDeposit, monthlyRent, dateOfJoining, userPhoto, frunt_img, back_img, tenantId } = route?.params?.tenant
+            callDataTenant()
             setName(name)
             setMobile(mobile)
             setPMobile(pmobile)
@@ -114,12 +117,30 @@ const TenantProfileScreen = ({ navigation, route }) => {
             setSecurityDeposit(securityDeposit)
             setmonthlyRent(monthlyRent)
             setDOJ(dateOfJoining)
+            setImg1(userPhoto)
+            setImg2(frunt_img)
+            setImg3(back_img)
+            setTenantId(tenantId)
+
         }
         if (route?.params?.hostelData) {
             callData()
         }
 
     }, [])
+    useEffect(() => {
+        callDataTenant()
+    }, [BedList])
+    const callDataTenant = async () => {
+        const { floorId, roomId, bedId } = route?.params?.tenant
+        try {
+            FloorList && setfloor(FloorList.find(item => item.id == floorId))
+            RoomlList && setroom(RoomlList.find(item => item.id == roomId))
+            BedList && setseat(BedList.find(item => item.id == bedId))
+        } catch (error) {
+            console.log("callDataTenant=>", error)
+        }
+    }
     const callData = async () => {
         const { hostel, floor, room, bed } = route?.params?.hostelData
         setHostel(hostel)
@@ -178,11 +199,11 @@ const TenantProfileScreen = ({ navigation, route }) => {
         }
     }
 
-    const getAllBeds = async (id) => {
+    const getAllBeds = async (id, isAvailable = true) => {
         const response = await firebase_getAllDataFromTableById(tableNames.bed, "roomId", id)
         if (response) {
             console.log("getAllBeds=>", response)
-            const bedList = response.filter(u => u.seatAvailable == true);
+            const bedList = response.filter(u => u.seatAvailable == isAvailable);
             setBedList(bedList)
         }
     }
@@ -198,15 +219,21 @@ const TenantProfileScreen = ({ navigation, route }) => {
             setFloorList(response)
         }
     }
-    const getAllHostels = async () => {
+    const getAllHostels = async (id = '') => {
         const response = await firebase_getAllDataFromTable(tableNames.hostel)
         if (response) {
             console.log(response)
             setHostelList(response)
+            if (id != '') {
+                setHostel(response.find(item => item.id == id))
+                const { hostelId, floorId, roomId } = route?.params?.tenant
+                await getAllFloors(hostelId)
+                await getAllRooms(floorId)
+                await getAllBeds(roomId, false)
+            }
+
         }
     }
-
-
     return (
         <SafeAreaView style={styles.container}>
             <Spacer height={8} />
@@ -237,33 +264,43 @@ const TenantProfileScreen = ({ navigation, route }) => {
                     {route?.params?.tenant && <>
                         <Pressable
                             disabled={isStaff}
-                            onPress={() => { navigation.navigate('ShiftScreen', { userID: 1 }) }} style={styles.button2}>
+                            onPress={() => {
+                                navigation.navigate('ShiftScreen', {
+                                    tenantData: { tenantId: tenantId, name: name, mobile: mobile, pmobile: pmobile, rent: rent, securityDeposit: securityDeposit, monthlyRent: monthlyRent, dateOfJoining: dOJ, hostelId: hostel?.id, userPhoto: userPhoto == null ? "https://drive.google.com/file/d/1njoAhXT4jbIE9WDNbZ6hnYpX_zycMfF4/view?usp=sharing" : img1, frunt_img: frunt == null ? "https://drive.google.com/file/d/1dh0_k5DNzW2TRgMaGRbhCf5W0Qh8KWbm/view?usp=sharing" : img2, back_img: back == null ? "https://drive.google.com/file/d/1rxXk39ELnpdeMAdDiilkquOwR9jAapHe/view?usp=sharing" : img3, floorId: floor?.id, roomId: room?.id, bedId: seat?.id }
+                                })
+                            }} style={styles.button2}>
                             <Text style={styles.buttonText}>Shift</Text>
                         </Pressable>
                         <Pressable
                             disabled={isStaff}
-                            onPress={() => { navigation.navigate('SwipeScreen', { userID: 1 }) }} style={styles.button2}>
+                            onPress={() => {
+                                Alert.alert("Coming soon")
+                                // navigation.navigate('SwipeScreen', { userID: 1 }) 
+                            }} style={styles.button2}>
                             <Text style={styles.buttonText}>Swipe</Text>
                         </Pressable>
                     </>}
-                    <BouncyCheckbox
-                        size={normScale(18)}
-                        fillColor={Colors.green}
-                        unfillColor={Colors.white}
-                        disableText={false}
-                        text='Is Staff'
-                        disabled={staff}
-                        isChecked={isStaff}
-                        textStyle={{ textDecorationLine: 'underline' }}
-                        iconStyle={{ marginLeft: horizScale(0) }}
-                        innerIconStyle={{
-                            borderWidth: normScale(2),
-                            borderColor: isStaff ? Colors.green : Colors.red,
-                            borderRadius: 20,
-                            backgroundColor: isStaff ? Colors.green : Colors.red,
-                        }}
-                        onPress={(isChecked) => { setIsStaff(isChecked) }}
-                    />
+                    {
+                        route?.params?.hostelData || tenantId == '' &&
+                        <BouncyCheckbox
+                            size={normScale(18)}
+                            fillColor={Colors.green}
+                            unfillColor={Colors.white}
+                            disableText={false}
+                            text='Is Staff'
+                            disabled={staff}
+                            isChecked={isStaff}
+                            textStyle={{ textDecorationLine: 'underline' }}
+                            iconStyle={{ marginLeft: horizScale(0) }}
+                            innerIconStyle={{
+                                borderWidth: normScale(2),
+                                borderColor: isStaff ? Colors.green : Colors.red,
+                                borderRadius: 20,
+                                backgroundColor: isStaff ? Colors.green : Colors.red,
+                            }}
+                            onPress={(isChecked) => { setIsStaff(isChecked) }}
+                        />
+                    }
 
                 </View>
                 <Spacer height={20} />
@@ -416,12 +453,12 @@ const TenantProfileScreen = ({ navigation, route }) => {
                 <Spacer height={30} />
                 <View style={styles.imageContainer2}>
                     <View style={{ flex: 0.3, alignItems: 'center', justifyContent: 'center' }}>
-                        {userPhoto !== null &&
+                        {userPhoto !== null || img1 &&
                             <>
                                 <Pressable onPress={() => {
-                                    navigation.navigate('ViewFullImage', { uri: userPhoto.uri })
+                                    navigation.navigate('ViewFullImage', { uri: userPhoto !== null ? userPhoto.uri : img1 })
                                 }}>
-                                    <Image source={{ uri: userPhoto.uri }} style={styles.docImage} />
+                                    <Image source={{ uri: userPhoto !== null ? userPhoto.uri : img1 }} style={styles.docImage} />
                                 </Pressable>
                                 <Pressable style={img1 ? styles.imgConfirmbtndone : styles.imgConfirmbtn} onPress={() => {
                                     uploadImage('userProfile')
@@ -432,12 +469,12 @@ const TenantProfileScreen = ({ navigation, route }) => {
                         }
                     </View>
                     <View style={{ flex: 0.3, alignItems: 'center', justifyContent: 'center' }}>
-                        {frunt !== null &&
+                        {frunt !== null || img2 &&
                             <>
                                 <Pressable onPress={() => {
-                                    navigation.navigate('ViewFullImage', { uri: frunt.uri })
+                                    navigation.navigate('ViewFullImage', { uri: frunt !== null ? frunt.uri : img2 })
                                 }}>
-                                    <Image source={{ uri: frunt.uri }} style={styles.docImage} />
+                                    <Image source={{ uri: frunt !== null ? frunt.uri : img2 }} style={styles.docImage} />
                                 </Pressable>
                                 <Pressable style={img2 ? styles.imgConfirmbtndone : styles.imgConfirmbtn} onPress={() => {
                                     uploadImage('frunt')
@@ -448,12 +485,12 @@ const TenantProfileScreen = ({ navigation, route }) => {
                         }
                     </View>
                     <View style={{ flex: 0.3, alignItems: 'center', justifyContent: 'center' }}>
-                        {back !== null &&
+                        {back !== null || img3 &&
                             <>
                                 <Pressable onPress={() => {
-                                    navigation.navigate('ViewFullImage', { uri: back.uri })
+                                    navigation.navigate('ViewFullImage', { uri: back !== null ? back.uri : img3 })
                                 }}>
-                                    <Image source={{ uri: back.uri }} style={styles.docImage} />
+                                    <Image source={{ uri: back !== null ? back.uri : img3 }} style={styles.docImage} />
                                 </Pressable>
                                 <Pressable style={img3 ? styles.imgConfirmbtndone : styles.imgConfirmbtn} onPress={() => {
                                     uploadImage('back')
