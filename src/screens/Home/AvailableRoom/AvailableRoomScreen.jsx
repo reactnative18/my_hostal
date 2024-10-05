@@ -8,7 +8,7 @@ import { Spacer, horizScale, normScale, vertScale } from '../../../util/Layout';
 import { useDispatch, useSelector } from 'react-redux';
 import { useIsFocused } from '@react-navigation/native';
 import { loaderAction } from '../../../redux/Actions/UserAction';
-import { apiService } from '../../../API_Services';
+import { fetchAllAvailableBeds } from '../../../firebase_database';
 const AvailableRoomScreen = ({ navigation }) => {
 
     const UserInfo = [
@@ -47,13 +47,18 @@ const AvailableRoomScreen = ({ navigation }) => {
     const dispatch = useDispatch()
     const { userInfo } = useSelector(state => state.userInfo)
     const getData = async () => {
-        dispatch(loaderAction(true))
-        const response = await apiService.getAvailableRoom({ userId: userInfo?._id, "seatAvailible": true })
-        console.log(response)
-        if (response) {
-            dispatch(loaderAction(false))
-            setSeat(response.data)
+        try {
+            dispatch(loaderAction(true))
+            const response = await fetchAllAvailableBeds(true)
+            if (response) {
+                setSeat(response)
+            }
+        } catch (error) {
+
         }
+        finally {
+            dispatch(loaderAction(false))
+        } 
     }
     const isFocus = useIsFocused()
     useEffect(() => {

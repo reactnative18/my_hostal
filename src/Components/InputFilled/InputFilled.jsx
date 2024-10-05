@@ -126,7 +126,7 @@ const InputFilled = (props) => {
                 </View>
             case "Dropdown":
                 return <View style={{ ...styles.inputContainer, borderBottomColor: props.value ? Colors.blue : Colors.grey }}>
-                    {props.value && <Text style={styles.titleText}>{props.placeholder}</Text>}
+                    {/* {props.value && <Text style={styles.titleText}>{props.placeholder}</Text>} */}
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
 
                         <Dropdown
@@ -139,16 +139,15 @@ const InputFilled = (props) => {
                             search
                             mode='modal'
                             maxHeight={vertScale(500)}
-
-                            labelField="label"
-                            valueField="value"
+                            labelField={props.keyName}
+                            valueField={props.keyName}
                             placeholder={!isFocus ? props.placeholder : '...'}
                             searchPlaceholder={props.placeholder}
                             value={props.value}
                             onFocus={() => setIsFocus(true)}
                             onBlur={() => setIsFocus(false)}
                             onChange={item => {
-                                props.onChangeText(item.value);
+                                props.onChangeText(item);
                                 setIsFocus(false);
                             }}
 
@@ -193,6 +192,10 @@ const InputFilled = (props) => {
 export default InputFilled
 
 const styles = StyleSheet.create({
+    selectedTextStyle:{
+        color:'#000',
+        paddingVertical:8,
+    },
     image: {
         height: horizScale(60),
         width: horizScale(60),

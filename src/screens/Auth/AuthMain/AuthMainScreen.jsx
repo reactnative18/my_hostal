@@ -36,12 +36,12 @@ const AuthMainScreen = ({ navigation }) => {
 
                     <Text style={styles.tegLine}>A home away from home, at our hostel</Text>
                     <Text style={styles.secondTegLine}>The No. 1 App for searching and finding the most suitable hostel with you</Text>
-                    <Pressable onPress={() => { navigation.navigate('TermsConditionScreen') }} style={styles.button}>
-                        <Text style={styles.buttonText}>Register</Text>
+                    <Pressable onPress={() => { navigation.navigate('LoginScreen') }} style={styles.button}>
+                        <Text style={styles.buttonText}>Log In</Text>
                     </Pressable>
-                    <Pressable onPress={() => { navigation.navigate('LoginScreen') }} >
+                    <Pressable onPress={() => { navigation.navigate('TermsConditionScreen') }} >
 
-                        <Text style={styles.loginButtonText}>Already have an account ? <Text style={{ color: Colors.black, fontFamily: fontFamily.black }}>Log in</Text></Text>
+                        <Text style={styles.loginButtonText}>Start as new member ? <Text style={{ color: Colors.black, fontFamily: fontFamily.black }}>Register</Text></Text>
                     </Pressable>
                 </View>
             </ScrollView>

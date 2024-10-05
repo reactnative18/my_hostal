@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-    View, Text, FlatList, StyleSheet, Image,
-    TouchableOpacity, ScrollView, Alert, ToastAndroid,
+    View, Text, FlatList, StyleSheet,
+    TouchableOpacity, Alert,
     TextInput,
     SafeAreaView
 } from 'react-native';
@@ -13,60 +13,28 @@ import BouncyCheckbox from 'react-native-bouncy-checkbox';
 import { fontFamily, fontSize } from '../../../util/Fonts';
 import { useDispatch, useSelector } from 'react-redux';
 import { loaderAction } from '../../../redux/Actions/UserAction';
-import { apiService } from '../../../API_Services';
 import { useIsFocused } from '@react-navigation/native';
+import { fetchAllAvailableBeds, firebase_updateBedData } from '../../../firebase_database';
+import tableNames from '../../../firebase_database/constrains';
+import ToastMessage from '../../../Components/ToastMessage';
 
 const FilledRoomScreen = ({ navigation }) => {
-
-
-    const UserInfo = [
-        {
-            id: '1',
-            hostelName: 'Ap 1',
-            floorNo: '02',
-            roomNo: '203',
-            bedNo: '02',
-            joiningDate: '02/05/2023',
-            name: 'Ajit modi'
-        },
-        {
-            id: '2',
-            hostelName: 'Ap 3',
-            floorNo: '02',
-            roomNo: '102',
-            bedNo: '03',
-            joiningDate: '02/05/2023',
-            name: 'rahul patel'
-        },
-        {
-            id: '3',
-            hostelName: 'Ap 4',
-            floorNo: '02',
-            roomNo: '203',
-            bedNo: '02',
-            joiningDate: '02/05/2023',
-            name: 'Anushka kohli'
-        },
-        {
-            id: '4',
-            hostelName: 'Ap 2',
-            floorNo: '02',
-            roomNo: '203',
-            bedNo: '02'
-        },
-        // Add more cards as needed
-    ];
-
     const [seat, setSeat] = useState([])
     const dispatch = useDispatch()
     const { userInfo } = useSelector(state => state.userInfo)
     const getData = async () => {
-        dispatch(loaderAction(true))
-        const response = await apiService.getAvailableRoom({ userId: userInfo?._id, "seatAvailible": false })
-        console.log(response)
-        if (response) {
+        try {
+            dispatch(loaderAction(true))
+            const response = await fetchAllAvailableBeds(false)
+            if (response) {
+                console.log("FilledRoomScreen=>", response)
+                setSeat(response)
+            }
+        } catch (error) {
+
+        }
+        finally {
             dispatch(loaderAction(false))
-            setSeat(response.data)
         }
     }
     const isFocus = useIsFocused()
@@ -74,9 +42,35 @@ const FilledRoomScreen = ({ navigation }) => {
         getData()
     }, [isFocus])
 
+    const removeTenant = async (id, tId) => {
+        try {
+            dispatch(loaderAction(true))
+            let updateData = {
+                "seatAvailable": true,
+                tenantId: null
+            }
+            let tenantUpdateData = {
+                monthlyRent: 0,
+                rent: 0,
+                roomId: 0,
+                securityDeposit: 0,
+                exitDate: new Date().toLocaleDateString()
+            }
+            await firebase_updateBedData(tableNames.bed, id, updateData)
+            await firebase_updateBedData(tableNames.tenant, tId, tenantUpdateData)
+
+            const data = await seat?.filter(item => item.id !== id)
+            setSeat(data)
+
+        } catch (error) {
+
+        }
+        finally {
+            dispatch(loaderAction(false))
+        }
+    }
 
     const [isStaff, setIsStaff] = useState(false)
-
     const [Search, setSearch] = useState('')
     const renderItemUserInfo = ({ item }) => (
         <TouchableOpacity style={styles.userInfoContainer} onPress={() => {
@@ -106,10 +100,10 @@ const FilledRoomScreen = ({ navigation }) => {
                     onPress={() => {
                         Alert.alert("Remove", "Are you sure to remove this user from your hostel ?", [{
                             text: 'YES',
-                            onPress: () => { ToastAndroid.showWithGravity('Coming soon', ToastAndroid.SHORT, ToastAndroid.BOTTOM) }
+                            onPress: () => { removeTenant(item.bedId,item.tenantId) }
                         }, {
                             text: 'No',
-                            onPress: () => { ToastAndroid.showWithGravity('Thank you :)', ToastAndroid.SHORT, ToastAndroid.BOTTOM) }
+                            onPress: () => { ToastMessage.successShowToast("Thank you :)") }
                         }
                         ])
                     }}

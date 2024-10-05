@@ -20,7 +20,7 @@ const HomeScreen = ({ navigation }) => {
         const response = await firebase_getAllDataFromTable(tableNames.hostel)
         console.log(response)
         if (response.length>0) {
-            setHostels(response.data)
+            setHostels(response)
         }
         dispatch(loaderAction(false))
     }
@@ -34,11 +34,11 @@ const HomeScreen = ({ navigation }) => {
             navigation.navigate('SingleHostelScreen', { hostel: item })
         }}>
             <Image source={item?.image || CustomImage.logo} style={styles.hostelImage} />
-            <View style={{ paddingHorizontal: 10 }}>
+            <View style={{ paddingHorizontal: 10,flex:1 }}>
 
                 <Text style={styles.hostelName}>{item.hostelName}</Text>
-                <Text style={styles.hostelLocation}>{item.hostelAddress}</Text>
-                {item?.availableRoom && <Text style={styles.hostelLocation}>Total available room: {item?.availableRoom}</Text>}
+                <Text style={{ ...styles.hostelLocation, flex: item?.availableRoom ?0.6:0.8}}>{item.hostelAddress}</Text>
+                {item?.availableRoom && <Text style={{ ...styles.hostelLocation, flex: 0.2}}>Total available room: {item?.availableRoom}</Text>}
             </View>
         </TouchableOpacity>
     );
@@ -111,6 +111,7 @@ const styles = StyleSheet.create({
         borderRadius: horizScale(70),
     },
     hostelName: {
+        flex:0.2,
         fontSize: fontSize.regular,
         fontFamily: fontFamily.black,
         color: Colors.black
@@ -118,7 +119,7 @@ const styles = StyleSheet.create({
     hostelLocation: {
         fontSize: fontSize.medium,
         fontFamily: fontFamily.regular,
-        color: Colors.darkgrey2
+        color: Colors.darkgrey2, 
     },
 });
 

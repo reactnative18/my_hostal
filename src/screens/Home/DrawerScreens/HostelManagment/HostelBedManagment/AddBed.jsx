@@ -8,29 +8,35 @@ import { fontFamily, fontSize } from '../../../../../util/Fonts'
 import CustomImage from '../../../../../util/Images'
 import InputFilled from '../../../../../Components/InputFilled/InputFilled'
 import RadioGroup from 'react-native-radio-buttons-group';
-import { apiService } from '../../../../../API_Services'
 import { useDispatch } from 'react-redux'
 import { loaderAction } from '../../../../../redux/Actions/UserAction'
+import { firebase_addDataToTable } from '../../../../../firebase_database'
+import tableNames from '../../../../../firebase_database/constrains'
 const AddBed = ({ navigation, route }) => {
     const dispatch = useDispatch()
     const { floor, room } = route.params
     const [RoomNumber, setRoomNumber] = useState('')
     const [rent, setRent] = useState('')
     const addRoom = async () => {
-        dispatch(loaderAction(true))
-        const data = {
-            userId: floor.userId,
-            hostelId: floor.hostelId,
-            floorId: floor._id,
-            roomId: room._id,
-            "bedName": RoomNumber,
-            "amont": rent,
-            "seatAvailible": true
+        try {
+            dispatch(loaderAction(true))
+            const data = { 
+                hostelId: floor.hostelId,
+                floorId: floor.id,
+                roomId: room.id,
+                "bedName": RoomNumber,
+                "amont": rent,
+                "seatAvailable": true
+            }
+            const response = await firebase_addDataToTable(tableNames.bed, data)
+            if (response) {
+                navigation.goBack()
+            }
+        } catch (error) {
+
         }
-        const response = await apiService.addBed(data)
-        if (response) {
+        finally {
             dispatch(loaderAction(false))
-            navigation.goBack()
         }
     }
 

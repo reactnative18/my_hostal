@@ -77,7 +77,7 @@ const SingleRoomScreen = ({ navigation, route }) => {
                 setSelectedItem(item)
                 setSelected(item.id)
             }}
-            style={{ ...styles.roomContainer2, backgroundColor: !item.seatAvailible ? item?.due == 1 ? Colors.green : Colors.red : Colors.yellow }}>
+            style={{ ...styles.roomContainer2, backgroundColor: !item.seatAvailable ? item?.due == 1 ? Colors.green : Colors.red : Colors.yellow }}>
             {selected == item.id && <Image source={CustomImage.verify} style={styles.smallIcon} />}
             <Text style={styles.cardTitle2}>Seat {index + 1}</Text>
 

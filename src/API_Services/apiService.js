@@ -79,7 +79,7 @@ export default class ApiService {
                     .catch(async (error) => {
                         Platform.OS === 'ios' ? Alert.alert(error?.message) :
                         ToastAndroid.showWithGravity(error?.message, ToastAndroid.SHORT, ToastAndroid.BOTTOM)
-                        await this.removeAuth()
+                        // await this.removeAuth()
                         return false
                     })
             } catch (err) {
@@ -89,7 +89,7 @@ export default class ApiService {
     }
 
     removeAuth = () => {
-        Auth.removeAuth()
+        // Auth.removeAuth()
     }
 
 

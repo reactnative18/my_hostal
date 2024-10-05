@@ -9,7 +9,8 @@ import CustomImage from '../../../../../util/Images'
 import InputFilled from '../../../../../Components/InputFilled/InputFilled'
 import { useDispatch, useSelector } from 'react-redux'
 import { loaderAction } from '../../../../../redux/Actions/UserAction'
-import { apiService } from '../../../../../API_Services'
+import { firebase_addDataToTable } from '../../../../../firebase_database'
+import tableNames from '../../../../../firebase_database/constrains'
 
 const AddFloor = ({ navigation, route }) => {
     const { hostel } = route.params
@@ -17,17 +18,23 @@ const AddFloor = ({ navigation, route }) => {
     const dispatch = useDispatch()
     const { userInfo } = useSelector(state => state.userInfo)
     const addFloor = async () => {
-        dispatch(loaderAction(true))
-        const data = {
-            userId: userInfo._id,
-            hostelId: hostel._id,
-            floorName: floorNumber
+        try {
+            dispatch(loaderAction(true))
+            const data = { 
+                hostelId: hostel.id,
+                floorName: floorNumber
+            }
+            const response = await firebase_addDataToTable(tableNames.floor, data)
+            if (response) {
+                navigation.goBack()
+            }
+        } catch (error) {
+
         }
-        const response = await apiService.addFloor(data)
-        if (response) {
+        finally {
             dispatch(loaderAction(false))
-            navigation.goBack()
         }
+
     }
     return (
         <SafeAreaView style={styles.container}>
@@ -40,7 +47,7 @@ const AddFloor = ({ navigation, route }) => {
             <View style={styles.container}>
 
                 <InputFilled
-                    type="Mobile"
+                    type="Email"
                     placeholder="Floor Number/Name"
                     value={floorNumber}
                     onChangeText={text => setFloorNumber(text)}

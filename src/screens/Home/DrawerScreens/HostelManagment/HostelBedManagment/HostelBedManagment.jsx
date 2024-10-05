@@ -8,26 +8,27 @@ import { fontFamily, fontSize } from '../../../../../util/Fonts'
 import CustomImage from '../../../../../util/Images'
 import { useDispatch, useSelector } from 'react-redux'
 import { loaderAction } from '../../../../../redux/Actions/UserAction'
-import { apiService } from '../../../../../API_Services'
 import { useIsFocused } from '@react-navigation/native'
+import { firebase_getAllDataFromTableById, firebase_removeDataToTable } from '../../../../../firebase_database'
+import tableNames from '../../../../../firebase_database/constrains'
 
 const HostelBedManagment = ({ navigation, route }) => {
     const { loading } = useSelector(state => state.loader)
     const dispatch = useDispatch()
-    const { floor, room } = route.params
+    const { hostel, floor, room } = route.params
     const [bed, setBed] = useState([])
     const getData = async () => {
-        dispatch(loaderAction(true))
-        const response = await apiService.getBeds({
-            "userId": floor.userId,
-            hostelId: floor.hostelId,
-            floorId: floor._id,
-            "roomId": room._id
-        })
-        if (response) {
+        try {
+            dispatch(loaderAction(true))
+            const response = await firebase_getAllDataFromTableById(tableNames.bed, "roomId", room.id)
+            if (response) {
+                setBed(response)
+            }
+        } catch (error) {
+
+        }
+        finally {
             dispatch(loaderAction(false))
-            console.log("bed====>", response.data)
-            setBed(response.data)
         }
     }
     const isFocus = useIsFocused()
@@ -35,26 +36,36 @@ const HostelBedManagment = ({ navigation, route }) => {
         getData()
     }, [isFocus])
     const deleteRoom = async (id) => {
-        dispatch(loaderAction(true))
-        const response = await apiService.deleteRoom({ roomId: id })
-        if (response) {
-            const data = await bed?.filter(item => item._id !== id)
-            setBed(data)
+        try {
+            dispatch(loaderAction(true))
+            const response = await firebase_removeDataToTable(tableNames.bed, id)
+            if (response) {
+                const data = await bed?.filter(item => item.id !== id)
+                setBed(data)
+            }
+        } catch (error) {
+
+        }
+        finally {
             dispatch(loaderAction(false))
         }
     }
     const renderItem = ({ item, index }) => {
-        return <Pressable style={styles.roomContainer} onPress={() => { navigation.navigate('TenantProfileScreen') }}>
+        return <Pressable style={styles.roomContainer} onPress={() => {
+            navigation.navigate('TenantProfileScreen', {
+               hostelData:{ hostel, floor, room, bed: item}
+            })
+        }}>
             <View style={styles.hostelContainer}>
                 <View style={styles.hostelContainer2}>
-                    <Text style={styles.hostelName}>{item.bedName}</Text>
+                    <Text style={styles.hostelName}>{item.bedName}  <Text style={{ color: item.seatAvailable ? Colors.green : Colors.red, fontSize: fontSize.medium }}>{item.seatAvailable ? "Available" : "Filled"}</Text></Text>
                     <Text numberOfLines={2} style={styles.hostelAddress}>₹ {item.amont} </Text>
                 </View>
                 <Pressable style={styles.deleteButton}
                     onPress={async () => {
                         Alert.alert("Delete Bed", "Are you sure to delete Bed ?", [{
                             text: 'YES',
-                            onPress: () => { deleteRoom(item._id) }
+                            onPress: () => { deleteRoom(item.id) }
                         }, {
                             text: 'No',
                             onPress: () => {

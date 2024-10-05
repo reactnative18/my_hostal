@@ -10,6 +10,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { loaderAction } from '../../../../../redux/Actions/UserAction'
 import { apiService } from '../../../../../API_Services'
 import { useIsFocused } from '@react-navigation/native'
+import { firebase_getAllDataFromTableById, firebase_removeDataToTable } from '../../../../../firebase_database'
+import tableNames from '../../../../../firebase_database/constrains'
 
 const HostelFloorManagment = ({ navigation, route }) => {
     const { loading } = useSelector(state => state.loader)
@@ -18,11 +20,17 @@ const HostelFloorManagment = ({ navigation, route }) => {
     const { userInfo } = useSelector(state => state.userInfo)
     const [Floors, setFloors] = useState([])
     const getData = async () => {
-        dispatch(loaderAction(true))
-        const response = await apiService.getFloors({ hostelId: hostel._id })
-        if (response) {
+        try {
+            dispatch(loaderAction(true))
+            const response = await firebase_getAllDataFromTableById(tableNames.floor,"hostelId", hostel.id)
+            if (response) {
+                setFloors(response)
+            }
+        } catch (error) {
+
+        }
+        finally {
             dispatch(loaderAction(false))
-            setFloors(response.data)
         }
     }
     const isFocus = useIsFocused()
@@ -30,21 +38,27 @@ const HostelFloorManagment = ({ navigation, route }) => {
         getData()
     }, [isFocus])
     const deleteFloor = async (id) => {
-        dispatch(loaderAction(true))
-        const response = await apiService.deleteFloor({ floorId: id })
-        if (response) {
-            const data = await Floors?.filter(item => item._id !== id)
-            setFloors(data)
+        try {
+            dispatch(loaderAction(true))
+            const response = await firebase_removeDataToTable(tableNames.floor, id)
+            if (response) {
+                const data = await Floors?.filter(item => item.id !== id)
+                setFloors(data)
+            }
+        } catch (error) {
+
+        }
+        finally {
             dispatch(loaderAction(false))
         }
     }
     const renderItem = ({ item, index }) => {
         return <Pressable style={styles.hostelContainer} onPress={() => navigation.navigate('HostelRoomManagment', {
-            floor: item
+            floor: item, hostel
         })}>
             <View style={{ flex: 0.2, alignItems: 'center' }}>
 
-                <Image source={item.icon} style={styles.hostelImage} />
+                <Image source={CustomImage.floor} style={styles.hostelImage} />
             </View>
             <View style={styles.hostelContainer2}>
                 <Text style={styles.hostelName}>{item.floorName}</Text>
@@ -54,7 +68,7 @@ const HostelFloorManagment = ({ navigation, route }) => {
                 onPress={async () => {
                     Alert.alert("Delete Floor", "Are you sure to delete Floor ?", [{
                         text: 'YES',
-                        onPress: () => { deleteFloor(item._id) }
+                        onPress: () => { deleteFloor(item.id) }
                     }, {
                         text: 'No',
                         onPress: () => {
