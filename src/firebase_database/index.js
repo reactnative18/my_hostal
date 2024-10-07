@@ -230,10 +230,10 @@ const firebase_shiftBeds = async (tenantData, shiftData) => {
     return true
 }
 const firebase_swipeBeds = async (tenantData1, tenantData2) => {
-    let tenantBed1 = { 
+    let tenantBed1 = {
         tenantId: tenantData2.tenantId
     }
-    let tenantBed2 = { 
+    let tenantBed2 = {
         tenantId: tenantData1.tenantId
     }
     let updateTenant1 = {
@@ -254,8 +254,81 @@ const firebase_swipeBeds = async (tenantData1, tenantData2) => {
     await firebase_updateBedData(tableNames.bed, tenantData2.bedId, tenantBed2)
     await firebase_updateBedData(tableNames.tenant, tenantData1.tenantId, updateTenant1)
     await firebase_updateBedData(tableNames.tenant, tenantData2.tenantId, updateTenant2)
-   
+
     return true
+}
+const firebase_getMasterHostel = async (hostelId) => {
+   
+    const allFloor = await database().ref(`/${tableNames.floor}`).once('value')
+    const floorList = Object.values(allFloor.val()).filter(u => u.hostelId === hostelId);
+    const allRoom = await database().ref(`/${tableNames.room}`).once('value')
+    const roomList = Object.values(allRoom.val()).filter(u => u.hostelId === hostelId);
+    const allBed = await database().ref(`/${tableNames.bed}`).once('value')
+    const bedList = Object.values(allBed.val()).filter(u => u.hostelId === hostelId);
+
+    const MasterData = [];
+    const promises = [];
+    floorList.map(floorInfo => {
+        if (floorInfo.hostelId == hostelId) {
+            promises.push(
+                (async () => {
+                    // room start
+                    const RoomData = []
+                    const promisesroom = [];
+                    roomList.map(roomInfo => {
+                        if (floorInfo.id == roomInfo.floorId) {
+                            promisesroom.push(
+                                (async () => {
+                                    // bed start
+                                    const BedData = []
+                                    let availableBed=0,filledBed=0
+
+                                    const promisesbed = [];
+                                    bedList.map(bedInfo => {
+                                        promisesbed.push(
+                                            (async () => {
+                                        if (roomInfo.id == bedInfo.roomId) {
+                                            BedData.push(bedInfo)
+                                            if (bedInfo.seatAvailable){
+                                                availableBed++
+                                            }else{
+                                                filledBed++
+                                            }
+                                        }
+                                            })()
+                                        );
+                                    });
+                                    await Promise.all(promisesbed)
+                                    // bed end
+                                    let roomData = { ...roomInfo, 'beds': BedData, availableBed: availableBed, filledBed: filledBed }
+                                    RoomData.push(roomData)
+                                })()
+                            );
+                        }
+                    });
+                    await Promise.all(promisesroom)
+                    // room end
+
+                    let availableBed = 0, filledBed = 0
+                    const promisescount = [];
+                    RoomData.map(roomInfo => {
+                        promisescount.push(
+                            (async () => {
+                                availableBed = availableBed + roomInfo.availableBed
+                                filledBed = filledBed + roomInfo.filledBed
+                            })()
+                        );
+                    });
+                    await Promise.all(promisescount)
+                    let floorData = { ...floorInfo, 'rooms': RoomData, availableBed: availableBed, filledBed: filledBed }
+                    MasterData.push(floorData)
+                })()
+            );
+        }
+    });
+    await Promise.all(promises)
+
+    return MasterData
 }
 
 export {
@@ -269,5 +342,6 @@ export {
     fetchAllAvailableBeds,
     firebase_updateBedData,
     firebase_shiftBeds,
-    firebase_swipeBeds
+    firebase_swipeBeds,
+    firebase_getMasterHostel
 }

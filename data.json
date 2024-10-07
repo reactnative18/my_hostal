@@ -1,0 +1,50 @@
+[
+    {
+        "id": "-O8MUNvSuRTdrx0c1NS9",
+        "hostelId": "-O8IxgURoJfDB5BjrcoM",
+        "floorName": "First floor",
+        "rooms": [
+            {
+                "roomName": "First room",
+                "id": "-O8MSr-IaqvnrsC9TM7c",
+                "hostelId": "-O8IxgURoJfDB5BjrcoM",
+                "floorId": "-O8MUNvSuRTdrx0c1NS9",
+                "beds": [
+                    {
+                        "seatAvailable": false,
+                        "id": "-O8RI2QpkAQIf1An8y5v",
+                        "hostelId": "-O8IxgURoJfDB5BjrcoM",
+                        "floorId": "-O8MUNvSuRTdrx0c1NS9",
+                        "tenantId": "-O8c1osLHxnbw_yWlNdC",
+                        "bedName": "B3",
+                        "roomId": "-O8MSr-IaqvnrsC9TM7c",
+                        "amont": "6000"
+                    },
+                    {
+                        "seatAvailable": false,
+                        "id": "-O8RI-bEdCwBlwp5kAG0",
+                        "hostelId": "-O8IxgURoJfDB5BjrcoM",
+                        "floorId": "-O8MUNvSuRTdrx0c1NS9",
+                        "tenantId": "-O8S8IwQEWmcOQhcycAn",
+                        "bedName": "B2",
+                        "roomId": "-O8MSr-IaqvnrsC9TM7c",
+                        "amont": "5000"
+                    },
+                    {
+                        "seatAvailable": true,
+                        "id": "-O8RHy4WOiLWkbCUMdDp",
+                        "hostelId": "-O8IxgURoJfDB5BjrcoM",
+                        "floorId": "-O8MUNvSuRTdrx0c1NS9",
+                        "bedName": "B1 ",
+                        "roomId": "-O8MSr-IaqvnrsC9TM7c",
+                        "amont": "5000"
+                    }
+                ],
+                "availableBed": 1,
+                "filledBed": 2
+            }
+        ],
+        "availableBed": 1,
+        "filledBed": 2
+    }
+]

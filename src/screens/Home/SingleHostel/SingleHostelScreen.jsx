@@ -8,7 +8,9 @@ import { Spacer, horizScale } from '../../../util/Layout';
 import FocusStatusBar from '../../../Components/FocusStatusBar/FocusStatusBar';
 import { useDispatch } from 'react-redux';
 import { loaderAction } from '../../../redux/Actions/UserAction';
-import { apiService } from '../../../API_Services';
+// import { apiService } from '../../../API_Services';
+import { firebase_getMasterHostel } from '../../../firebase_database';
+// import tableNames from '../../../firebase_database/constrains';
 
 const SingleHostelScreen = ({ navigation, route }) => {
 
@@ -17,11 +19,18 @@ const SingleHostelScreen = ({ navigation, route }) => {
     const { hostel } = route.params
     const [hostels, setHostels] = useState([])
     const getData = async () => {
-        dispatch(loaderAction(true))
-        const response = await apiService.getFloors({ hostelId: hostel._id })
-        if (response) {
+        try {
+            dispatch(loaderAction(true))
+            const response = await firebase_getMasterHostel(hostel.id)
+            if (response) {
+                console.log("master Hostel",JSON.stringify(response))
+                // setFloor(response)
+            }
+        } catch (error) {
+
+        }
+        finally {
             dispatch(loaderAction(false))
-            setFloor(response.data)
         }
     }
     useEffect(() => {
