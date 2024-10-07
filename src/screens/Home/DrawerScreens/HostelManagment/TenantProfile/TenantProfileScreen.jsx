@@ -274,8 +274,9 @@ const TenantProfileScreen = ({ navigation, route }) => {
                         <Pressable
                             disabled={isStaff}
                             onPress={() => {
-                                Alert.alert("Coming soon")
-                                // navigation.navigate('SwipeScreen', { userID: 1 }) 
+                                navigation.navigate('SwipeScreen', {
+                                    tenantData: { tenantId: tenantId, name: name, mobile: mobile, pmobile: pmobile, rent: rent, securityDeposit: securityDeposit, monthlyRent: monthlyRent, dateOfJoining: dOJ, hostelId: hostel?.id, userPhoto: userPhoto == null ? "https://drive.google.com/file/d/1njoAhXT4jbIE9WDNbZ6hnYpX_zycMfF4/view?usp=sharing" : img1, frunt_img: frunt == null ? "https://drive.google.com/file/d/1dh0_k5DNzW2TRgMaGRbhCf5W0Qh8KWbm/view?usp=sharing" : img2, back_img: back == null ? "https://drive.google.com/file/d/1rxXk39ELnpdeMAdDiilkquOwR9jAapHe/view?usp=sharing" : img3, floorId: floor?.id, roomId: room?.id, bedId: seat?.id }
+                                }) 
                             }} style={styles.button2}>
                             <Text style={styles.buttonText}>Swipe</Text>
                         </Pressable>

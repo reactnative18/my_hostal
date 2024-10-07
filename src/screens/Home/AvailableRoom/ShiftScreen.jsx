@@ -38,32 +38,35 @@ const ShiftScreen = ({ navigation, route }) => {
     }
     const [Shift, setShift] = useState(null)
     const [search, setSearch] = useState('')
-    const renderItemUserInfo = ({ item }) => (
-        <TouchableOpacity style={styles.userInfoContainer} disabled>
-            <View style={styles.rowList}>
+    const renderItemUserInfo = ({ item }) => {
+        return (
+            <TouchableOpacity style={styles.userInfoContainer} disabled>
+                <View style={styles.rowList}>
 
-                <Text style={styles.boldText}>Name: {item.hostelName}</Text>
-                <Text style={styles.regulerText}>Floor No: {item.floorName}</Text>
-            </View>
-            <View style={styles.rowList}>
+                    <Text style={styles.boldText}>Name: {item.hostelName}</Text>
+                    <Text style={styles.regulerText}>Floor No: {item.floorName}</Text>
+                </View>
+                <View style={styles.rowList}>
 
-                <Text style={styles.regulerText}>Room No: {item.roomName}</Text>
-                <Text style={styles.regulerText}>Bed No: {item.bedName}</Text>
-                <TouchableOpacity
-                    onPress={() => {
-                        if (tenantData.tenantId != null) {
-                            setShift(Shift != null ? null : item)
-                        } else {
+                    <Text style={styles.regulerText}>Room No: {item.roomName}</Text>
+                    <Text style={styles.regulerText}>Bed No: {item.bedName}</Text>
+                    <TouchableOpacity
+                        onPress={() => {
+                            if (tenantData.tenantId != null) {
+                                setShift(Shift != null ? null : item)
+                            } else {
 
-                            navigation.navigate('TenantProfileScreen', { item })
-                        }
-                    }}
-                    style={{ width: 100, alignItems: 'center', justifyContent: 'center', backgroundColor: Shift?.id == item?.id ? Colors.red : Colors.green, paddingVertical: 4, borderRadius: 5 }}>
-                    <Text style={{ color: 'white' }}>{Shift?.id == item?.id ? 'Allocated' : 'Allocate'}</Text>
-                </TouchableOpacity>
-            </View>
-        </TouchableOpacity>
-    );
+                                navigation.navigate('TenantProfileScreen', { item })
+                            }
+                        }}
+                        style={{ width: 100, alignItems: 'center', justifyContent: 'center', backgroundColor: Shift?.id == item?.id ? Colors.red : Colors.green, paddingVertical: 4, borderRadius: 5 }}>
+                        <Text style={{ color: 'white' }}>{Shift?.id == item?.id ? 'Allocated' : 'Allocate'}</Text>
+                    </TouchableOpacity>
+                </View>
+            </TouchableOpacity>
+        );
+    }
+        
 
     return (
         <SafeAreaView style={styles.container}>

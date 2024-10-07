@@ -229,6 +229,34 @@ const firebase_shiftBeds = async (tenantData, shiftData) => {
     await firebase_updateBedData(tableNames.bed, shiftData.id, shiftBed)
     return true
 }
+const firebase_swipeBeds = async (tenantData1, tenantData2) => {
+    let tenantBed1 = { 
+        tenantId: tenantData2.tenantId
+    }
+    let tenantBed2 = { 
+        tenantId: tenantData1.tenantId
+    }
+    let updateTenant1 = {
+        monthlyRent: tenantData2.monthlyRent,
+        bedId: tenantData2.bedId,
+        roomId: tenantData2.roomId,
+        floorId: tenantData2.floorId,
+        hostelId: tenantData2.hostelId,
+    }
+    let updateTenant2 = {
+        monthlyRent: tenantData1.monthlyRent,
+        bedId: tenantData1.bedId,
+        roomId: tenantData1.roomId,
+        floorId: tenantData1.floorId,
+        hostelId: tenantData1.hostelId,
+    }
+    await firebase_updateBedData(tableNames.bed, tenantData1.bedId, tenantBed1)
+    await firebase_updateBedData(tableNames.bed, tenantData2.bedId, tenantBed2)
+    await firebase_updateBedData(tableNames.tenant, tenantData1.tenantId, updateTenant1)
+    await firebase_updateBedData(tableNames.tenant, tenantData2.tenantId, updateTenant2)
+   
+    return true
+}
 
 export {
     firebase_login,
@@ -240,5 +268,6 @@ export {
     firebase_getAllDataFromTableById,
     fetchAllAvailableBeds,
     firebase_updateBedData,
-    firebase_shiftBeds
+    firebase_shiftBeds,
+    firebase_swipeBeds
 }

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     View, Text, FlatList, StyleSheet, Image,
     TouchableOpacity, ScrollView, Alert, ToastAndroid,
@@ -13,72 +13,78 @@ import { Spacer, horizScale, normScale, vertScale } from '../../../util/Layout';
 import BackButton from '../../../Components/BackButton/BackButton';
 import { fontFamily, fontSize } from '../../../util/Fonts';
 import CustomImage from '../../../util/Images';
+import { useDispatch, useSelector } from 'react-redux';
+import { loaderAction } from '../../../redux/Actions/UserAction';
+import { fetchAllAvailableBeds, firebase_swipeBeds } from '../../../firebase_database';
+import { useIsFocused } from '@react-navigation/native';
+import ToastMessage from '../../../Components/ToastMessage';
 
 const SwipeScreen = ({ navigation, route }) => {
-
-    const userID = route?.params?.userID;
-
-    const UserInfo = [
-        {
-            id: '1',
-            hostelName: 'Ap 1',
-            floorNo: '02',
-            roomNo: '203',
-            bedNo: '02',
-            name: 'raja'
-
-        },
-        {
-            id: '2',
-            hostelName: 'Ap 3',
-            floorNo: '02',
-            roomNo: '102',
-            bedNo: '03',
-            name: 'raja'
-        },
-        {
-            id: '3',
-            hostelName: 'Ap 4',
-            floorNo: '02',
-            roomNo: '203',
-            bedNo: '02',
-            name: 'raja'
-        },
-        {
-            id: '4',
-            hostelName: 'Ap 2',
-            floorNo: '02',
-            roomNo: '203',
-            bedNo: '02',
-            name: 'raja'
-        },
-        // Add more cards as needed
-    ];
+    const { tenantData } = route?.params;
     const [selectUser, setSelectUser] = useState({})
-
     const [Search, setSearch] = useState('')
-    const renderItemUserInfo = ({ item }) => (
-        <TouchableOpacity style={styles.userInfoContainer} disabled>
-            <View style={styles.rowList}>
+    const [seat, setSeat] = useState([])
+    const dispatch = useDispatch()
 
-                <Text style={styles.boldText}>Name: {item.hostelName}</Text>
-                <Text style={styles.regulerText}>Floor No: {item.floorNo}</Text>
-            </View>
-            <View style={styles.rowList}>
+    const getData = async () => {
+        try {
+            dispatch(loaderAction(true))
+            const response = await fetchAllAvailableBeds(false)
+            if (response) {
+                console.log("FilledRoomScreen=>", response)
+                setSeat(response)
+            }
+        } catch (error) {
 
-                <Text style={styles.regulerText}>Room No: {item.roomNo}</Text>
-                <Text style={styles.regulerText}>Bed No: {item.bedNo}</Text>
-                <TouchableOpacity
-                    onPress={() => {
+        }
+        finally {
+            dispatch(loaderAction(false))
+        }
+    }
+    const swipeTenants= async()=>{
+        try {
+          const res=await  firebase_swipeBeds(tenantData, selectUser)
+          if(res){
+              navigation.replace("HomeDrawer")
+              ToastMessage.successShowToast("Swiped successfully...")
+          }
+        } catch (error) {
+            
+        }
+        // console.log("tenant 1=>", tenantData, "\ntenant 2=>", selectUser)
+    }
+    const isFocus = useIsFocused()
+    useEffect(() => {
+        getData()
+    }, [isFocus])
 
-                        setSelectUser(item)
-                    }}
-                    style={{ width: 100, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FF6F00', paddingVertical: 4, borderRadius: 5 }}>
-                    <Text style={{ color: 'white' }}>Select User</Text>
-                </TouchableOpacity>
-            </View>
-        </TouchableOpacity>
-    );
+    const renderItemUserInfo = ({ item }) => {
+        if (tenantData.tenantId == item.tenantId) {
+            return
+        }
+        return (
+            <TouchableOpacity style={styles.userInfoContainer} disabled>
+                <View style={styles.rowList}>
+
+                    <Text style={styles.boldText}>Name: {item.hostelName}</Text>
+                    <Text style={styles.regulerText}>Floor No: {item.floorName}</Text>
+                </View>
+                <View style={styles.rowList}>
+
+                    <Text style={styles.regulerText}>Room No: {item.roomName}</Text>
+                    <Text style={styles.regulerText}>Bed No: {item.bedName}</Text>
+                    <TouchableOpacity
+                        onPress={() => {
+                            setSelectUser(item)
+                        }}
+                        style={{ width: 100, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FF6F00', paddingVertical: 4, borderRadius: 5 }}>
+                        <Text style={{ color: 'white' }}>Select User</Text>
+                    </TouchableOpacity>
+                </View>
+            </TouchableOpacity>
+        );
+    }
+       
 
     return (
         <SafeAreaView style={styles.container}>
@@ -86,29 +92,28 @@ const SwipeScreen = ({ navigation, route }) => {
             <BackButton navigation={navigation} text={'Swipe Users'} />
 
             <FlatList
-                data={UserInfo}
+                data={seat}
                 ListHeaderComponent={() => {
                     return (
                         <View>
                             <Spacer height={20} />
-                            {userID != null ? <View style={styles.headerView}>
+                            {tenantData != null ? <View style={styles.headerView}>
                                 <Text style={{
                                     ...styles.swipeUser,
-                                    borderWidth: userID ? horizScale(0.8) : 0,
-                                }}> Rohit </Text>
+                                    borderWidth: tenantData?.tenantId ? horizScale(0.8) : 0,
+                                }}> {tenantData.name} </Text>
                                 <Pressable onPress={() => {
-                                    if (selectUser.id && userID) {
-
+                                    if (selectUser.tenantId && tenantData.tenantId) {
                                         Alert.alert("Swipe", "Are you sure to swipe user in your hostel ?", [{
                                             text: 'YES',
-                                            onPress: () => { ToastAndroid.showWithGravity('Coming soon', ToastAndroid.SHORT, ToastAndroid.BOTTOM) }
+                                            onPress: () => { swipeTenants() }
                                         }, {
                                             text: 'No',
-                                            onPress: () => { ToastAndroid.showWithGravity('Thank you :)', ToastAndroid.SHORT, ToastAndroid.BOTTOM) }
+                                            onPress: () => { ToastMessage.successShowToast('Thank you :)') }
                                         }
                                         ])
                                     } else {
-                                        ToastAndroid.showWithGravity('Please select second person to swipe...', ToastAndroid.SHORT, ToastAndroid.BOTTOM)
+                                        ToastMessage.WarningShowToast('Please select second person to swipe...')
                                     }
                                 }}>
                                     <Image source={CustomImage.swipe} />
