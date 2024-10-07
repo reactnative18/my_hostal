@@ -168,10 +168,10 @@ const fetchAllAvailableBeds = async (isAvalable) => {
                         const floor = floorSnapshot.val();
                         const roomSnapshot = await database().ref(`/${tableNames.room}/${bedInfo.roomId}`).once('value')
                         const room = roomSnapshot.val();
-                        if (isAvalable){
+                        if (isAvalable) {
                             let beddata = { ...hostel, ...floor, ...room, ...bedInfo }
                             availableBedsList.push(beddata)
-                        }else{
+                        } else {
                             const tenantSnapshot = await database().ref(`/${tableNames.tenant}/${bedInfo.tenantId}`).once('value')
                             const tenant = tenantSnapshot.val();
                             let beddata = { ...hostel, ...floor, ...room, ...tenant, ...bedInfo }
@@ -209,23 +209,23 @@ const firebase_updateBedData = async (table, bedId, updatedData) => {
     }
 };
 const firebase_shiftBeds = async (tenantData, shiftData) => {
-    let releaseCurrentBed={
+    let releaseCurrentBed = {
         "seatAvailable": true,
         tenantId: null
     }
-  await  firebase_updateBedData(tableNames.bed, tenantData.bedId, releaseCurrentBed)
-  let updateTenant={
-      monthlyRent: shiftData.amont,
-      bedId: shiftData.id,
-      roomId: shiftData.roomId,
-      floorId: shiftData.floorId,
-      hostelId: shiftData.hostelId,
-}
+    await firebase_updateBedData(tableNames.bed, tenantData.bedId, releaseCurrentBed)
+    let updateTenant = {
+        monthlyRent: shiftData.amont,
+        bedId: shiftData.id,
+        roomId: shiftData.roomId,
+        floorId: shiftData.floorId,
+        hostelId: shiftData.hostelId,
+    }
     await firebase_updateBedData(tableNames.tenant, tenantData.tenantId, updateTenant)
-let shiftBed = {
-    "seatAvailable": false,
-    tenantId: tenantData.tenantId
-}
+    let shiftBed = {
+        "seatAvailable": false,
+        tenantId: tenantData.tenantId
+    }
     await firebase_updateBedData(tableNames.bed, shiftData.id, shiftBed)
     return true
 }

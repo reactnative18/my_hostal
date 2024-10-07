@@ -127,7 +127,7 @@ const TenantProfileScreen = ({ navigation, route }) => {
             callData()
         }
 
-    }, [])
+    }, [route?.params?.tenant])
     useEffect(() => {
         callDataTenant()
     }, [BedList])
