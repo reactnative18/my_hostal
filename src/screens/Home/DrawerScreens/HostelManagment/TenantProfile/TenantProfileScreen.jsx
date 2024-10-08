@@ -104,7 +104,7 @@ const TenantProfileScreen = ({ navigation, route }) => {
         dispatch(loaderAction(false))
     }
     useEffect(() => {
-        getAllHostels(route?.params?.tenant?.hostelId)
+        getAllHostels(route?.params?.tenant?.hostelId | route?.params?.hostelData?.hostelId)
         setIsStaff(staff || false)
         if (route?.params?.tenant) {
             console.log("route?.params?.tenant=>", route?.params?.tenant)

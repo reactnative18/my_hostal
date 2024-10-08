@@ -1,32 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, Pressable, SafeAreaView } from 'react-native';
 import CustomImage from '../../../util/Images';
 import { Colors } from '../../../util/Colors';
 import { fontFamily, fontSize } from '../../../util/Fonts';
 import { horizScale, vertScale } from '../../../util/Layout';
 import FocusStatusBar from '../../../Components/FocusStatusBar/FocusStatusBar';
-import { useDispatch, useSelector } from 'react-redux';
-import { loaderAction } from '../../../redux/Actions/UserAction';
-import { apiService } from '../../../API_Services';
 
 const SingleFloorScreen = ({ navigation, route }) => {
-    const [rooms, setRooms] = useState([])
-    const dispatch = useDispatch()
     const { floor } = route.params
-    const getData = async () => {
-        dispatch(loaderAction(true))
-        const response = await apiService.getRooms({ hostelId: floor.hostelId, floorId: floor._id })
-        if (response) {
-            dispatch(loaderAction(false))
-            setRooms(response.data)
-        }
-    }
-    useEffect(() => {
-        getData()
-    }, [])
-
     const renderItemRoom = ({ item }) => {
-        let length = item?.roominfo?.length ? item?.roominfo?.length : 1
         return (
             <Pressable style={styles.roomContainer} onPress={() => {
                 navigation.navigate('SingleRoomScreen', { room: item })
@@ -34,18 +16,11 @@ const SingleFloorScreen = ({ navigation, route }) => {
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Text style={styles.cardTitle}>{item.roomName}</Text>
                 </View>
-                {item?.roominfo && <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly' }}>
-                    {item?.roominfo?.map((item, index) => (
-                        <View style={{
-                            ...styles.subSeater,
-                            flex: 10 / length, backgroundColor: item?.username ? Colors.greylight : Colors.yellow
-                        }}>
-                            {item?.username && <Image source={item?.rent == 1 ? CustomImage.verify : CustomImage.cross} style={{ ...styles.smallIcon, tintColor: item?.rent == 1 ? Colors.green : Colors.red }} />}
-                            <Text numberOfLines={2} style={{ ...styles.userName, }}>{item?.username ? item?.username : `Seet No. ${item.seetNo}`}</Text>
-                        </View>
-                    ))}
+                <View style={{ flexDirection: 'row', alignItems: 'center',justifyContent:'space-around',paddingVertical:5 }}>
+                    {item.availableBed > 0 && <Text style={styles.cardInfo}>Available Beds : {item.availableBed}</Text>}
+                    {item.filledBed > 0 && <Text style={styles.cardInfo}>Filled Beds : {item.filledBed}</Text>}
+                </View>
 
-                </View>}
             </Pressable>
         )
     };
@@ -66,12 +41,12 @@ const SingleFloorScreen = ({ navigation, route }) => {
                         height: 20, width: 20, tintColor: Colors.black,
 
                     }} />
-                    <Text style={{ fontSize: fontSize.input, color: Colors.black, marginLeft: 10 }}>1st Floor Rooms</Text>
+                    <Text style={{ fontSize: fontSize.input, color: Colors.black, marginLeft: 10 }}>{floor.floorName}</Text>
                 </TouchableOpacity>
             </View>
             <View style={{ flex: 0.9 }}>
                 <FlatList
-                    data={rooms}
+                    data={floor.rooms}
                     renderItem={renderItemRoom}
                     keyExtractor={item => item.id}
                     showsHorizontalScrollIndicator={false}
@@ -146,9 +121,7 @@ const styles = StyleSheet.create({
     },
     cardInfo: {
         fontSize: 14,
-        textAlign: 'center',
         marginBottom: 5,
-        width: 90,
         color: Colors.black
     },
 });

@@ -10,42 +10,8 @@ import { useIsFocused } from '@react-navigation/native';
 import { loaderAction } from '../../../redux/Actions/UserAction';
 import { fetchAllAvailableBeds } from '../../../firebase_database';
 const AvailableRoomScreen = ({ navigation }) => {
-
-    const UserInfo = [
-        {
-            id: '1',
-            hostelName: 'Ap 1',
-            floorNo: '02',
-            roomNo: '203',
-            bedNo: '02'
-
-        },
-        {
-            id: '2',
-            hostelName: 'Ap 3',
-            floorNo: '02',
-            roomNo: '102',
-            bedNo: '03'
-        },
-        {
-            id: '3',
-            hostelName: 'Ap 4',
-            floorNo: '02',
-            roomNo: '203',
-            bedNo: '02'
-        },
-        {
-            id: '4',
-            hostelName: 'Ap 2',
-            floorNo: '02',
-            roomNo: '203',
-            bedNo: '02'
-        },
-        // Add more cards as needed
-    ];
     const [seat, setSeat] = useState([])
     const dispatch = useDispatch()
-    const { userInfo } = useSelector(state => state.userInfo)
     const getData = async () => {
         try {
             dispatch(loaderAction(true))
@@ -80,7 +46,6 @@ const AvailableRoomScreen = ({ navigation }) => {
                 <TouchableOpacity
                     onPress={() => {
                         navigation.navigate('TenantProfileScreen', { item })
-
                     }}
                     style={{ width: 100, alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.green, paddingVertical: 4, borderRadius: 5 }}>
                     <Text style={{ color: 'white' }}>Allocate</Text>

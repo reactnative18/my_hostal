@@ -46,5 +46,22 @@
         ],
         "availableBed": 1,
         "filledBed": 2
+    },
+    {
+        "back_img": "https://drive.google.com/file/d/1rxXk39ELnpdeMAdDiilkquOwR9jAapHe/view?usp=sharing",
+        "bedId": "-O8RI2QpkAQIf1An8y5v",
+        "dateOfJoining": "07-10-2024",
+        "floorId": "-O8MUNvSuRTdrx0c1NS9",
+        "frunt_img": "https://drive.google.com/file/d/1dh0_k5DNzW2TRgMaGRbhCf5W0Qh8KWbm/view?usp=sharing",
+        "hostelId": "-O8IxgURoJfDB5BjrcoM",
+        "id": "-O8c1osLHxnbw_yWlNdC",
+        "mobile": "7488287900",
+        "monthlyRent": "5000",
+        "name": "anuj",
+        "pmobile": "9898989898",
+        "rent": "0",
+        "roomId": "-O8MSr-IaqvnrsC9TM7c",
+        "securityDeposit": "5000",
+        "userPhoto": "https://drive.google.com/file/d/1njoAhXT4jbIE9WDNbZ6hnYpX_zycMfF4/view?usp=sharing"
     }
 ]

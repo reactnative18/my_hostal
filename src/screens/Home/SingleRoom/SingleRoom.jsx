@@ -8,78 +8,44 @@ import FocusStatusBar from '../../../Components/FocusStatusBar/FocusStatusBar';
 import { useDispatch, useSelector } from 'react-redux';
 import { loaderAction } from '../../../redux/Actions/UserAction';
 import { apiService } from '../../../API_Services';
+import { firebase_getAllDataFromTableById } from '../../../firebase_database';
+import tableNames from '../../../firebase_database/constrains';
 
 const SingleRoomScreen = ({ navigation, route }) => {
     const { userInfo } = useSelector(state => state.userInfo)
     const { room } = route.params;
-    const [roomData, setRoomData] = useState([{
-        id: '1',
-        name: 'Bad No 1',
-        image: CustomImage.logo,
-        address: 'Ajay Carpenter',
-        price: '2400',
-        number: '7000207121',
-        due: 1,
-        MED: "28"
-    }])
-
-    const UserInfo = [
-        {
-            id: '1',
-            startDate: '28/03/2023',
-            endDate: '27/04/2023',
-            pendingAmmount: '0',
-
-        },
-        {
-            id: '2',
-            startDate: '28/04/2023',
-            endDate: '27/05/2023',
-            pendingAmmount: '0',
-        },
-        {
-            id: '3',
-            startDate: '28/05/2023',
-            endDate: '27/06/2023',
-            pendingAmmount: '500',
-        },
-        {
-            id: '4',
-            startDate: '28/06/2023',
-            endDate: '27/07/2023',
-            pendingAmmount: '5000',
-        },
-        // Add more cards as needed
-    ];
-
+    const [tenantData, setTenantData] = useState(null)
     const dispatch = useDispatch()
-    const getData = async () => {
-        dispatch(loaderAction(true))
-        const response = await apiService.getBeds({ hostelId: room.hostelId, floorId: room.floorId, roomId: room._id, userId: userInfo._id })
-        if (response) {
+    const getData = async (id) => {
+        try {
+            dispatch(loaderAction(true))
+            const response = await firebase_getAllDataFromTableById(tableNames.tenant, "id", id)
+            if (response) {
+                console.log(response)
+                setTenantData(response[0])
+            }
+        } catch (error) {
+
+        }
+        finally {
             dispatch(loaderAction(false))
-            console.log(response.data)
-            setRoomData(response.data)
         }
     }
-    useEffect(() => {
-        getData()
-    }, [])
-
-
-
-    const [selected, setSelected] = useState(roomData[0].id)
-    const [selectedItem, setSelectedItem] = useState(roomData[0])
+    const [selected, setSelected] = useState(null)
+    const [selectedItem, setSelectedItem] = useState(null)
 
     const renderItemRoom2 = ({ item, index }) => (
         <TouchableOpacity
             onPress={() => {
+                if (!item.seatAvailable) {
+                    getData(item.tenantId)
+                }
                 setSelectedItem(item)
                 setSelected(item.id)
             }}
             style={{ ...styles.roomContainer2, backgroundColor: !item.seatAvailable ? item?.due == 1 ? Colors.green : Colors.red : Colors.yellow }}>
             {selected == item.id && <Image source={CustomImage.verify} style={styles.smallIcon} />}
-            <Text style={styles.cardTitle2}>Seat {index + 1}</Text>
+            <Text style={styles.cardTitle2}>{item.bedName}</Text>
 
         </TouchableOpacity>
     );
@@ -133,7 +99,7 @@ const SingleRoomScreen = ({ navigation, route }) => {
                         height: 20, width: 20, tintColor: Colors.black,
 
                     }} />
-                    <Text style={{ fontSize: fontSize.input, color: Colors.black, marginLeft: 10 }}>1st Floor Room</Text>
+                    <Text style={{ fontSize: fontSize.input, color: Colors.black, marginLeft: 10 }}>{room?.roomName ? room?.roomName:"Loading..."}</Text>
                 </TouchableOpacity>
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
@@ -141,33 +107,34 @@ const SingleRoomScreen = ({ navigation, route }) => {
                 <View style={{ paddingVertical: vertScale(2), height: vertScale(120), marginLeft: horizScale(20) }}>
 
                     <FlatList
-                        data={roomData}
+                        data={room.beds}
                         renderItem={renderItemRoom2}
                         keyExtractor={item => item.id}
                         horizontal
                         showsHorizontalScrollIndicator={false}
                     />
                 </View>
-                {selectedItem.empty ?
+                {
+                selectedItem?.seatAvailable ?
                     <TouchableOpacity style={styles.button} onPress={() => {
-                        alert('allocation of room cooming soon')
+                            navigation.navigate('TenantProfileScreen')
                     }}>
 
                         <Text style={styles.buttonText}>Room available</Text>
                     </TouchableOpacity> :
-                    <View style={styles.roomContainer}>
-                        <Text style={{ ...styles.cardTitle, marginLeft: horizScale(15) }}>{selectedItem.address}</Text>
+                        selectedItem && tenantData&& <View style={styles.roomContainer}>
+                            <Text style={{ ...styles.cardTitle, marginLeft: horizScale(15) }}>{tenantData?.name ? tenantData.name:"Loading..."}</Text>
                         <Spacer height={10} />
                         <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-evenly' }}>
 
-                            <Text style={styles.cardInfo}>Due Ammount : {selectedItem.price}</Text>
+                            <Text style={styles.cardInfo}>Due Amount : {tenantData?.rent}</Text>
                             <TouchableOpacity style={{
                                 alignItems: 'center', flexDirection: 'row',
                                 borderWidth: horizScale(1),
                                 borderRadius: horizScale(10),
                                 padding: horizScale(3)
                             }} onPress={() => {
-                                navigation.navigate('TenantProfileScreen')
+                                navigation.navigate('TenantProfileScreen', { tenant: tenantData })
                             }}>
                                 <Image source={CustomImage.verify} style={{
                                     height: horizScale(18), width: horizScale(18), tintColor: Colors.black, marginRight: horizScale(5)
@@ -182,7 +149,7 @@ const SingleRoomScreen = ({ navigation, route }) => {
                             justifyContent: 'space-evenly'
                         }}>
 
-                            <Text style={styles.cardInfo}>Month End Date : {selectedItem.MED}</Text>
+                            <Text style={styles.cardInfo}>Month Date : {tenantData.dateOfJoining}</Text>
                             <TouchableOpacity style={{ alignItems: 'center', flexDirection: 'row' }} onPress={() => {
                                 Linking.openURL(`tel:${selectedItem.number}`)
                             }}>
@@ -190,17 +157,18 @@ const SingleRoomScreen = ({ navigation, route }) => {
                                     height: horizScale(18), width: horizScale(18), tintColor: Colors.black, marginRight: horizScale(5)
 
                                 }} />
-                                <Text style={styles.cardInfo}>{selectedItem.number}</Text>
+                                <Text style={styles.cardInfo}>{tenantData.mobile}</Text>
                             </TouchableOpacity>
                         </View>
-                    </View>}
+                    </View>
+                    }
 
-                {!selectedItem.empty && <FlatList
+                {/* {!selectedItem.empty && <FlatList
                     data={UserInfo.reverse()}
                     renderItem={renderItemUserInfo}
                     keyExtractor={item => item.id}
                     showsVerticalScrollIndicator={false}
-                />}
+                />} */}
             </ScrollView>
         </SafeAreaView>
     );
@@ -262,7 +230,7 @@ const styles = StyleSheet.create({
     },
     roomContainer2: {
         margin: horizScale(5),
-        width: vertScale(50),
+        minWidth: vertScale(60),
         height: vertScale(50),
         borderRadius: horizScale(5)
     },

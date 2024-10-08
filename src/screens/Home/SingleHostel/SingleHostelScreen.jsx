@@ -23,8 +23,8 @@ const SingleHostelScreen = ({ navigation, route }) => {
             dispatch(loaderAction(true))
             const response = await firebase_getMasterHostel(hostel.id)
             if (response) {
-                console.log("master Hostel",JSON.stringify(response))
-                // setFloor(response)
+                // console.log("master Hostel",JSON.stringify(response))
+                setFloor(response)
             }
         } catch (error) {
 
@@ -46,7 +46,8 @@ const SingleHostelScreen = ({ navigation, route }) => {
             <Image source={item?.image || CustomImage.floor} style={styles.cardImage} />
             <View style={{ marginLeft: horizScale(10) }}>
                 <Text style={styles.cardTitle}>{item.floorName}</Text>
-                {item.totalBeds && <Text style={styles.cardInfo}>{item.totalBeds}</Text>}
+                {item.availableBed > 0 && <Text style={styles.cardInfo}>Available Beds : {item.availableBed}</Text>}
+                {item.filledBed>0 && <Text style={styles.cardInfo}>Filled Beds : {item.filledBed}</Text>}
             </View>
         </TouchableOpacity>
     );
