@@ -5,5 +5,6 @@ const tableNames={
     bed:'bed_list',
     tenant:'tenant_list',
     staff:'staff_list',
+    transectionTenant:'transection_tenant_list',
 }
 export default tableNames

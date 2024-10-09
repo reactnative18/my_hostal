@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, ScrollView, SafeAreaView, Alert } from 'react-native';
 import CustomImage from '../../../util/Images';
 import HeaderView from '../../../Components/HeaderView';
 import { Colors } from '../../../util/Colors';
@@ -29,19 +29,23 @@ const HomeScreen = ({ navigation }) => {
     useEffect(() => {
         getData()
     }, [focus])
-    const renderItem = ({ item, index }) => (
-        <TouchableOpacity style={styles.hostelItem} onPress={() => {
-            navigation.navigate('SingleHostelScreen', { hostel: item })
-        }}>
-            <Image source={item?.image || CustomImage.logo} style={styles.hostelImage} />
-            <View style={{ paddingHorizontal: 10,flex:1 }}>
+    const renderItem = ({ item, index }) =>{
+        if (item.userId == userInfo.id || item.userId == userInfo?.subId) {
+            return (
+                <TouchableOpacity style={styles.hostelItem} onPress={() => {
+                    navigation.navigate('SingleHostelScreen', { hostel: item })
+                }}>
+                    <Image source={item?.image || CustomImage.logo} style={styles.hostelImage} />
+                    <View style={{ paddingHorizontal: 10, flex: 1 }}>
 
-                <Text style={styles.hostelName}>{item.hostelName}</Text>
-                <Text style={{ ...styles.hostelLocation, flex: item?.availableRoom ?0.6:0.8}}>{item.hostelAddress}</Text>
-                {item?.availableRoom && <Text style={{ ...styles.hostelLocation, flex: 0.2}}>Total available room: {item?.availableRoom}</Text>}
-            </View>
-        </TouchableOpacity>
-    );
+                        <Text style={styles.hostelName}>{item.hostelName}</Text>
+                        <Text style={{ ...styles.hostelLocation, flex: item?.availableRoom ? 0.6 : 0.8 }}>{item.hostelAddress}</Text>
+                        {item?.availableRoom && <Text style={{ ...styles.hostelLocation, flex: 0.2 }}>Total available room: {item?.availableRoom}</Text>}
+                    </View>
+                </TouchableOpacity>
+            );
+        }
+    } 
     return (
         <SafeAreaView style={styles.container}>
             <HeaderView navigation={navigation} />

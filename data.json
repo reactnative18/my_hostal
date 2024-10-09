@@ -63,5 +63,34 @@
         "roomId": "-O8MSr-IaqvnrsC9TM7c",
         "securityDeposit": "5000",
         "userPhoto": "https://drive.google.com/file/d/1njoAhXT4jbIE9WDNbZ6hnYpX_zycMfF4/view?usp=sharing"
+    },
+    {
+        "seatAvailable": true,
+        "id": "-O8RHy4WOiLWkbCUMdDp",
+        "hostelId": "-O8IxgURoJfDB5BjrcoM",
+        "floorId": "-O8MUNvSuRTdrx0c1NS9",
+        "bedName": "B1 ",
+        "roomId": "-O8MSr-IaqvnrsC9TM7c",
+        "amont": "5000"
+    },
+    {
+        "hostelData": {
+            "amont": "5000",
+            "bedId": "-O8RHy4WOiLWkbCUMdDp",
+            "bedName": "B1 ",
+            "floorId": "-O8MUNvSuRTdrx0c1NS9",
+            "hostelId": "-O8IxgURoJfDB5BjrcoM",
+            "id": "-O8RHy4WOiLWkbCUMdDp",
+            "isTrue": true,
+            "roomId": "-O8MSr-IaqvnrsC9TM7c",
+            "seatAvailable": true
+        }
+    },
+    {
+        "email": "raja@gmail.com",
+        "id": "VqWcwyUtudhOWaYuXkWMdjo4tXC2",
+        "mobileNo": "9755713752",
+        "name": "Raja",
+        "password": "12345678"
     }
 ]

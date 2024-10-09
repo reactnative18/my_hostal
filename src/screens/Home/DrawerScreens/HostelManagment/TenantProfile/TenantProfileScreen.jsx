@@ -104,7 +104,8 @@ const TenantProfileScreen = ({ navigation, route }) => {
         dispatch(loaderAction(false))
     }
     useEffect(() => {
-        getAllHostels(route?.params?.tenant?.hostelId | route?.params?.hostelData?.hostelId)
+        let hostelId = route?.params?.tenant?.hostelId ? route?.params?.tenant?.hostelId : route?.params?.params?.hostelId
+        getAllHostels(hostelId)
         setIsStaff(staff || false)
         if (route?.params?.tenant) {
             console.log("route?.params?.tenant=>", route?.params?.tenant)
@@ -123,7 +124,7 @@ const TenantProfileScreen = ({ navigation, route }) => {
             setTenantId(tenantId)
 
         }
-        if (route?.params?.hostelData) {
+        if (!route?.params?.hostelData?.isTrue) {
             callData()
         }
 
@@ -132,7 +133,7 @@ const TenantProfileScreen = ({ navigation, route }) => {
         callDataTenant()
     }, [BedList])
     const callDataTenant = async () => {
-        const { floorId, roomId, bedId } = route?.params?.tenant
+        const { floorId, roomId, bedId } = route?.params?.tenant ? route?.params?.tenant : route?.params?.params
         try {
             FloorList && setfloor(FloorList.find(item => item.id == floorId))
             RoomlList && setroom(RoomlList.find(item => item.id == roomId))
@@ -142,6 +143,9 @@ const TenantProfileScreen = ({ navigation, route }) => {
         }
     }
     const callData = async () => {
+        if (route?.params?.params?.isTrue) {
+            return
+        }
         const { hostel, floor, room, bed } = route?.params?.hostelData
         setHostel(hostel)
         await getAllFloors(hostel.id),
@@ -220,19 +224,29 @@ const TenantProfileScreen = ({ navigation, route }) => {
         }
     }
     const getAllHostels = async (id = '') => {
-        const response = await firebase_getAllDataFromTable(tableNames.hostel)
-        if (response) {
-            console.log(response)
-            setHostelList(response)
-            if (id != '') {
-                setHostel(response.find(item => item.id == id))
-                const { hostelId, floorId, roomId } = route?.params?.tenant
-                await getAllFloors(hostelId)
-                await getAllRooms(floorId)
-                await getAllBeds(roomId, false)
+        try {
+            dispatch(loaderAction(true))
+            const response = await firebase_getAllDataFromTable(tableNames.hostel)
+            if (response) {
+                console.log(response)
+                setHostelList(response)
+                if (id != '') {
+                    setHostel(response.find(item => item.id == id))
+                    const { hostelId, floorId, roomId } = route?.params?.tenant ? route?.params?.tenant : route?.params?.params
+                    await getAllFloors(hostelId)
+                    await getAllRooms(floorId)
+                    await getAllBeds(roomId, !route?.params?.tenant)
+                } else {
+                    dispatch(loaderAction(false))
+                }
             }
-
+        } catch (error) {
+            
         }
+        finally {
+            dispatch(loaderAction(false))
+        }
+       
     }
     return (
         <SafeAreaView style={styles.container}>
@@ -276,7 +290,7 @@ const TenantProfileScreen = ({ navigation, route }) => {
                             onPress={() => {
                                 navigation.navigate('SwipeScreen', {
                                     tenantData: { tenantId: tenantId, name: name, mobile: mobile, pmobile: pmobile, rent: rent, securityDeposit: securityDeposit, monthlyRent: monthlyRent, dateOfJoining: dOJ, hostelId: hostel?.id, userPhoto: userPhoto == null ? "https://drive.google.com/file/d/1njoAhXT4jbIE9WDNbZ6hnYpX_zycMfF4/view?usp=sharing" : img1, frunt_img: frunt == null ? "https://drive.google.com/file/d/1dh0_k5DNzW2TRgMaGRbhCf5W0Qh8KWbm/view?usp=sharing" : img2, back_img: back == null ? "https://drive.google.com/file/d/1rxXk39ELnpdeMAdDiilkquOwR9jAapHe/view?usp=sharing" : img3, floorId: floor?.id, roomId: room?.id, bedId: seat?.id }
-                                }) 
+                                })
                             }} style={styles.button2}>
                             <Text style={styles.buttonText}>Swipe</Text>
                         </Pressable>

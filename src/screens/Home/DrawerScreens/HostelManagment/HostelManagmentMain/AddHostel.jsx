@@ -38,7 +38,7 @@ const AddHostel = ({ navigation }) => {
                 // may be network issue
             }
         } catch (error) {
-console.log(error)
+            console.log(error)
         }
         finally {
             console.log('sethostel=>', data, "\nuser data=>", userInfo)

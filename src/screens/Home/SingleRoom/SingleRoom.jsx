@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, ScrollView, Linking, SafeAreaView } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, ScrollView, Linking, SafeAreaView, Alert, Pressable } from 'react-native';
 import CustomImage from '../../../util/Images';
 import { Colors } from '../../../util/Colors';
 import { fontFamily, fontSize } from '../../../util/Fonts';
@@ -8,8 +8,10 @@ import FocusStatusBar from '../../../Components/FocusStatusBar/FocusStatusBar';
 import { useDispatch, useSelector } from 'react-redux';
 import { loaderAction } from '../../../redux/Actions/UserAction';
 import { apiService } from '../../../API_Services';
-import { firebase_getAllDataFromTableById } from '../../../firebase_database';
+import { firebase_addDataToTable, firebase_getAllDataFromTableById } from '../../../firebase_database';
 import tableNames from '../../../firebase_database/constrains';
+import InputFilled from '../../../Components/InputFilled/InputFilled';
+import ToastMessage from '../../../Components/ToastMessage';
 
 const SingleRoomScreen = ({ navigation, route }) => {
     const { userInfo } = useSelector(state => state.userInfo)
@@ -33,6 +35,43 @@ const SingleRoomScreen = ({ navigation, route }) => {
     }
     const [selected, setSelected] = useState(null)
     const [selectedItem, setSelectedItem] = useState(null)
+    const [currentMonth, setCurrentMonth] = useState('')
+    const [paidRent, setPaidRent] = useState('')
+    const [dueRent, setDueRent] = useState('')
+    const [showHistory, setShowHistory] = useState(false)
+    const [newEntry, setNewEntry] = useState(false)
+    const [allTransection, setAllTransection] = useState([])
+
+    const addTransectionRecord = async () => {
+        if (currentMonth == '' || dueRent == '' || paidRent == '') {
+            ToastMessage.successShowToast("All the field is required...")
+            return
+        }
+        dispatch(loaderAction(true))
+        const data = {
+            userId: userInfo.id,
+            tenantId: tenantData.tenantId,
+            month: currentMonth,
+            dueRent: dueRent,
+            paidRent: paidRent
+        }
+        try {
+            const response = await firebase_addDataToTable(tableNames.transectionTenant, data)
+            if (response) {
+                setCurrentMonth('')
+                setDueRent('')
+                setPaidRent('')
+                setNewEntry(!newEntry)
+                ToastMessage.successShowToast("Record Added Successfully...")
+            }
+        } catch (error) {
+            console.log(error)
+        }
+        finally {
+            dispatch(loaderAction(false))
+        }
+
+    }
 
     const renderItemRoom2 = ({ item, index }) => (
         <TouchableOpacity
@@ -50,9 +89,9 @@ const SingleRoomScreen = ({ navigation, route }) => {
         </TouchableOpacity>
     );
 
-    const renderItemUserInfo = ({ item }) => {
+    const renderItemUserInfo = ({ item, index }) => {
         return (
-            <View style={styles.userInfoContainer} >
+            <View key={"historyTransection" + index} style={styles.userInfoContainer} >
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
 
                     <View style={{
@@ -99,7 +138,7 @@ const SingleRoomScreen = ({ navigation, route }) => {
                         height: 20, width: 20, tintColor: Colors.black,
 
                     }} />
-                    <Text style={{ fontSize: fontSize.input, color: Colors.black, marginLeft: 10 }}>{room?.roomName ? room?.roomName:"Loading..."}</Text>
+                    <Text style={{ fontSize: fontSize.input, color: Colors.black, marginLeft: 10 }}>{room?.roomName ? room?.roomName : "Loading..."}</Text>
                 </TouchableOpacity>
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
@@ -115,66 +154,159 @@ const SingleRoomScreen = ({ navigation, route }) => {
                     />
                 </View>
                 {
-                selectedItem?.seatAvailable ?
-                    <TouchableOpacity style={styles.button} onPress={() => {
-                            navigation.navigate('TenantProfileScreen')
-                    }}>
-
-                        <Text style={styles.buttonText}>Room available</Text>
-                    </TouchableOpacity> :
-                        selectedItem && tenantData&& <View style={styles.roomContainer}>
-                            <Text style={{ ...styles.cardTitle, marginLeft: horizScale(15) }}>{tenantData?.name ? tenantData.name:"Loading..."}</Text>
-                        <Spacer height={10} />
-                        <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-evenly' }}>
-
-                            <Text style={styles.cardInfo}>Due Amount : {tenantData?.rent}</Text>
-                            <TouchableOpacity style={{
-                                alignItems: 'center', flexDirection: 'row',
-                                borderWidth: horizScale(1),
-                                borderRadius: horizScale(10),
-                                padding: horizScale(3)
-                            }} onPress={() => {
-                                navigation.navigate('TenantProfileScreen', { tenant: tenantData })
-                            }}>
-                                <Image source={CustomImage.verify} style={{
-                                    height: horizScale(18), width: horizScale(18), tintColor: Colors.black, marginRight: horizScale(5)
-
-                                }} />
-                                <Text style={styles.cardInfo}>UPDATE</Text>
-                            </TouchableOpacity>
-                        </View>
-                        <Spacer height={10} />
-                        <View style={{
-                            alignItems: 'center', flexDirection: 'row',
-                            justifyContent: 'space-evenly'
+                    selectedItem?.seatAvailable ?
+                        <Pressable style={styles.button} onPress={() => {
+                            navigation.navigate('TenantProfileScreen', {
+                                screen: 'TenantProfileScreen',
+                                params: { ...selectedItem, bedId: selectedItem.id, isTrue: true },
+                            });
                         }}>
+                            <Text style={styles.buttonText}>Room available</Text>
+                        </Pressable> :
+                        selectedItem && tenantData && <View style={styles.roomContainer}>
+                            <Text style={{ ...styles.cardTitle, marginLeft: horizScale(15) }}>{tenantData?.name ? tenantData.name : "Loading..."}</Text>
+                            <Spacer height={10} />
+                            <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-evenly' }}>
 
-                            <Text style={styles.cardInfo}>Month Date : {tenantData.dateOfJoining}</Text>
-                            <TouchableOpacity style={{ alignItems: 'center', flexDirection: 'row' }} onPress={() => {
-                                Linking.openURL(`tel:${selectedItem.number}`)
+                                <Text style={styles.cardInfo}>Due Amount : {tenantData?.rent}</Text>
+                                <TouchableOpacity style={{
+                                    alignItems: 'center',
+                                    flexDirection: 'row',
+                                    borderRadius: horizScale(10),
+                                    paddingVertical: horizScale(5),
+                                    paddingHorizontal: horizScale(15),
+                                    backgroundColor: Colors.green
+                                }} onPress={() => {
+                                    navigation.navigate('TenantProfileScreen', { tenant: tenantData })
+                                }}>
+                                    <Image source={CustomImage.verify} style={{
+                                        height: horizScale(18), width: horizScale(18), tintColor: Colors.white, marginRight: horizScale(5)
+
+                                    }} />
+                                    <Text style={[styles.cardInfo, { color: Colors.white }]}>Update Tenant</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <Spacer height={10} />
+                            <View style={{
+                                alignItems: 'center', flexDirection: 'row',
+                                justifyContent: 'space-evenly'
                             }}>
-                                <Image source={CustomImage.call} style={{
-                                    height: horizScale(18), width: horizScale(18), tintColor: Colors.black, marginRight: horizScale(5)
 
-                                }} />
-                                <Text style={styles.cardInfo}>{tenantData.mobile}</Text>
-                            </TouchableOpacity>
+                                <Text style={styles.cardInfo}>Month Date : {tenantData.dateOfJoining}</Text>
+                                <TouchableOpacity style={{ alignItems: 'center', flexDirection: 'row' }} onPress={() => {
+                                    Linking.openURL(`tel:${selectedItem.number}`)
+                                }}>
+                                    <Image source={CustomImage.call} style={{
+                                        height: horizScale(18), width: horizScale(18), tintColor: Colors.black, marginRight: horizScale(5)
+
+                                    }} />
+                                    <Text style={styles.cardInfo}>{tenantData.mobile}</Text>
+                                </TouchableOpacity>
+                            </View>
+
+                            <View style={styles.line} />
+                            {newEntry&& <>
+                            <Text style={{ ...styles.cardTitle, marginLeft: horizScale(15) }}>Create new entry</Text>
+                            <InputFilled
+                                type="Mobile"
+                                placeholder="Paid Rent"
+                                value={paidRent}
+                                onChangeText={text => setPaidRent(text)}
+                                icon={CustomImage.SecurityDeposit}
+                            />
+
+                            <Spacer height={20} />
+                            <InputFilled
+                                type="Mobile"
+                                placeholder={"Due Rent"}
+                                value={dueRent}
+                                onChangeText={text => setDueRent(text)}
+                                icon={CustomImage.rent}
+                            />
+                            <Spacer height={20} />
+                            <InputFilled
+                                type="Date"
+                                placeholder="Current Month"
+                                value={currentMonth}
+                                onChangeText={text => setCurrentMonth(text)}
+                                icon={CustomImage.calendar1}
+                            />
+                            </>}
+                            <View style={styles.tableHeader}>
+                                <TouchableOpacity style={{
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    flexDirection: 'row',
+                                    borderRadius: horizScale(20),
+                                    paddingVertical: horizScale(10),
+                                    paddingHorizontal: horizScale(15),
+                                    backgroundColor: Colors.yellow,
+                                    flex: 0.4
+                                }}
+                                    onPress={() => {
+                                        setShowHistory(!showHistory)
+                                        ToastMessage.WarningShowToast('Oo oo sorry,\n That feature Coming soon')
+                                    }}>
+                                    <Text style={[styles.cardInfo, { color: Colors.black, textAlign: 'center' }]}>{showHistory ? 'Hide History' : 'Show History'}</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={{
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    flexDirection: 'row',
+                                    borderRadius: horizScale(20),
+                                    paddingVertical: horizScale(10),
+                                    paddingHorizontal: horizScale(15),
+                                    backgroundColor: Colors.green,
+                                    flex: 0.4
+                                }}
+                                    onPress={() => {
+                                        if(newEntry){
+                                            Alert.alert("Update Transection", "Are you sure to Update Transection ?", [{
+                                                text: 'YES',
+                                                onPress: () => { addTransectionRecord() }
+                                            }, {
+                                                text: 'No',
+                                                onPress: () => {
+                                                    ToastMessage.WarningShowToast('Oo oo sorry...')
+                                                }
+                                            },
+                                            ])
+                                        }else{
+                                            setNewEntry(!newEntry)
+                                        }
+                                    }}>
+                                    <Text style={[styles.cardInfo, { color: Colors.white, textAlign: 'center' }]}>{newEntry?"Done":"New Entry"}</Text>
+                                </TouchableOpacity>
+
+                            </View>
                         </View>
-                    </View>
-                    }
+                }
 
-                {/* {!selectedItem.empty && <FlatList
-                    data={UserInfo.reverse()}
+                {showHistory && <FlatList
+                    data={allTransection}
                     renderItem={renderItemUserInfo}
                     keyExtractor={item => item.id}
                     showsVerticalScrollIndicator={false}
-                />} */}
+                />}
             </ScrollView>
         </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
+
+    tableHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-around',
+        marginVertical: 10
+    },
+    line: {
+        width: '100%',
+        height: 2,
+        backgroundColor: Colors.black,
+        marginVertical: 20
+    },
     button: {
         backgroundColor: Colors.green,
         borderRadius: normScale(60),

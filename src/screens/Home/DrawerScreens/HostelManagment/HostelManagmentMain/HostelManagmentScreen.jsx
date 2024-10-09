@@ -38,33 +38,35 @@ const HostelManagmentScreen = ({ navigation }) => {
         }
     }
     const renderItem = ({ item, index }) => {
-        return <Pressable style={styles.hostelContainer} onPress={() => navigation.navigate('HostelFloorManagment', {
-            hostel: item
-        })}>
-            <View style={{ flex: 0.2, alignItems: 'center' }}>
+        if (item.userId == userInfo.id || item.userId == userInfo?.subId) {
+            return (<Pressable style={styles.hostelContainer} onPress={() => navigation.navigate('HostelFloorManagment', {
+                hostel: item
+            })}>
+                <View style={{ flex: 0.2, alignItems: 'center' }}>
 
-                <Image source={item.icon || CustomImage.logo} style={styles.hostelImage} />
-            </View>
-            <View style={styles.hostelContainer2}>
-                <Text style={styles.hostelName}>{item.hostelName}</Text>
-                <Text numberOfLines={2} style={styles.hostelAddress}>{item.hostelAddress}</Text>
-            </View>
-            <Pressable style={styles.deleteButton} onPress={async () => {
-                Alert.alert("Delete Hostel", "Are you sure to delete hostel ?", [{
-                    text: 'YES',
-                    onPress: () => { deleteHostel(item.id) }
-                }, {
-                    text: 'No',
-                    onPress: () => {
-                        ToastAndroid.showWithGravity('Hostel Delete Canceled...', ToastAndroid.TOP, ToastAndroid.SHORT)
-                    }
-                },
-                ])
+                    <Image source={item.icon || CustomImage.logo} style={styles.hostelImage} />
+                </View>
+                <View style={styles.hostelContainer2}>
+                    <Text style={styles.hostelName}>{item.hostelName}</Text>
+                    <Text numberOfLines={2} style={styles.hostelAddress}>{item.hostelAddress}</Text>
+                </View>
+                <Pressable style={styles.deleteButton} onPress={async () => {
+                    Alert.alert("Delete Hostel", "Are you sure to delete hostel ?", [{
+                        text: 'YES',
+                        onPress: () => { deleteHostel(item.id) }
+                    }, {
+                        text: 'No',
+                        onPress: () => {
+                            ToastAndroid.showWithGravity('Hostel Delete Canceled...', ToastAndroid.TOP, ToastAndroid.SHORT)
+                        }
+                    },
+                    ])
 
-            }}>
-                <Image source={CustomImage.bin} style={styles.deleteIcon} />
-            </Pressable>
-        </Pressable>
+                }}>
+                    <Image source={CustomImage.bin} style={styles.deleteIcon} />
+                </Pressable>
+            </Pressable>)
+        }
     }
     return (
         <SafeAreaView style={styles.container}>
