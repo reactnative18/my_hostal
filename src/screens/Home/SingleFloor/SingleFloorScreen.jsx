@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.white,
         elevation: 2,
         alignSelf: 'center',
-
+borderWidth:1
     },
     container: {
         flex: 1,

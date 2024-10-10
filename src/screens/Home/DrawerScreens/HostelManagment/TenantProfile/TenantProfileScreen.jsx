@@ -10,7 +10,7 @@ import CustomImage from '../../../../../util/Images'
 import InputFilled from '../../../../../Components/InputFilled/InputFilled'
 import { launchImageLibrary } from 'react-native-image-picker';
 import BouncyCheckbox from 'react-native-bouncy-checkbox'
-import { firebase_createTenantProfile, firebase_getAllDataFromTable, firebase_getAllDataFromTableById } from '../../../../../firebase_database'
+import { firebase_createTenantProfile, firebase_getAllDataFromTable, firebase_getAllDataFromTableById, firebase_updateBedData } from '../../../../../firebase_database'
 import tableNames from '../../../../../firebase_database/constrains'
 import { uploadImages } from '../../../../../firebase_database/UploadImages'
 import { useDispatch, useSelector } from 'react-redux'
@@ -109,7 +109,7 @@ const TenantProfileScreen = ({ navigation, route }) => {
         setIsStaff(staff || false)
         if (route?.params?.tenant) {
             console.log("route?.params?.tenant=>", route?.params?.tenant)
-            const { name, mobile, pmobile, rent, securityDeposit, monthlyRent, dateOfJoining, userPhoto, frunt_img, back_img, tenantId } = route?.params?.tenant
+            const { name, mobile, pmobile, rent, securityDeposit, monthlyRent, dateOfJoining, userPhoto, frunt_img, back_img, tenantId ,id} = route?.params?.tenant
             callDataTenant()
             setName(name)
             setMobile(mobile)
@@ -121,7 +121,7 @@ const TenantProfileScreen = ({ navigation, route }) => {
             setImg1(userPhoto)
             setImg2(frunt_img)
             setImg3(back_img)
-            setTenantId(tenantId)
+            setTenantId(tenantId ? tenantId:id)
 
         }
         if (!route?.params?.hostelData?.isTrue) {
@@ -189,11 +189,19 @@ const TenantProfileScreen = ({ navigation, route }) => {
                 }
             }
             dispatch(loaderAction(true))
-            const response = await firebase_createTenantProfile(isStaff ? tableNames.staff : tableNames.tenant, params, isStaff)
-            if (response) {
-                ToastMessage.successShowToast("Profile created successfully")
+            if (route?.params?.tenant) {
+                console.log(isStaff ? tableNames.staff : tableNames.tenant, tenantId, params)
+                await firebase_updateBedData(isStaff ? tableNames.staff : tableNames.tenant, tenantId, params)
+                ToastMessage.successShowToast("Profile updated successfully")
                 navigation.goBack()
+            } else {
+                const response = await firebase_createTenantProfile(isStaff ? tableNames.staff : tableNames.tenant, params, isStaff)
+                if (response) {
+                    ToastMessage.successShowToast("Profile created successfully")
+                    navigation.goBack()
+                }
             }
+
 
         } catch (error) {
             console.log("create profile issue=>", error)
@@ -241,12 +249,12 @@ const TenantProfileScreen = ({ navigation, route }) => {
                 }
             }
         } catch (error) {
-            
+
         }
         finally {
             dispatch(loaderAction(false))
         }
-       
+
     }
     return (
         <SafeAreaView style={styles.container}>
@@ -471,9 +479,9 @@ const TenantProfileScreen = ({ navigation, route }) => {
                         {userPhoto !== null || img1 &&
                             <>
                                 <Pressable onPress={() => {
-                                    navigation.navigate('ViewFullImage', { uri: userPhoto !== null ? userPhoto.uri : img1 })
+                                    navigation.navigate('ViewFullImage', { uri: !img1 ? userPhoto.uri : img1 })
                                 }}>
-                                    <Image source={{ uri: userPhoto !== null ? userPhoto.uri : img1 }} style={styles.docImage} />
+                                    <Image source={{ uri: img1 }} style={styles.docImage} alt='user Photo' />
                                 </Pressable>
                                 <Pressable style={img1 ? styles.imgConfirmbtndone : styles.imgConfirmbtn} onPress={() => {
                                     uploadImage('userProfile')
@@ -487,9 +495,9 @@ const TenantProfileScreen = ({ navigation, route }) => {
                         {frunt !== null || img2 &&
                             <>
                                 <Pressable onPress={() => {
-                                    navigation.navigate('ViewFullImage', { uri: frunt !== null ? frunt.uri : img2 })
+                                    navigation.navigate('ViewFullImage', { uri: !img2 ? frunt.uri : img2 })
                                 }}>
-                                    <Image source={{ uri: frunt !== null ? frunt.uri : img2 }} style={styles.docImage} />
+                                    <Image source={{ uri: !img2 ? frunt.uri : img2 }} style={styles.docImage} />
                                 </Pressable>
                                 <Pressable style={img2 ? styles.imgConfirmbtndone : styles.imgConfirmbtn} onPress={() => {
                                     uploadImage('frunt')
@@ -503,9 +511,9 @@ const TenantProfileScreen = ({ navigation, route }) => {
                         {back !== null || img3 &&
                             <>
                                 <Pressable onPress={() => {
-                                    navigation.navigate('ViewFullImage', { uri: back !== null ? back.uri : img3 })
+                                    navigation.navigate('ViewFullImage', { uri: !img3 ? back.uri : img3 })
                                 }}>
-                                    <Image source={{ uri: back !== null ? back.uri : img3 }} style={styles.docImage} />
+                                    <Image source={{ uri: !img3 ? back.uri : img3 }} style={styles.docImage} />
                                 </Pressable>
                                 <Pressable style={img3 ? styles.imgConfirmbtndone : styles.imgConfirmbtn} onPress={() => {
                                     uploadImage('back')
