@@ -8,28 +8,38 @@ import { fontFamily, fontSize } from '../../../util/Fonts';
 import { useDispatch, useSelector } from 'react-redux';
 import { loaderAction } from '../../../redux/Actions/UserAction';
 import { useIsFocused } from '@react-navigation/native';
-import { firebase_getAllDataFromTable } from '../../../firebase_database';
+import { firebase_getAllDataFromTable, getAllHostelData } from '../../../firebase_database';
 import tableNames from '../../../firebase_database/constrains';
+import useCheckRentOncePerDay from '../../../firebase_database/AutoEntries';
 
 const HomeScreen = ({ navigation }) => {
     const dispatch = useDispatch()
     const { userInfo } = useSelector(state => state.userInfo)
     const [hostels, setHostels] = useState([])
     const getData = async () => {
-        dispatch(loaderAction(true))
-        const response = await firebase_getAllDataFromTable(tableNames.hostel)
-        console.log(response)
-        if (response.length>0) {
-            setHostels(response)
+        try {
+            dispatch(loaderAction(true))
+            const response = await getAllHostelData(userInfo.id)
+            if (response?.length > 0) {
+                setHostels(response)
+            }
+        } catch (error) {
+            
         }
-        dispatch(loaderAction(false))
+        finally{
+
+            dispatch(loaderAction(false))
+        }
+       
     }
     const { loading } = useSelector(state => state.loader)
     const focus = useIsFocused()
+    useCheckRentOncePerDay(userInfo.id)
     useEffect(() => {
+        getAllHostelData(userInfo.id)
         getData()
     }, [focus])
-    const renderItem = ({ item, index }) =>{
+    const renderItem = ({ item, index }) => {
         if (item.userId == userInfo.id || item.userId == userInfo?.subId) {
             return (
                 <TouchableOpacity style={styles.hostelItem} onPress={() => {
@@ -39,13 +49,17 @@ const HomeScreen = ({ navigation }) => {
                     <View style={{ paddingHorizontal: 10, flex: 1 }}>
 
                         <Text style={styles.hostelName}>{item.hostelName}</Text>
-                        <Text style={{ ...styles.hostelLocation, flex: item?.availableRoom ? 0.6 : 0.8 }}>{item.hostelAddress}</Text>
-                        {item?.availableRoom && <Text style={{ ...styles.hostelLocation, flex: 0.2 }}>Total available room: {item?.availableRoom}</Text>}
+                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly' }}>
+                            <Text style={styles.normalText}>Collection {item.totalPaidRent}</Text>
+                            <View style={{ height: 30, width: 2, backgroundColor: Colors.red, marginHorizontal: 20 }} />
+                            <Text style={styles.normalText}>Dues {item.totalDueRent}</Text>
+                        </View>
+                        <Text numberOfLines={1} style={{ ...styles.hostelLocation, flex: item?.availableRoom ? 0.6 : 0.8 }}>{item.hostelAddress}</Text>
                     </View>
                 </TouchableOpacity>
             );
         }
-    } 
+    }
     return (
         <SafeAreaView style={styles.container}>
             <HeaderView navigation={navigation} />
@@ -71,7 +85,7 @@ const HomeScreen = ({ navigation }) => {
                     )
                 }}
             />
-            <TouchableOpacity style={styles.button} onPress={() => {
+           {hostels.length>0 && <TouchableOpacity style={styles.button} onPress={() => {
                 navigation.navigate('TenantProfileScreen')
             }}>
                 <Image source={CustomImage.add} style={{
@@ -79,13 +93,18 @@ const HomeScreen = ({ navigation }) => {
                     resizeMode: 'contain',
                     height: horizScale(50), width: horizScale(50)
                 }} />
-            </TouchableOpacity>
+            </TouchableOpacity>}
 
         </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
+    normalText: {
+        color: Colors.black,
+        fontSize: fontSize.regular,
+        fontFamily: fontFamily.boldItalic
+    },
     button: {
         position: 'absolute',
         right: horizScale(20),
@@ -115,7 +134,7 @@ const styles = StyleSheet.create({
         borderRadius: horizScale(70),
     },
     hostelName: {
-        flex:0.2,
+        flex: 0.2,
         fontSize: fontSize.regular,
         fontFamily: fontFamily.black,
         color: Colors.black
@@ -123,7 +142,7 @@ const styles = StyleSheet.create({
     hostelLocation: {
         fontSize: fontSize.medium,
         fontFamily: fontFamily.regular,
-        color: Colors.darkgrey2, 
+        color: Colors.darkgrey2,
     },
 });
 

@@ -9,7 +9,7 @@ import CustomImage from '../../../../../util/Images'
 import { useDispatch, useSelector } from 'react-redux'
 import { loaderAction } from '../../../../../redux/Actions/UserAction'
 import { useIsFocused } from '@react-navigation/native'
-import { firebase_getAllDataFromTableById, firebase_removeDataToTable } from '../../../../../firebase_database'
+import { firebase_getAllDataFromTableById, firebase_getTenantById, firebase_removeDataToTable } from '../../../../../firebase_database'
 import tableNames from '../../../../../firebase_database/constrains'
 
 const HostelBedManagment = ({ navigation, route }) => {
@@ -50,11 +50,20 @@ const HostelBedManagment = ({ navigation, route }) => {
             dispatch(loaderAction(false))
         }
     }
+    const callTenantData=async(data)=>{
+        const tenant =await firebase_getTenantById(data.tenantId)
+        navigation.navigate('TenantProfileScreen', { tenant: tenant })
+    }
     const renderItem = ({ item, index }) => {
         return <Pressable style={styles.roomContainer} onPress={() => {
-            navigation.navigate('TenantProfileScreen', {
-               hostelData:{ hostel, floor, room, bed: item}
-            })
+            let data={...hostel,...floor,...room,...item}
+            if (item.seatAvailable){
+                navigation.navigate('TenantProfileScreen', data)
+                console.log("params from HostelBedManagment=>",  data )
+            }else{
+                dispatch(loaderAction(true))
+                callTenantData(data)
+            }
         }}>
             <View style={styles.hostelContainer}>
                 <View style={styles.hostelContainer2}>

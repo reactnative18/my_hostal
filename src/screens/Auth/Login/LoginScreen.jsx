@@ -35,7 +35,7 @@ const LoginScreen = ({ navigation }) => {
             return;
         }
         dispatch(loaderAction(true))
-        const response = await firebase_login({ email, password })
+        const response = await firebase_login({ email:email.toLowerCase(), password })
         console.log("login response==>", response)
         if (!response.isError) {
             Auth.setAuth(response)

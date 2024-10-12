@@ -103,6 +103,7 @@ const InputFilled = (props) => {
                         style={{ ...styles.input, borderBottomColor: props.value ? Colors.blue : Colors.grey }}
                         value={props.value}
                         onChangeText={text => props.onChangeText(text)}
+                        editable={!props?.editable}
                     />
                 </View>
             case "Date":

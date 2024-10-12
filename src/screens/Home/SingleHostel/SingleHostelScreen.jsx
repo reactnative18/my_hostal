@@ -10,6 +10,7 @@ import { useDispatch } from 'react-redux';
 import { loaderAction } from '../../../redux/Actions/UserAction';
 // import { apiService } from '../../../API_Services';
 import { firebase_getMasterHostel } from '../../../firebase_database';
+import { useIsFocused } from '@react-navigation/native';
 // import tableNames from '../../../firebase_database/constrains';
 
 const SingleHostelScreen = ({ navigation, route }) => {
@@ -23,7 +24,6 @@ const SingleHostelScreen = ({ navigation, route }) => {
             dispatch(loaderAction(true))
             const response = await firebase_getMasterHostel(hostel.id)
             if (response) {
-                // console.log("master Hostel",JSON.stringify(response))
                 setFloor(response)
             }
         } catch (error) {
@@ -33,9 +33,10 @@ const SingleHostelScreen = ({ navigation, route }) => {
             dispatch(loaderAction(false))
         }
     }
+    const isFocus=useIsFocused()
     useEffect(() => {
         getData()
-    }, [])
+    }, [isFocus])
 
     const renderItem = ({ item }) => (
         <TouchableOpacity

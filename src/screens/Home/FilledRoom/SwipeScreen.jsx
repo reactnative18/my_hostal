@@ -51,7 +51,6 @@ const SwipeScreen = ({ navigation, route }) => {
         } catch (error) {
             
         }
-        // console.log("tenant 1=>", tenantData, "\ntenant 2=>", selectUser)
     }
     const isFocus = useIsFocused()
     useEffect(() => {

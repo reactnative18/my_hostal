@@ -1,6 +1,6 @@
 
+import React, { useCallback, useEffect, useState } from 'react'
 import { FlatList, Image, Linking, Pressable, SafeAreaView, StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native'
-import React, { useEffect, useState } from 'react'
 import BackButton from '../../../../../Components/BackButton/BackButton'
 import { Spacer, horizScale, normScale, vertScale } from '../../../../../util/Layout'
 import FocusStatusBar from '../../../../../Components/FocusStatusBar/FocusStatusBar'
@@ -10,7 +10,7 @@ import CustomImage from '../../../../../util/Images'
 import InputFilled from '../../../../../Components/InputFilled/InputFilled'
 import { launchImageLibrary } from 'react-native-image-picker';
 import BouncyCheckbox from 'react-native-bouncy-checkbox'
-import { firebase_createTenantProfile, firebase_getAllDataFromTable, firebase_getAllDataFromTableById, firebase_updateBedData } from '../../../../../firebase_database'
+import { firebase_addDataToTable, firebase_createTenantProfile, firebase_getAllDataFromTable, firebase_getAllDataFromTableById, firebase_updateBedData } from '../../../../../firebase_database'
 import tableNames from '../../../../../firebase_database/constrains'
 import { uploadImages } from '../../../../../firebase_database/UploadImages'
 import { useDispatch, useSelector } from 'react-redux'
@@ -22,13 +22,13 @@ const TenantProfileScreen = ({ navigation, route }) => {
     const dispatch = useDispatch()
     const staff = route?.params?.isStaff;
     const [isStaff, setIsStaff] = useState(staff || false)
-
+    const { userInfo } = useSelector(state => state.userInfo)
     const [name, setName] = useState('');
     const [mobile, setMobile] = useState('');
     const [pmobile, setPMobile] = useState('');
-    const [rent, setRent] = useState('');
-    const [securityDeposit, setSecurityDeposit] = useState('');
-    const [monthlyRent, setmonthlyRent] = useState('');
+    const [rent, setRent] = useState(null);
+    const [securityDeposit, setSecurityDeposit] = useState(null);
+    const [monthlyRent, setmonthlyRent] = useState(null);
     const [dOJ, setDOJ] = useState('')
     const [hostel, setHostel] = useState(null)
     const [floor, setfloor] = useState(null)
@@ -65,8 +65,7 @@ const TenantProfileScreen = ({ navigation, route }) => {
                 } else if (type == 2) {
                     setBack(source);
                     setImg3('')
-                } else {
-                    console.log('Image picker source:', source);
+                } else { 
                     setUserPhoto(source)
                     setImg1('')
                 }
@@ -103,43 +102,70 @@ const TenantProfileScreen = ({ navigation, route }) => {
         }
         dispatch(loaderAction(false))
     }
+    const setParamsData=useCallback(()=>{
+        const { name, mobile, pmobile, rent, securityDeposit, monthlyRent, dateOfJoining, userPhoto, frunt_img, back_img, tenantId, id } = route?.params?.tenant
+        callDataTenant()
+        setmonthlyRent(monthlyRent)
+        setName(name)
+        setMobile(mobile)
+        setPMobile(pmobile)
+        setRent(rent)
+        setSecurityDeposit(securityDeposit)
+        setDOJ(dateOfJoining)
+        setImg1(userPhoto)
+        setImg2(frunt_img)
+        setImg3(back_img)
+        setTenantId(tenantId ? tenantId : id)
+    },[])
     useEffect(() => {
-        let hostelId = route?.params?.tenant?.hostelId ? route?.params?.tenant?.hostelId : route?.params?.params?.hostelId
-        getAllHostels(hostelId)
-        setIsStaff(staff || false)
-        if (route?.params?.tenant) {
-            console.log("route?.params?.tenant=>", route?.params?.tenant)
-            const { name, mobile, pmobile, rent, securityDeposit, monthlyRent, dateOfJoining, userPhoto, frunt_img, back_img, tenantId ,id} = route?.params?.tenant
-            callDataTenant()
-            setName(name)
-            setMobile(mobile)
-            setPMobile(pmobile)
-            setRent(rent)
-            setSecurityDeposit(securityDeposit)
-            setmonthlyRent(monthlyRent)
-            setDOJ(dateOfJoining)
-            setImg1(userPhoto)
-            setImg2(frunt_img)
-            setImg3(back_img)
-            setTenantId(tenantId ? tenantId:id)
+        try {
+            dispatch(loaderAction(true))
+            console.log("route?.params=>",route?.params)
+            let hostelId = route?.params?.tenant?.hostelId ? route?.params?.tenant?.hostelId : route?.params?.hostelId
+            getAllHostels(hostelId)
+            setIsStaff(staff || false)
+            if (route?.params?.tenant) { 
+               setParamsData()
+            } 
+            if (route?.params?.hostelData && !route?.params?.hostelData?.isTrue && route?.params) {
+                callData()
+            }
+            if(route?.params){
+                const { amont, seatAvailable } = route?.params
+                if (seatAvailable && Number(amont)>0){
+                    setSecurityDeposit(()=>amont)
+                    setmonthlyRent(()=>amont)
+                }
+            }
 
+        } catch (error) {
+            console.log("useeffect 1=>", error)
         }
-        if (!route?.params?.hostelData?.isTrue) {
-            callData()
+        finally{
+            dispatch(loaderAction(false))
         }
 
     }, [route?.params?.tenant])
     useEffect(() => {
-        callDataTenant()
+        BedList.length > 0 && callDataTenant()
     }, [BedList])
     const callDataTenant = async () => {
-        const { floorId, roomId, bedId } = route?.params?.tenant ? route?.params?.tenant : route?.params?.params
+        const { floorId, roomId, bedId, id, seatAvailable } = route?.params?.tenant ? route?.params?.tenant : route?.params
         try {
-            FloorList && setfloor(FloorList.find(item => item.id == floorId))
-            RoomlList && setroom(RoomlList.find(item => item.id == roomId))
-            BedList && setseat(BedList.find(item => item.id == bedId))
+            dispatch(loaderAction(true))
+            floorId && FloorList && setfloor(FloorList.find(item => item.id == floorId))
+            roomId && RoomlList && setroom(RoomlList.find(item => item.id == roomId))
+            if (seatAvailable){
+                id && BedList && setseat(BedList.find(item => item.id == id))
+            }else{
+                bedId && BedList && setseat(BedList.find(item => item.id == bedId))
+            }
         } catch (error) {
+           
             console.log("callDataTenant=>", error)
+        }
+        finally{
+            dispatch(loaderAction(false))
         }
     }
     const callData = async () => {
@@ -160,7 +186,7 @@ const TenantProfileScreen = ({ navigation, route }) => {
             const params = isStaff ? {
                 name: name,
                 mobile: mobile,
-                monthlySalary: monthlyRent,
+                monthlySalary: Number(monthlyRent),
                 dateOfJoining: dOJ,
                 hostelId: hostel?.id,
                 userPhoto: userPhoto == null ? "https://drive.google.com/file/d/1njoAhXT4jbIE9WDNbZ6hnYpX_zycMfF4/view?usp=sharing" : img1,
@@ -170,9 +196,9 @@ const TenantProfileScreen = ({ navigation, route }) => {
                 name: name,
                 mobile: mobile,
                 pmobile: pmobile,
-                rent: rent,
-                securityDeposit: securityDeposit,
-                monthlyRent: monthlyRent,
+                rent: Number(rent),
+                securityDeposit: Number(securityDeposit),
+                monthlyRent: Number(monthlyRent),
                 dateOfJoining: dOJ,
                 hostelId: hostel?.id,
                 userPhoto: userPhoto == null ? "https://drive.google.com/file/d/1njoAhXT4jbIE9WDNbZ6hnYpX_zycMfF4/view?usp=sharing" : img1,
@@ -190,15 +216,25 @@ const TenantProfileScreen = ({ navigation, route }) => {
             }
             dispatch(loaderAction(true))
             if (route?.params?.tenant) {
-                console.log(isStaff ? tableNames.staff : tableNames.tenant, tenantId, params)
                 await firebase_updateBedData(isStaff ? tableNames.staff : tableNames.tenant, tenantId, params)
                 ToastMessage.successShowToast("Profile updated successfully")
                 navigation.goBack()
             } else {
-                const response = await firebase_createTenantProfile(isStaff ? tableNames.staff : tableNames.tenant, params, isStaff)
-                if (response) {
+                const tenantId = await firebase_createTenantProfile(isStaff ? tableNames.staff : tableNames.tenant, params, isStaff)
+                if (tenantId) {
                     ToastMessage.successShowToast("Profile created successfully")
-                    navigation.goBack()
+
+                    const data = {
+                        userId: userInfo.id,
+                        tenantId: tenantId,
+                        month: dOJ,
+                        dueRent: Number(rent),
+                        paidRent: Number(monthlyRent) - Number(rent),
+                        isCurrentMonth: true,
+                        monthlyRent: Number(monthlyRent),
+                    }
+                    await firebase_addDataToTable(isStaff ? tableNames.transectionStaff : tableNames.transectionTenant, data)
+                    navigation.replace('HomeDrawer')
                 }
             }
 
@@ -213,8 +249,7 @@ const TenantProfileScreen = ({ navigation, route }) => {
 
     const getAllBeds = async (id, isAvailable = true) => {
         const response = await firebase_getAllDataFromTableById(tableNames.bed, "roomId", id)
-        if (response) {
-            console.log("getAllBeds=>", response)
+        if (response) { 
             const bedList = response.filter(u => u.seatAvailable == isAvailable);
             setBedList(bedList)
         }
@@ -233,28 +268,22 @@ const TenantProfileScreen = ({ navigation, route }) => {
     }
     const getAllHostels = async (id = '') => {
         try {
-            dispatch(loaderAction(true))
-            const response = await firebase_getAllDataFromTable(tableNames.hostel)
-            if (response) {
-                console.log(response)
-                setHostelList(response)
+             const response = await firebase_getAllDataFromTable(tableNames.hostel)
+            const availableHostelList = response.filter(u => u.userId === userInfo.id);
+            if (availableHostelList) { 
+                setHostelList(availableHostelList)
                 if (id != '') {
-                    setHostel(response.find(item => item.id == id))
-                    const { hostelId, floorId, roomId } = route?.params?.tenant ? route?.params?.tenant : route?.params?.params
-                    await getAllFloors(hostelId)
-                    await getAllRooms(floorId)
-                    await getAllBeds(roomId, !route?.params?.tenant)
-                } else {
-                    dispatch(loaderAction(false))
-                }
+                    let selectedHostel = availableHostelList.find(item => item.id == id)
+                    setHostel(selectedHostel)
+                    const { hostelId, floorId, roomId } = route?.params?.tenant ? route?.params?.tenant : route?.params
+                    hostelId && await getAllFloors(hostelId)
+                    floorId && await getAllRooms(floorId)
+                    roomId && await getAllBeds(roomId, !route?.params?.tenant)
+                }  
             }
         } catch (error) {
 
-        }
-        finally {
-            dispatch(loaderAction(false))
-        }
-
+        } 
     }
     return (
         <SafeAreaView style={styles.container}>
@@ -327,16 +356,14 @@ const TenantProfileScreen = ({ navigation, route }) => {
 
                 </View>
                 <Spacer height={20} />
-
                 <InputFilled
                     type="Dropdown"
                     placeholder="Select a hostel..."
                     data={hostelList}
-                    value={hostel?.hostelName}
+                    value={hostel?.hostelName ||''}
                     keyName="hostelName"
                     onChangeText={text => {
-                        setHostel(text)
-                        console.log("selected", text)
+                        setHostel(text) 
                         getAllFloors(text.id)
                     }}
                     icon={CustomImage.hostel}
@@ -418,16 +445,18 @@ const TenantProfileScreen = ({ navigation, route }) => {
                 <InputFilled
                     type="Mobile"
                     placeholder={isStaff ? "Monthly Salary" : "Monthly Rent"}
-                    value={monthlyRent}
+                    value={monthlyRent ? monthlyRent+"" : ""}
                     onChangeText={text => setmonthlyRent(text)}
                     icon={CustomImage.SecurityDeposit}
+                    editable={route?.params}
                 />
                 {!isStaff && <>
                     <Spacer height={20} />
                     <InputFilled
                         type="Mobile"
                         placeholder="Security Deposit"
-                        value={securityDeposit}
+                        editable={route?.params}
+                        value={securityDeposit ? securityDeposit+"" : ""}
                         onChangeText={text => setSecurityDeposit(text)}
                         icon={CustomImage.SecurityDeposit}
                     />
@@ -436,7 +465,7 @@ const TenantProfileScreen = ({ navigation, route }) => {
                     <InputFilled
                         type="Mobile"
                         placeholder={isStaff ? "Due Salary" : "Due Rent"}
-                        value={rent}
+                        value={ rent!=null ? rent+"" : ""}
                         onChangeText={text => setRent(text)}
                         icon={CustomImage.rent}
                     />

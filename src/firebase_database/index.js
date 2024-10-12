@@ -39,8 +39,7 @@ const firebase_signup = async (data) => {
         .ref('/users')
         .push(data)
         .then((res) => {
-            response = res
-            console.log('Firebase Login Data pushed.', res)
+            response = res 
         });
     return response
 }
@@ -71,9 +70,7 @@ const firebase_getAllDataFromTableById = async (table, key, id) => {
         .ref(`/${table}`)
         .once('value')
         .then(snapshot => {
-            const users = snapshot.val();
-            console.log("Condition=>", table, key, id)
-            console.log("all data=>", users)
+            const users = snapshot.val(); 
             const userList = Object.values(users).filter(u => u[key] === id);
             if (userList) {
                 response = userList
@@ -85,6 +82,17 @@ const firebase_getAllDataFromTableById = async (table, key, id) => {
         })
         .catch(error => { });
     return response
+}
+const firebase_getTenantById = async (tenantId) => {
+    try {
+        const tenantSnapshot = await database().ref(`/${tableNames.tenant}/${tenantId}`).once('value')
+        console.log("tenantSnapshot", tenantSnapshot)
+        const tenant = tenantSnapshot.val();
+        console.log("tenantSnapshot tenant", tenant)
+        return tenant
+    } catch (error) {
+        
+    }
 }
 
 const firebase_addDataToTable = async (table, data) => {
@@ -137,7 +145,7 @@ const firebase_createTenantProfile = async (table, data, isStaff = false) => {
         }
         // Store the profile data in Firebase Realtime Database
         await newUserProfileRef.set(param).then(() => {
-            response = true;
+            response = tenantId;
         }).catch(e => {
             response = false;
         });
@@ -220,6 +228,7 @@ const firebase_shiftBeds = async (tenantData, shiftData) => {
         roomId: shiftData.roomId,
         floorId: shiftData.floorId,
         hostelId: shiftData.hostelId,
+        rent: shiftData.dueRent,
     }
     await firebase_updateBedData(tableNames.tenant, tenantData.tenantId, updateTenant)
     let shiftBed = {
@@ -242,8 +251,10 @@ const firebase_swipeBeds = async (tenantData1, tenantData2) => {
         roomId: tenantData2.roomId,
         floorId: tenantData2.floorId,
         hostelId: tenantData2.hostelId,
+        rent: tenantData2.dueRent,
     }
     let updateTenant2 = {
+        rent: tenantData1.dueRent,
         monthlyRent: tenantData1.monthlyRent,
         bedId: tenantData1.bedId,
         roomId: tenantData1.roomId,
@@ -258,7 +269,7 @@ const firebase_swipeBeds = async (tenantData1, tenantData2) => {
     return true
 }
 const firebase_getMasterHostel = async (hostelId) => {
-   
+
     const allFloor = await database().ref(`/${tableNames.floor}`).once('value')
     const floorList = Object.values(allFloor.val()).filter(u => u.hostelId === hostelId);
     const allRoom = await database().ref(`/${tableNames.room}`).once('value')
@@ -281,20 +292,20 @@ const firebase_getMasterHostel = async (hostelId) => {
                                 (async () => {
                                     // bed start
                                     const BedData = []
-                                    let availableBed=0,filledBed=0
+                                    let availableBed = 0, filledBed = 0
 
                                     const promisesbed = [];
                                     bedList.map(bedInfo => {
                                         promisesbed.push(
                                             (async () => {
-                                        if (roomInfo.id == bedInfo.roomId) {
-                                            BedData.push(bedInfo)
-                                            if (bedInfo.seatAvailable){
-                                                availableBed++
-                                            }else{
-                                                filledBed++
-                                            }
-                                        }
+                                                if (roomInfo.id == bedInfo.roomId) {
+                                                    BedData.push(bedInfo)
+                                                    if (bedInfo.seatAvailable) {
+                                                        availableBed++
+                                                    } else {
+                                                        filledBed++
+                                                    }
+                                                }
                                             })()
                                         );
                                     });
@@ -330,7 +341,62 @@ const firebase_getMasterHostel = async (hostelId) => {
 
     return MasterData
 }
+const GetLastTransection = async (tableName, adminId) => {
+    const allData = await database().ref(`/${tableName}`).once('value')
+    const lastTransectionList1 = Object.values(allData.val()).filter(u => u.userId == adminId);
+    const lastTransectionList = lastTransectionList1.filter(u => u.isCurrentMonth == true);
+    return lastTransectionList;
+}
 
+const getAllHostelData = async (adminId) => {
+    try {
+        const HostelData = [];
+        let transectionList = []
+        const allHostel = await database().ref(`/${tableNames.hostel}`).once('value')
+        const hostelList = Object.values(allHostel.val()).filter(u => u.userId === adminId);
+        const allTransection = await database().ref(`/${tableNames.transectionTenant}`).once('value')
+        if (allTransection!=null&& allTransection?.val() !== null && allTransection?.val() !== undefined) {
+            transectionList = Object.values(allTransection?.val())?.filter(u => u.userId === adminId);
+            transectionList = transectionList?.filter(u => (u.isCurrentMonth == true))
+        }
+        let allTenant = await database().ref(`/${tableNames.tenant}`).once('value')
+      
+        if (allTenant && allTenant != null && allTenant?.val() !== null && allTenant?.val() !== undefined){
+            allTenant = Object.values(allTenant?.val())
+        }
+        await Promise.all(hostelList?.map(async (hostelInfo, index) => {
+            let totalPaidRent = 0;
+            let totalDueRent = 0;
+            let tenantList = []
+            if (allTenant!=null&&allTenant.length > 0) {
+                tenantList = allTenant.filter(u => u.hostelId == hostelInfo.id);
+            }
+            if (tenantList.length == 0) {
+                let hostelObj = {
+                    totalPaidRent: totalPaidRent,
+                    totalDueRent: totalDueRent,
+                    ...hostelInfo
+                }
+                HostelData.push(hostelObj)
+            } else {
+                let currentMonthData = transectionList?.filter(item => tenantList?.some(item2 => item2.id == item.tenantId))
+                currentMonthData?.forEach((rent) => {
+                    totalPaidRent += rent.paidRent;
+                    totalDueRent += rent.dueRent;
+                });
+                let hostelObj = {
+                    totalPaidRent: totalPaidRent,
+                    totalDueRent: totalDueRent,
+                    ...hostelInfo
+                }
+                HostelData.push(hostelObj)
+            }
+        }));
+        return HostelData
+    } catch (error) {
+        console.log("getAllHostelData error=>",error)
+    }
+}
 export {
     firebase_login,
     firebase_signup,
@@ -343,5 +409,8 @@ export {
     firebase_updateBedData,
     firebase_shiftBeds,
     firebase_swipeBeds,
-    firebase_getMasterHostel
+    firebase_getMasterHostel,
+    GetLastTransection,
+    getAllHostelData,
+    firebase_getTenantById
 }

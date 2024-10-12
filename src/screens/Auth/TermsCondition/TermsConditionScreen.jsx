@@ -6,6 +6,7 @@ import { Colors } from '../../../util/Colors'
 import { Spacer, horizScale, normScale, vertScale } from '../../../util/Layout'
 import { fontFamily, fontSize } from '../../../util/Fonts'
 import BouncyCheckbox from 'react-native-bouncy-checkbox'
+import ToastMessage from '../../../Components/ToastMessage'
 
 const TermsConditionScreen = ({ navigation }) => {
     const [agree, setAgree] = useState(false)
@@ -64,7 +65,7 @@ const TermsConditionScreen = ({ navigation }) => {
             </View>
             <Spacer height={8} />
 
-            <Pressable onPress={() => { navigation.navigate('SignupScreen') }} style={styles.button}>
+            <Pressable onPress={() => { agree ? navigation.navigate('SignupScreen') : ToastMessage.WarningShowToast("Please Accept Terms & Condition to Continue") }} style={styles.button}>
                 <Text style={styles.buttonText}>Continue</Text>
             </Pressable>
         </SafeAreaView>

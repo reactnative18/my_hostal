@@ -19,11 +19,9 @@ const HostelRoomManagment = ({ navigation, route }) => {
     const [Rooms, setRooms] = useState([])
     const getData = async () => { 
         try {
-            dispatch(loaderAction(true))
-            console.log("come come")
+            dispatch(loaderAction(true)) 
             const response = await firebase_getAllDataFromTableById(tableNames.room, "floorId", floor.id)
-            if (response) {
-                console.log("response room ==>", response)
+            if (response) { 
                 setRooms(response)
             }
         } catch (error) {

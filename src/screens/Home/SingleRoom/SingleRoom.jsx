@@ -15,19 +15,18 @@ import ToastMessage from '../../../Components/ToastMessage';
 import { useIsFocused } from '@react-navigation/native';
 
 const SingleRoomScreen = ({ navigation, route }) => {
-  
+
     const { userInfo } = useSelector(state => state.userInfo)
     const { room } = route.params;
     const [tenantData, setTenantData] = useState(null)
-    const [totalDueRent, setTotalDueRent] = useState(0)
+    const [totalDueRent, setTotalDueRent] = useState(null)
     const dispatch = useDispatch()
     const isFocus = useIsFocused()
     const getData = async (id) => {
         try {
             dispatch(loaderAction(true))
             const response = await firebase_getAllDataFromTableById(tableNames.tenant, "id", id)
-            if (response) {
-                console.log(response)
+            if (response) { 
                 setTenantData(response[0])
             }
             await getTransections(id)
@@ -41,19 +40,16 @@ const SingleRoomScreen = ({ navigation, route }) => {
     const getTransections = async (id) => {
         try {
             dispatch(loaderAction(true))
-
             const response = await firebase_getAllDataFromTableById(tableNames.transectionTenant, "tenantId", id)
-            if (response) {
-                console.log("getTransections=>",response)
-                const sortedRentData = response.sort((a, b) => {
-                    // Convert 'month' field to Date object for comparison (format: DD-MM-YYYY)
+            if (response) { 
+                const sortedRentData = response.sort((a, b) => { 
                     const dateB = new Date(a.month.split('-').reverse().join('-'));
                     const dateA = new Date(b.month.split('-').reverse().join('-'));
 
                     return dateA - dateB;
                 });
                 setAllTransection(sortedRentData)
-                const totalDueRent = sortedRentData.reduce((total, item) => total + parseInt(item.dueRent, 10), 0);
+                const totalDueRent = sortedRentData.reduce((total, item) => parseInt(total) + item.dueRent, 0);
                 setTotalDueRent(totalDueRent)
             }
         } catch (error) {
@@ -66,8 +62,8 @@ const SingleRoomScreen = ({ navigation, route }) => {
     const [selected, setSelected] = useState(null)
     const [selectedItem, setSelectedItem] = useState(null)
     const [currentMonth, setCurrentMonth] = useState('')
-    const [paidRent, setPaidRent] = useState('')
-    const [dueRent, setDueRent] = useState('')
+    const [paidRent, setPaidRent] = useState(null)
+    const [dueRent, setDueRent] = useState(null)
     const [showHistory, setShowHistory] = useState(false)
     const [newEntry, setNewEntry] = useState(false)
     const [allTransection, setAllTransection] = useState([])
@@ -82,19 +78,27 @@ const SingleRoomScreen = ({ navigation, route }) => {
             userId: userInfo.id,
             tenantId: tenantData.id,
             month: currentMonth,
-            dueRent: parseInt(dueRent) > 0 ? dueRent : '0',
-            paidRent: paidRent
+            dueRent: Number(dueRent) > 0 ? Number(dueRent) : 0,
+            paidRent: Number(paidRent),
+            isCurrentMonth: true,
+            monthlyRent: Number(tenantData.monthlyRent)
         }
         const tenantUpdate = {
-            rent: `${parseInt(tenantData.rent) + parseInt(dueRent)}`
+            rent: Number(tenantData.rent) + Number(dueRent)
+        }
+        if (allTransection.length > 0) {
+            const updateLastTransection = {
+                isCurrentMonth: false
+            }
+            firebase_updateBedData(tableNames.transectionTenant, allTransection[0].id, updateLastTransection)
         }
         firebase_updateBedData(tableNames.tenant, tenantData.id, tenantUpdate)
         try {
             const response = await firebase_addDataToTable(tableNames.transectionTenant, data)
             if (response) {
                 setCurrentMonth('')
-                setDueRent('')
-                setPaidRent('')
+                setDueRent(0)
+                setPaidRent(0)
                 setNewEntry(!newEntry)
                 ToastMessage.successShowToast("Record Added Successfully...")
             }
@@ -117,20 +121,20 @@ const SingleRoomScreen = ({ navigation, route }) => {
     const [dueRentRecord, setDueRentRecord] = useState(null)
     const updateDueRecord = () => {
         try {
-            if (tenantData.rent > 0) {
+            if (Number(tenantData.rent) > 0) {
                 const tenantUpdate = {
-                    rent: `${parseInt(tenantData.rent) - parseInt(dueRent)}`
+                    rent: Number(tenantData.rent) - Number(dueRent)
                 }
                 firebase_updateBedData(tableNames.tenant, tenantData.id, tenantUpdate)
                 const recordUpdate = {
-                    dueRent: `${parseInt(dueRentRecord.dueRent) - parseInt(dueRent)}`,
-                     paidRent: `${parseInt(dueRentRecord.paidRent) + parseInt(dueRent)}`
+                    dueRent: Number(dueRentRecord.dueRent) - Number(dueRent),
+                    paidRent: Number(dueRentRecord.paidRent) + Number(dueRent)
                 }
                 firebase_updateBedData(tableNames.transectionTenant, dueRentRecord.id, recordUpdate)
             } else {
                 const recordUpdate = {
-                    dueRent: `${parseInt(dueRentRecord.dueRent) - parseInt(dueRent)}`,
-                    paidRent: `${parseInt(dueRentRecord.paidRent) + parseInt(dueRent)}`
+                    dueRent: Number(dueRentRecord.dueRent) - Number(dueRent),
+                    paidRent: Number(dueRentRecord.paidRent) + Number(dueRent)
                 }
                 firebase_updateBedData(tableNames.transectionTenant, dueRentRecord.id, recordUpdate)
             }
@@ -142,20 +146,20 @@ const SingleRoomScreen = ({ navigation, route }) => {
             setIsVisible(!isVisible)
         }
     }
-    function getNextMonthDate(dateString) { 
-        let [day, month, year] = dateString.split('-').map(Number); 
-        let date = new Date(year, month - 1, day); 
-        date.setMonth(date.getMonth() + 1); 
-        let newDay = String(date.getDate()).padStart(2, '0');  
-        let newMonth = String(date.getMonth() + 1).padStart(2, '0');  
-        let newYear = date.getFullYear(); 
+    function getNextMonthDate(dateString) {
+        let [day, month, year] = dateString.split('-').map(Number);
+        let date = new Date(year, month - 1, day);
+        date.setMonth(date.getMonth() + 1);
+        let newDay = String(date.getDate()).padStart(2, '0');
+        let newMonth = String(date.getMonth() + 1).padStart(2, '0');
+        let newYear = date.getFullYear();
         return `${newDay}-${newMonth}-${newYear}`;
     }
     const dueClearModel = () => {
         return <Modal
             isVisible={isVisible}
-            onBackButtonPress={() => setModalVisible(false)}
-            onBackdropPress={() => setModalVisible(false)}
+            onBackButtonPress={() => setIsVisible(false)}
+            onBackdropPress={() => setIsVisible(false)}
         >
             <View style={styles.modalBackground}>
                 <View style={styles.modalContainer}>
@@ -271,10 +275,8 @@ const SingleRoomScreen = ({ navigation, route }) => {
                 {
                     selectedItem?.seatAvailable ?
                         <Pressable style={styles.button} onPress={() => {
-                            navigation.navigate('TenantProfileScreen', {
-                                screen: 'TenantProfileScreen',
-                                params: { ...selectedItem, bedId: selectedItem.id, isTrue: true },
-                            });
+                            console.log("params from SingleRoomScreen=>", { ...selectedItem })
+                            navigation.navigate('TenantProfileScreen', {...selectedItem });
                         }}>
                             <Text style={styles.buttonText}>Room available</Text>
                         </Pressable> :
@@ -283,9 +285,10 @@ const SingleRoomScreen = ({ navigation, route }) => {
                             <Spacer height={10} />
                             <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-evenly' }}>
 
-                                <Text style={{ ...styles.cardInfo,borderBottomWidth:2, borderBottomColor: totalDueRent >0?Colors.red:Colors.green,
+                                <Text style={{
+                                    ...styles.cardInfo, borderBottomWidth: 2, borderBottomColor: totalDueRent > 0 ? Colors.red : Colors.green,
                                     fontWeight: totalDueRent > 0 ? '700' : '600',
-                                    fontSize: totalDueRent > 0 ? fontSize.regular: fontSize.medium,
+                                    fontSize: totalDueRent > 0 ? fontSize.regular : fontSize.medium,
                                 }}>Due Amount : {totalDueRent}</Text>
                                 <TouchableOpacity style={{
                                     alignItems: 'center',
@@ -367,7 +370,7 @@ const SingleRoomScreen = ({ navigation, route }) => {
                                     }}>
                                     <Text style={[styles.cardInfo, { color: Colors.black, textAlign: 'center' }]}>{showHistory ? 'Hide History' : 'Show Transection'}</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity style={{
+                                {/* <TouchableOpacity style={{
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     flexDirection: 'row',
@@ -394,31 +397,30 @@ const SingleRoomScreen = ({ navigation, route }) => {
                                         }
                                     }}>
                                     <Text style={[styles.cardInfo, { color: Colors.white, textAlign: 'center' }]}>{newEntry ? "Done" : "New Entry"}</Text>
-                                </TouchableOpacity>
+                                </TouchableOpacity> */}
 
                             </View>
+                            {showHistory && <FlatList
+                                data={allTransection}
+                                renderItem={renderItemUserInfo}
+                                keyExtractor={item => item.id}
+                                showsVerticalScrollIndicator={false}
+                                scrollEnabled={false}
+                                style={{ marginVertical: vertScale(20) }}
+                                ListEmptyComponent={() => (
+                                    <>
+                                        <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                                            <Image source={CustomImage.no} style={{
+                                                height: horizScale(120),
+                                                width: horizScale(120),
+                                            }} />
+                                            <Text>No Record Available</Text>
+                                        </View>
+                                    </>
+                                )}
+                            />}
                         </View>
-                }
-
-                {showHistory && <FlatList
-                    data={allTransection}
-                    renderItem={renderItemUserInfo}
-                    keyExtractor={item => item.id}
-                    showsVerticalScrollIndicator={false}
-                    scrollEnabled={false}
-                    style={{marginVertical:vertScale(20)}}
-                    ListEmptyComponent={() => (
-                        <>
-                           <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-                                <Image source={CustomImage.no} style={{
-                                    height: horizScale(120),
-                                    width: horizScale(120),
-                                }} />
-                                <Text>No Record Available</Text>
-                            </View>
-                        </>
-                    )}
-                />}
+                }               
             </ScrollView>
             {dueClearModel()}
         </SafeAreaView>

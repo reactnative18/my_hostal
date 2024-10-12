@@ -4,12 +4,12 @@ import {
     View, Text, FlatList, StyleSheet,
     TouchableOpacity, Alert,
     TextInput,
-    SafeAreaView
+    SafeAreaView,Image
 } from 'react-native';
 import { Colors } from '../../../util/Colors';
 import HeaderView from '../../../Components/HeaderView';
 import { Spacer, horizScale, normScale, vertScale } from '../../../util/Layout';
-import BouncyCheckbox from 'react-native-bouncy-checkbox';
+// import BouncyCheckbox from 'react-native-bouncy-checkbox';
 import { fontFamily, fontSize } from '../../../util/Fonts';
 import { useDispatch, useSelector } from 'react-redux';
 import { loaderAction } from '../../../redux/Actions/UserAction';
@@ -17,6 +17,7 @@ import { useIsFocused } from '@react-navigation/native';
 import { fetchAllAvailableBeds, firebase_updateBedData } from '../../../firebase_database';
 import tableNames from '../../../firebase_database/constrains';
 import ToastMessage from '../../../Components/ToastMessage';
+import CustomImage from '../../../util/Images';
 
 const FilledRoomScreen = ({ navigation }) => {
     const [seat, setSeat] = useState([])
@@ -27,8 +28,8 @@ const FilledRoomScreen = ({ navigation }) => {
             dispatch(loaderAction(true))
             const response = await fetchAllAvailableBeds(false)
             if (response) {
-                console.log("FilledRoomScreen=>", response)
-                setSeat(response)
+                const filledRoomList = response.filter(u => u.userId === userInfo.id);
+                setSeat(filledRoomList)
             }
         } catch (error) {
 
@@ -74,6 +75,7 @@ const FilledRoomScreen = ({ navigation }) => {
     const [Search, setSearch] = useState('')
     const renderItemUserInfo = ({ item }) => (
         <TouchableOpacity style={styles.userInfoContainer} onPress={() => {
+            console.log("params from FilledRoomScreen=>", { tenant: item })
             navigation.navigate('TenantProfileScreen', { tenant: item })
         }}>
             <View style={styles.rowList}>
@@ -120,44 +122,52 @@ const FilledRoomScreen = ({ navigation }) => {
 
             <FlatList
                 data={seat}
-                ListHeaderComponent={() => {
-                    return (
-                        <View style={{ flexDirection: 'row' }}>
-                            <TextInput
-                                style={styles.search}
-                                placeholder='Search Here ...'
-                                placeholderTextColor={Colors.black}
-                                onChangeText={(value) => {
-                                    setSearch(value)
-                                }}
-                            />
-                            <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                // ListHeaderComponent={() => {
+                //     return (
+                //         <View style={{ flexDirection: 'row' }}>
+                //             <TextInput
+                //                 style={styles.search}
+                //                 placeholder='Search Here ...'
+                //                 placeholderTextColor={Colors.black}
+                //                 onChangeText={(value) => {
+                //                     setSearch(value)
+                //                 }}
+                //             />
+                //             <View style={{ alignItems: 'center', justifyContent: 'center' }}>
 
-                                <BouncyCheckbox
-                                    size={normScale(18)}
-                                    fillColor={Colors.green}
-                                    unfillColor={Colors.white}
-                                    disableText={true}
-                                    isChecked={isStaff}
-                                    iconStyle={{ marginLeft: horizScale(0) }}
-                                    innerIconStyle={{
-                                        borderWidth: normScale(2),
-                                        borderColor: isStaff ? Colors.green : Colors.red,
-                                        borderRadius: 20,
-                                        backgroundColor: isStaff ? Colors.green : Colors.red,
-                                    }}
-                                    onPress={(isChecked) => { setIsStaff(!isStaff) }}
-                                />
-                                <Text style={{ ...styles.staffText, textDecorationLine: isStaff ? 'none' : 'line-through' }}>Is Staff</Text>
-                            </View>
-                        </View>
-                    )
-                }}
-
+                //                 <BouncyCheckbox
+                //                     size={normScale(18)}
+                //                     fillColor={Colors.green}
+                //                     unfillColor={Colors.white}
+                //                     disableText={true}
+                //                     isChecked={isStaff}
+                //                     iconStyle={{ marginLeft: horizScale(0) }}
+                //                     innerIconStyle={{
+                //                         borderWidth: normScale(2),
+                //                         borderColor: isStaff ? Colors.green : Colors.red,
+                //                         borderRadius: 20,
+                //                         backgroundColor: isStaff ? Colors.green : Colors.red,
+                //                     }}
+                //                     onPress={(isChecked) => { setIsStaff(!isStaff) }}
+                //                 />
+                //                 <Text style={{ ...styles.staffText, textDecorationLine: isStaff ? 'none' : 'line-through' }}>Is Staff</Text>
+                //             </View>
+                //         </View>
+                //     )
+                // }}
                 renderItem={renderItemUserInfo}
                 keyExtractor={item => item.id}
                 showsVerticalScrollIndicator={false}
                 ListFooterComponent={() => (<Spacer height={55} />)}
+                ListEmptyComponent={() => {
+                    return (<View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                        <Image source={CustomImage.no} style={{
+                            height: horizScale(120),
+                            width: horizScale(120),
+                        }} />
+                        <Text>No Filled Beds...</Text>
+                    </View>)
+                }}
             />
 
         </SafeAreaView>

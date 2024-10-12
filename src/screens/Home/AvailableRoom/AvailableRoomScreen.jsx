@@ -11,20 +11,22 @@ import { loaderAction } from '../../../redux/Actions/UserAction';
 import { fetchAllAvailableBeds } from '../../../firebase_database';
 const AvailableRoomScreen = ({ navigation }) => {
     const [seat, setSeat] = useState([])
+    const { userInfo } = useSelector(state => state.userInfo)
     const dispatch = useDispatch()
     const getData = async () => {
         try {
             dispatch(loaderAction(true))
             const response = await fetchAllAvailableBeds(true)
             if (response) {
-                setSeat(response)
+                const availableRoomList = response.filter(u => u.userId === userInfo.id);
+                setSeat(availableRoomList)
             }
         } catch (error) {
 
         }
         finally {
             dispatch(loaderAction(false))
-        } 
+        }
     }
     const isFocus = useIsFocused()
     useEffect(() => {
@@ -45,7 +47,8 @@ const AvailableRoomScreen = ({ navigation }) => {
                 <Text style={styles.regulerText}>Bed No: {item.bedName}</Text>
                 <TouchableOpacity
                     onPress={() => {
-                        navigation.navigate('TenantProfileScreen', { item })
+                        console.log("params from AvailableRoomScreen=>",item)
+                        navigation.navigate('TenantProfileScreen', item)
                     }}
                     style={{ width: 100, alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.green, paddingVertical: 4, borderRadius: 5 }}>
                     <Text style={{ color: 'white' }}>Allocate</Text>
@@ -60,17 +63,17 @@ const AvailableRoomScreen = ({ navigation }) => {
 
 
             <FlatList
-                ListHeaderComponent={() => (
+                // ListHeaderComponent={() => (
 
-                    <TextInput
-                        style={styles.search}
-                        placeholder='Search Here ...'
-                        placeholderTextColor={Colors.black}
-                        onChangeText={(value) => {
-                            setSearch(value)
-                        }}
-                    />
-                )}
+                //     <TextInput
+                //         style={styles.search}
+                //         placeholder='Search Here ...'
+                //         placeholderTextColor={Colors.black}
+                //         onChangeText={(value) => {
+                //             setSearch(value)
+                //         }}
+                //     />
+                // )}
                 ListFooterComponent={() => (
                     <Spacer height={55} />
                 )}
@@ -78,7 +81,15 @@ const AvailableRoomScreen = ({ navigation }) => {
                 renderItem={renderItemUserInfo}
                 keyExtractor={item => item.id}
                 showsVerticalScrollIndicator={false}
-
+                ListEmptyComponent={() => {
+                    return (<View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                        <Image source={CustomImage.no} style={{
+                            height: horizScale(120),
+                            width: horizScale(120),
+                        }} />
+                        <Text>No Available Beds...</Text>
+                    </View>)
+                }}
             />
         </SafeAreaView>
     );
