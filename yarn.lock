@@ -2224,11 +2224,6 @@
   resolved "https://registry.yarnpkg.com/@react-native-firebase/database/-/database-21.0.0.tgz#4476e7243d54f59b9dfb68cac0ada01bcb0f1cd6"
   integrity sha512-5Lv/h43Hi9SBxysNM4JH3DwPnZ/QgCvqRCMW+/4x79NB0z50VZHmDOmvDDorIszV7yiCPcz0M0ztNwycDL0yGw==
 
-"@react-native-firebase/firestore@^21.0.0":
-  version "21.0.0"
-  resolved "https://registry.yarnpkg.com/@react-native-firebase/firestore/-/firestore-21.0.0.tgz#8f8e816dd8bdb99e4b1fb2fc5992c47e105df36e"
-  integrity sha512-cz3ASBxfj853LfICjKmRe4OXRG5hmzpVNqdvPT1K9K/SDkypMhv+NMKptfmevz3taRmNtSeCOwctid1VrhN+wg==
-
 "@react-native-firebase/messaging@^21.0.0":
   version "21.0.0"
   resolved "https://registry.yarnpkg.com/@react-native-firebase/messaging/-/messaging-21.0.0.tgz#6229a0c3cc4ad4fadd5032a643d1bd4eb7355f0f"
@@ -6826,6 +6821,11 @@ react-native-paper@^5.9.1:
     "@callstack/react-theme-provider" "^3.0.9"
     color "^3.1.2"
     use-latest-callback "^0.1.5"
+
+react-native-permissions@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/react-native-permissions/-/react-native-permissions-5.0.0.tgz#fd7271ff6163341976882a5f331b710c97e84df1"
+  integrity sha512-H+njXissetO7DpWDqJ4J6AQBnmn4a9WQGGcn0Znm2wtb2IHEJkQooZH7yjYKqrgO6N4FkhuPiI7ZCuEDGLsPxQ==
 
 react-native-radio-buttons-group@^3.0.2:
   version "3.1.0"

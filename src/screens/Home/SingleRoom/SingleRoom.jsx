@@ -209,7 +209,7 @@ const SingleRoomScreen = ({ navigation, route }) => {
 
     const renderItemUserInfo = ({ item, index }) => {
         return (
-            <View key={"historyTransection" + index} style={styles.userInfoContainer} >
+            <View key={"historyTransection" + index} style={{ ...styles.userInfoContainer, backgroundColor: item.dueRent == 0 ?'#aaf0c9':'#ffcccb'}} >
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
 
                     <View style={{
@@ -227,8 +227,11 @@ const SingleRoomScreen = ({ navigation, route }) => {
                     <Text style={styles.normalText}>{item.dueRent > 0 ? `Due ${item.dueRent}` : "No Due"}</Text>
                     <TouchableOpacity
                         onPress={() => { setDueRentRecord(item), setIsVisible(true) }}
-                        style={{ width: 100, alignItems: 'center', justifyContent: 'center', }}>
-                        <Image source={item.dueRent == 0 ? CustomImage.verify : CustomImage.cross} style={{ height: horizScale(20), width: horizScale(20), tintColor: item.dueRent == 0 ? Colors.green : Colors.red }} />
+                        style={{ width: 100, alignItems: 'center', justifyContent: 'center', borderWidth: item.dueRent == 0?0:1 ,
+                            borderColor: Colors.white, paddingVertical: item.dueRent==0?0:5,borderRadius:10
+                        }}>
+                      {item.dueRent == 0 ?  <Image source={item.dueRent == 0 ? CustomImage.verify : CustomImage.cross} style={{ height: horizScale(20), width: horizScale(20), tintColor: item.dueRent == 0 ? Colors.green : Colors.red }} />
+                       : <Text style={[styles.cardInfo, { color: Colors.red,fontSize:fontSize.small }]}>Update Due</Text>}
                     </TouchableOpacity>
                 </View>
                 <Spacer height={10} />
