@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useIsFocused } from '@react-navigation/native';
 import { loaderAction } from '../../../redux/Actions/UserAction';
 import { fetchAllAvailableBeds } from '../../../firebase_database';
+import FocusStatusBar from '../../../Components/FocusStatusBar/FocusStatusBar';
 const AvailableRoomScreen = ({ navigation }) => {
     const [seat, setSeat] = useState([])
     const { userInfo } = useSelector(state => state.userInfo)
@@ -59,21 +60,12 @@ const AvailableRoomScreen = ({ navigation }) => {
 
     return (
         <SafeAreaView style={styles.container}>
+            <FocusStatusBar backgroundColor={Colors.theme} barStyle={'light-content'} />
+
             <HeaderView navigation={navigation} />
 
 
-            <FlatList
-                // ListHeaderComponent={() => (
-
-                //     <TextInput
-                //         style={styles.search}
-                //         placeholder='Search Here ...'
-                //         placeholderTextColor={Colors.black}
-                //         onChangeText={(value) => {
-                //             setSearch(value)
-                //         }}
-                //     />
-                // )}
+            <FlatList 
                 ListFooterComponent={() => (
                     <Spacer height={55} />
                 )}

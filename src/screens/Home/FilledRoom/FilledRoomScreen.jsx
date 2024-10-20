@@ -18,6 +18,7 @@ import { fetchAllAvailableBeds, firebase_updateBedData } from '../../../firebase
 import tableNames from '../../../firebase_database/constrains';
 import ToastMessage from '../../../Components/ToastMessage';
 import CustomImage from '../../../util/Images';
+import FocusStatusBar from '../../../Components/FocusStatusBar/FocusStatusBar';
 
 const FilledRoomScreen = ({ navigation }) => {
     const [seat, setSeat] = useState([])
@@ -118,43 +119,12 @@ const FilledRoomScreen = ({ navigation }) => {
 
     return (
         <SafeAreaView style={styles.container}>
+            <FocusStatusBar backgroundColor={Colors.theme} barStyle={'light-content'} />
+
             <HeaderView navigation={navigation} />
 
             <FlatList
                 data={seat}
-                // ListHeaderComponent={() => {
-                //     return (
-                //         <View style={{ flexDirection: 'row' }}>
-                //             <TextInput
-                //                 style={styles.search}
-                //                 placeholder='Search Here ...'
-                //                 placeholderTextColor={Colors.black}
-                //                 onChangeText={(value) => {
-                //                     setSearch(value)
-                //                 }}
-                //             />
-                //             <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-
-                //                 <BouncyCheckbox
-                //                     size={normScale(18)}
-                //                     fillColor={Colors.green}
-                //                     unfillColor={Colors.white}
-                //                     disableText={true}
-                //                     isChecked={isStaff}
-                //                     iconStyle={{ marginLeft: horizScale(0) }}
-                //                     innerIconStyle={{
-                //                         borderWidth: normScale(2),
-                //                         borderColor: isStaff ? Colors.green : Colors.red,
-                //                         borderRadius: 20,
-                //                         backgroundColor: isStaff ? Colors.green : Colors.red,
-                //                     }}
-                //                     onPress={(isChecked) => { setIsStaff(!isStaff) }}
-                //                 />
-                //                 <Text style={{ ...styles.staffText, textDecorationLine: isStaff ? 'none' : 'line-through' }}>Is Staff</Text>
-                //             </View>
-                //         </View>
-                //     )
-                // }}
                 renderItem={renderItemUserInfo}
                 keyExtractor={item => item.id}
                 showsVerticalScrollIndicator={false}

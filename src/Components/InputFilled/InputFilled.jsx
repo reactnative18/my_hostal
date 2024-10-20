@@ -74,6 +74,24 @@ const InputFilled = (props) => {
                         multiline={props?.multiline}
                     />
                 </View>
+            case "Description":
+                return <View style={{ ...styles.inputContainer, borderBottomColor: props.value ? Colors.blue : Colors.grey }}>
+                    {props.value && <Text style={styles.titleText}>{props.placeholder}</Text>}
+
+                    <TextInput
+                        placeholder={props.placeholder}
+                        placeholderTextColor={Colors.grey}
+                        keyboardType='ascii-capable'
+                        inputMode='text'
+                        style={{ ...styles.input, borderBottomColor: props.value ? Colors.blue : Colors.grey}} 
+                        value={props.value} 
+                        numberOfLines={3}
+                        onChangeText={text => props.onChangeText(text)}
+                        editable={props?.editable}
+                        multiline={true}
+
+                    />
+                </View>
             case "Password":
                 return <View style={{ ...styles.inputContainer, borderBottomColor: props.value ? Colors.blue : Colors.grey }}>
                     {props.value && <Text style={styles.titleText}>{props.placeholder}</Text>}
@@ -100,7 +118,9 @@ const InputFilled = (props) => {
                         placeholder={props.placeholder}
                         placeholderTextColor={Colors.grey}
                         keyboardType='number-pad'
-                        style={{ ...styles.input, borderBottomColor: props.value ? Colors.blue : Colors.grey }}
+                        style={{ ...styles.input,  
+                            fontWeight:'600',
+                             borderBottomColor: props.value ? Colors.blue : Colors.grey }}
                         value={props.value}
                         onChangeText={text => props.onChangeText(text)}
                         editable={!props?.editable}
@@ -206,7 +226,7 @@ const styles = StyleSheet.create({
     titleText: {
         color: Colors.black,
         fontSize: fontSize.small,
-        fontFamily: fontFamily.bold
+        fontFamily: fontFamily.regular
     },
     passwordView: {
         flexDirection: 'row',
@@ -238,8 +258,7 @@ const styles = StyleSheet.create({
         marginTop: vertScale(5),
         tintColor: Colors.black
     },
-    input: {
-
+    input: { 
         color: Colors.black,
         fontSize: fontSize.regular,
         fontFamily: fontFamily.regular
@@ -248,7 +267,5 @@ const styles = StyleSheet.create({
         borderBottomColor: Colors.grey,
         borderBottomWidth: horizScale(1.5),
         width: '100%',
-
-
-    }
+ }
 })

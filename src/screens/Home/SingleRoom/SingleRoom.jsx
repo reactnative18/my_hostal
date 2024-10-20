@@ -273,6 +273,17 @@ const SingleRoomScreen = ({ navigation, route }) => {
                         keyExtractor={item => item.id}
                         horizontal
                         showsHorizontalScrollIndicator={false}
+                        ListEmptyComponent={() => (
+                            <>
+                                <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                                    <Image source={CustomImage.no} style={{
+                                        height: horizScale(120),
+                                        width: horizScale(120),
+                                    }} />
+                                    <Text>No Beds Available...</Text>
+                                </View>
+                            </>
+                        )}
                     />
                 </View>
                 {
@@ -478,7 +489,14 @@ const styles = StyleSheet.create({
         fontSize: fontSize.medium,
         fontFamily: fontFamily.blackItalic,
         textAlign: 'center',
-        textAlignVertical: 'center',
+        ...Platform.select({
+            ios: {
+                lineHeight: vertScale(28)
+            },
+            android: {
+                textAlignVertical: 'center',
+            }
+        }),
         height: vertScale(28)
     },
     userInfoContainer: {
@@ -540,7 +558,14 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         textAlign: 'center',
         color: Colors.white,
-        textAlignVertical: 'center',
+        ...Platform.select({
+            ios: {
+                lineHeight:vertScale(50)
+            },
+            android: {
+                textAlignVertical: 'center',
+            }
+        }),
         height: vertScale(50)
     },
     cardInfo: {

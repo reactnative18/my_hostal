@@ -4,13 +4,10 @@ import { Colors } from '../../util/Colors';
 import CustomImage from '../../util/Images';
 import { fontFamily, fontSize } from '../../util/Fonts';
 import { horizScale, vertScale } from '../../util/Layout';
-import FocusStatusBar from '../FocusStatusBar/FocusStatusBar';
 
 const HeaderView = (props) => {
     return (
         <SafeAreaView style={styles.headerView}>
-            <FocusStatusBar backgroundColor={Colors.theme} barStyle={'light-content'} />
-
             <Pressable style={styles.drawerTouch} onPress={() => { props.navigation.openDrawer(); }}>
 
                 <Image source={CustomImage.menu} style={styles.drawerIcon} />

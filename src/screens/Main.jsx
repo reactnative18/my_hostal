@@ -1,4 +1,4 @@
-import { Pressable, StatusBar, Text } from 'react-native'
+import { Pressable, Text } from 'react-native'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { listUser, userInfo } from '../redux/action'
@@ -7,6 +7,7 @@ import Loader from '../util/Loader'
 import styles from '../util/Styles'
 import { FlatList } from 'react-native-gesture-handler'
 import { Colors } from '../util/Colors'
+import FocusStatusBar from '../Components/FocusStatusBar/FocusStatusBar'
 
 const Main = ({ navigation }) => {
     const dispatch = useDispatch()
@@ -28,7 +29,7 @@ const Main = ({ navigation }) => {
     return (
         <SafeAreaView style={styles.container}>
             <Loader loading={loading} />
-            <StatusBar backgroundColor={Colors.blue} barStyle='light-content' />
+            <FocusStatusBar backgroundColor={Colors.blue} barStyle='light-content' />
             <Text style={styles.headingText}>My Application</Text>
             <FlatList
                 data={data}

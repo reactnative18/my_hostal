@@ -11,6 +11,7 @@ import { useIsFocused } from '@react-navigation/native';
 import { firebase_getAllDataFromTable, getAllHostelData } from '../../../firebase_database';
 import tableNames from '../../../firebase_database/constrains';
 import useCheckRentOncePerDay from '../../../firebase_database/AutoEntries';
+import FocusStatusBar from '../../../Components/FocusStatusBar/FocusStatusBar';
 
 const HomeScreen = ({ navigation }) => {
     const dispatch = useDispatch()
@@ -36,7 +37,6 @@ const HomeScreen = ({ navigation }) => {
     const focus = useIsFocused()
     useCheckRentOncePerDay(userInfo.id)
     useEffect(() => {
-        getAllHostelData(userInfo.id)
         getData()
     }, [focus])
     const renderItem = ({ item, index }) => {
@@ -62,6 +62,8 @@ const HomeScreen = ({ navigation }) => {
     }
     return (
         <SafeAreaView style={styles.container}>
+            <FocusStatusBar backgroundColor={Colors.theme} barStyle={'light-content'} />
+
             <HeaderView navigation={navigation} />
 
             <FlatList
@@ -108,11 +110,12 @@ const styles = StyleSheet.create({
     button: {
         position: 'absolute',
         right: horizScale(20),
-        bottom: vertScale(65)
+        bottom: vertScale(105)
     },
     container: {
         flex: 1,
-        backgroundColor: Colors.white
+        // backgroundColor: Colors.theme
+        overflow: 'hidden'
     },
     listContainer: {
         paddingVertical: vertScale(10),

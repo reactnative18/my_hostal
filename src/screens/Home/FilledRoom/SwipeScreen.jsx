@@ -139,6 +139,15 @@ const SwipeScreen = ({ navigation, route }) => {
                 keyExtractor={item => item.id}
                 showsVerticalScrollIndicator={false}
                 ListFooterComponent={() => (<Spacer height={55} />)}
+                ListEmptyComponent={() => {
+                    return (<View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                        <Image source={CustomImage.no} style={{
+                            height: horizScale(120),
+                            width: horizScale(120),
+                        }} />
+                        <Text>No Beds available...</Text>
+                    </View>)
+                }}
             />
 
         </SafeAreaView>

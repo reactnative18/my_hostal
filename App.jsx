@@ -36,9 +36,11 @@ const Stack = createNativeStackNavigator();
 const App = () => {
 
   return (
-    <Provider store={store}>
-      <NavigationMain />
-    </Provider>
+    <SafeAreaProvider>
+      <Provider store={store}>
+        <NavigationMain />
+      </Provider>
+    </SafeAreaProvider>
   )
 }
 
@@ -119,7 +121,6 @@ const HomeDrawer = () => {
         drawerStatusBarAnimation: 'fade',
         drawerItemStyle: {
           height: vertScale(200),
-          backgroundColor: 'red'
         }
       }}
 
@@ -151,6 +152,7 @@ import Help from './src/screens/Home/DrawerScreens/Help';
 import Notification from './src/screens/Home/Notification';
 import Loader from './src/util/Loader';
 import AddBed from './src/screens/Home/DrawerScreens/HostelManagment/HostelBedManagment/AddBed';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 // const Tab = createMaterialBottomTabNavigator();
 const Tab = createBottomTabNavigator();
 const BottomTabBar = () => {
@@ -163,7 +165,7 @@ const BottomTabBar = () => {
         tabBarActiveTintColor: Colors.white,
         tabBarInactiveTintColor: Colors.darkgrey,
         tabBarStyle: {
-          height: horizScale(55),
+          height: horizScale(80),
           backgroundColor: 'rgba(52,52,52,0.000001)',
           position: 'absolute',
           borderWidth: 0,

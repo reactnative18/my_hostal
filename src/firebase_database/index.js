@@ -190,9 +190,10 @@ const fetchAllAvailableBeds = async (isAvalable) => {
             });
             await Promise.all(promises)
             return availableBedsList
-        } else {
-            ToastMessage.FailureShowToast("No available bed found...")
-        }
+        } 
+        // else {
+        //     ToastMessage.FailureShowToast("No available bed found...")
+        // }
         return availableBedsList
 
     } catch (error) {

@@ -51,6 +51,15 @@ const SingleFloorScreen = ({ navigation, route }) => {
                     keyExtractor={item => item.id}
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={styles.listContainer}
+                    ListEmptyComponent={() => {
+                        return (<View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                            <Image source={CustomImage.no} style={{
+                                height: horizScale(120),
+                                width: horizScale(120),
+                            }} />
+                            <Text>No Floors available...</Text>
+                        </View>)
+                    }}
                 />
             </View>
         </SafeAreaView>
@@ -116,7 +125,14 @@ borderWidth:1
         fontSize: fontSize.medium,
         textAlign: 'center',
         color: Colors.black,
-        textAlignVertical: 'center',
+        ...Platform.select({
+            ios: {
+                lineHeight: vertScale(40)
+            },
+            android: {
+                textAlignVertical: 'center',
+            }
+        }),
         minHeight: vertScale(40),
     },
     cardInfo: {

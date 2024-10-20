@@ -1,5 +1,5 @@
-import { FlatList, Image, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native'
-import React, { useState } from 'react'
+import { Alert, FlatList, Image, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import BackButton from '../../../../../Components/BackButton/BackButton'
 import { Colors } from '../../../../../util/Colors'
 import FocusStatusBar from '../../../../../Components/FocusStatusBar/FocusStatusBar'
@@ -7,19 +7,63 @@ import { Spacer, horizScale, normScale, vertScale } from '../../../../../util/La
 import { fontFamily, fontSize } from '../../../../../util/Fonts'
 import InputFilled from '../../../../../Components/InputFilled/InputFilled'
 import CustomImage from '../../../../../util/Images'
+import tableNames from '../../../../../firebase_database/constrains'
+import { firebase_addDataToTable, firebase_getAllDataFromTableById } from '../../../../../firebase_database'
+import { useDispatch } from 'react-redux'
+import { useIsFocused } from '@react-navigation/native'
+import { loaderAction } from '../../../../../redux/Actions/UserAction'
+import ToastMessage from '../../../../../Components/ToastMessage'
 
 const ExpensesEntry = ({ navigation, route }) => {
-    const { staff = false } = route.params;
+    const dispatch = useDispatch()
+    const { staff, category, hostel } = route.params;
     const [enterExpense, setEnterExpense] = useState('')
     const [Description, setDescription] = useState('')
-    const [Currentexpense, setCurrentexpense] = useState('200')
     const [staffList, setStaffList] = useState([
-        { id: 1, name: 'Anuj', due: 1, ammount: 3000, month: '22/07' },
-        { id: 1, name: 'Ram', due: 0, ammount: 0, month: '22/07' },
-        { id: 1, name: 'Babu', due: 1, ammount: 3500, month: '22/07' },
-        { id: 1, name: 'Depu', due: 1, ammount: 1000, month: '22/07' },
-        { id: 1, name: 'Rohit', due: 1, ammount: 3000, month: '22/07' }
+        // { id: 1, name: 'Anuj', due: 1, ammount: 3000, month: '22/07' },
     ])
+    const getData = async () => {
+        try {
+            dispatch(loaderAction(true))
+            const response = await firebase_getAllDataFromTableById(tableNames.staff, "hostelId", hostel.id)
+            if (response) {
+                setStaffList(response)
+            }
+        } catch (error) {
+
+        }
+        finally {
+            dispatch(loaderAction(false))
+        }
+    }
+    const isFocus = useIsFocused()
+    useEffect(() => {
+        staff && getData()
+    }, [isFocus])
+    const addExpenses = async () => {
+        try {
+            dispatch(loaderAction(true))
+            const data = {
+                hostelId: hostel?.id ?? null,
+                categoryId:category.id,
+                categoryType: category.type,
+                description: Description,
+                expenseAmount: enterExpense,
+                date: new Date().toISOString()
+            }
+            console.log(tableNames.expenses, data)
+            // const response = await firebase_addDataToTable(tableNames.expenses, data)
+            // if (response) {
+            //     navigation.goBack()
+            // }
+        } catch (error) {
+
+        }
+        finally {
+            dispatch(loaderAction(false))
+        }
+
+    }
     const renderItem = ({ item, index }) => {
         return (<Pressable
             onPress={() => { navigation.navigate('TenantProfileScreen', { isStaff: true }) }}
@@ -49,62 +93,64 @@ const ExpensesEntry = ({ navigation, route }) => {
             <BackButton navigation={navigation} text={'Back'} />
             <ScrollView showsVerticalScrollIndicator={false}>
 
-                <Spacer height={15} />
-                <Text style={styles.headingText}>Maintenance Expenses</Text>
-                <Spacer height={10} />
-                <View style={styles.rowItem}>
-                    <View style={styles.box}>
-                        <Text style={{ ...styles.headingText2, color: Colors.blue }}>Totel Income</Text>
-                        <Text style={styles.normalText}>₹ 350000/-</Text>
-                    </View>
-                    <View style={styles.box}>
-                        <Text style={{ ...styles.headingText2, color: Colors.red }}>Totel Expense</Text>
-                        <Text style={styles.normalText}>₹ 280000/-</Text>
-                    </View>
-                    <View style={styles.box}>
-                        <Text style={{ ...styles.headingText2, color: Colors.green }}>Saving</Text>
-                        <Text style={styles.normalText}>₹ 70000/-</Text>
-                    </View>
-                </View>
+                {!staff&& false &&
+                    <>
+                        <Spacer height={15} />
+                        <Text style={styles.headingText}>This month Expenses</Text>
+                        <Spacer height={10} />
+                        <View style={styles.rowItem}>
+                            <View style={styles.box}>
+                                <Text style={{ ...styles.headingText2, color: Colors.blue }}>{category.type}</Text>
+                                <Text style={styles.normalText}>₹ 350000/-</Text>
+                            </View>
+                        </View>
+                    </>}
 
                 <Spacer height={20} />
-                <Text style={styles.headingText}>{!staff ? "Add more" : "Staff Salary"}</Text>
+                <Text style={styles.headingText}>{staff ? "Staff Salary" : "Add more"}</Text>
                 <Spacer height={25} />
                 {!staff ? <>
-                    <InputFilled
-                        type="Email"
-                        placeholder="Current expense"
-                        value={Currentexpense}
-                        onChangeText={text => setCurrentexpense(text)}
-                        icon={CustomImage.all}
-                        editable={false}
 
+                    <InputFilled
+                        type="Mobile"
+                        placeholder="Enter amount"
+                        value={enterExpense}
+                        onChangeText={text => setEnterExpense(text)}
+                        icon={CustomImage.expenses}
                     />
                     <Spacer height={20} />
                     <InputFilled
-                        type="Email"
+                        type="Description"
                         placeholder="Enter Description..."
                         value={Description}
                         onChangeText={text => setDescription(text)}
                         icon={CustomImage.add}
-                    />
-                    <Spacer height={20} />
-                    <InputFilled
-                        type="Mobile"
-                        placeholder="Enter Ammount..."
-                        value={enterExpense}
-                        onChangeText={text => setEnterExpense(text)}
-                        icon={CustomImage.expenses}
+                        multiline={true}
                     />
                 </> :
                     <FlatList
                         data={staffList}
                         renderItem={renderItem}
+                        ListEmptyComponent={() => {
+                            return (<View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                                <Image source={CustomImage.no} style={{
+                                    height: horizScale(120),
+                                    width: horizScale(120),
+                                }} />
+                                <Text>No Staff member available...</Text>
+                            </View>)
+                        }}
                     />
                 }
                 {!staff && <>
                     <Spacer height={20} />
-                    <Pressable onPress={() => { alert('Coming soon') }} style={styles.button}>
+                    <Pressable onPress={() => {
+                        if (enterExpense) {
+                            addExpenses()
+                        } else {
+                            ToastMessage.WarningShowToast("Please enter amount...")
+                        }
+                    }} style={styles.button}>
                         <Text style={styles.buttonText}>Continue</Text>
                     </Pressable>
                 </>}
@@ -169,7 +215,9 @@ const styles = StyleSheet.create({
         padding: horizScale(10),
         alignItems: 'center',
         justifyContent: 'space-evenly',
-        minWidth: horizScale(90)
+        minWidth: horizScale(90),
+        flexGrow: 1,
+        margin: horizScale(10)
     },
     rowItem: {
         flexDirection: 'row',

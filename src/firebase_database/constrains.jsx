@@ -7,5 +7,6 @@ const tableNames={
     staff:'staff_list',
     transectionTenant:'transection_tenant_list',
     transectionStaff:'transection_staff_list',
+    expenses:'transection_expenses',
 }
 export default tableNames

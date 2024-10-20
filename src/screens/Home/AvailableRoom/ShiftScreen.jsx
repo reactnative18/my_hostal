@@ -105,6 +105,15 @@ const ShiftScreen = ({ navigation, route }) => {
                 renderItem={renderItemUserInfo}
                 keyExtractor={item => item.id}
                 showsVerticalScrollIndicator={false}
+                ListEmptyComponent={() => {
+                    return (<View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                        <Image source={CustomImage.no} style={{
+                            height: horizScale(120),
+                            width: horizScale(120),
+                        }} />
+                        <Text>No beds available...</Text>
+                    </View>)
+                }}
 
             />
         </SafeAreaView>

@@ -7,6 +7,7 @@ import Auth from '../../../Auth';
 import { apiService } from '../../../API_Services';
 import { useDispatch } from 'react-redux';
 import { userInfoAction } from '../../../redux/Actions/UserAction';
+import { Colors } from '../../../util/Colors';
 
 const SplashScreen = ({ navigation }) => {
     const dispatch = useDispatch()
@@ -32,7 +33,7 @@ const SplashScreen = ({ navigation }) => {
     return (
         <View style={styles.container}>
             <ImageBackground source={CustomImage.splashI} style={{ flex: 1, height: '100%', width: '100%' }}>
-                <FocusStatusBar hidden={true} translucent={true} />
+                <FocusStatusBar backgroundColor={Colors.theme} barStyle={'light-content'} />
             </ImageBackground>
         </View>
     );

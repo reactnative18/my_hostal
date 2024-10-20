@@ -1,17 +1,16 @@
 import React from 'react';
 import { Dimensions, View } from 'react-native';
 import PropTypes from 'prop-types';
-const REFERENCE_WIDTH = 414;
-const REFERENCE_HEIGHT = 736;
+import { moderateScale, scale } from 'react-native-size-matters';
 
-const { height, width } = Dimensions.get('window');
 const fullWidth = Dimensions.get('window').width;
 const fullHeight = Dimensions.get('window').height;
 
-const horizScale = (val) => width * (val / REFERENCE_WIDTH);
-const normScale = (val) => width * (val / REFERENCE_WIDTH);
 
-const vertScale = (val) => height * (val / REFERENCE_HEIGHT);
+const horizScale = (val) => moderateScale(val);
+const normScale = (val) => scale(val);
+
+const vertScale = (val) => moderateScale(val);
 
 
 

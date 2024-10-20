@@ -24,7 +24,14 @@ const styles = StyleSheet.create({
         color: Colors.white,
         width: '100%',
         height: horizScale(60),
-        textAlignVertical: 'center',
+        ...Platform.select({
+            ios: {
+                lineHeight: vertScale(60)
+            },
+            android: {
+                textAlignVertical: 'center',
+            }
+        }),
         paddingLeft: horizScale(20),
         fontSize: fontSize.input,
         fontWeight: 'bold'
@@ -79,7 +86,14 @@ const styles = StyleSheet.create({
         height: horizScale(45),
         borderBottomWidth: horizScale(0.8),
         borderColor: Colors.grey,
-        textAlignVertical: 'bottom',
+        ...Platform.select({
+            ios: {
+                lineHeight: vertScale(45)
+            },
+            android: {
+                textAlignVertical: 'bottom',
+            }
+        }),
         color: Colors.black,
         fontWeight: '600',
         fontSize: fontSize.regular

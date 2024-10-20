@@ -11,7 +11,7 @@ export const Colors = {
   yellow: "#fbc10d",
   transparent: "#00000040",
   button: "#607D8B",
-  theme: "#014455",//"#3d737f",//"#3c6ca8",//"#3CA2A8",//"#66226b",//'#2B3467',
+  theme: "#014455",
   theme2: "#aed3dd",
   themeLight: "#cec7bf",//'#2B3467',
   themeLight2: "#f5dbf5",

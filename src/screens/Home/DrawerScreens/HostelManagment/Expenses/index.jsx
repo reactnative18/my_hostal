@@ -1,5 +1,5 @@
-import { Image, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native'
-import React, { useState } from 'react'
+import { FlatList, Image, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import BackButton from '../../../../../Components/BackButton/BackButton'
 import { Colors } from '../../../../../util/Colors'
 import FocusStatusBar from '../../../../../Components/FocusStatusBar/FocusStatusBar'
@@ -7,34 +7,141 @@ import { Spacer, horizScale, normScale, vertScale } from '../../../../../util/La
 import { fontFamily, fontSize } from '../../../../../util/Fonts'
 import InputFilled from '../../../../../Components/InputFilled/InputFilled'
 import CustomImage from '../../../../../util/Images'
+import { getAllHostelData } from '../../../../../firebase_database'
+import { useDispatch, useSelector } from 'react-redux'
+import { loaderAction } from '../../../../../redux/Actions/UserAction'
+import { useIsFocused } from '@react-navigation/native'
+import ToastMessage from '../../../../../Components/ToastMessage'
 
 const Expenses = ({ navigation }) => {
-    const [hostel, setHostel] = useState('')
-    const hostelList = [{ label: 'AP1', value: 'AP 1' },
-    { label: 'AP 2', value: 'AP 2' }]
+    const dispatch = useDispatch()
+    const [hostel, setHostel] = useState(null)
     const [selectedType, setSelectedType] = useState(1)
+    const { userInfo } = useSelector(state => state.userInfo)
+    const [hostels, setHostels] = useState([])
+    const [totalExpenses, setTotalExpenses] = useState(null)
+    const getData = async () => {
+        try {
+            dispatch(loaderAction(true))
+            const response = await getAllHostelData(userInfo.id)
+            if (response?.length > 0) {
+                console.log(response)
+                setHostels(response)
+                let totalExpenses = await calculateTotals(response)
+                setTotalExpenses(totalExpenses)
+            }
+        } catch (error) {
+
+        }
+        finally {
+
+            dispatch(loaderAction(false))
+        }
+
+    }
+    function calculateTotals(hostels) {
+        return hostels.reduce(
+            (totals, hostel) => {
+                totals.totalDueRent += Number(hostel.totalDueRent);
+                totals.totalPaidRent += Number(hostel.totalPaidRent);
+                return totals;
+            },
+            { totalDueRent: 0, totalPaidRent: 0 }
+        );
+    }
+    const { loading } = useSelector(state => state.loader)
+    const focus = useIsFocused()
+    useEffect(() => {
+        getData()
+    }, [focus])
+    const Category = [
+        {
+            id: 0,
+            type: "Grocery",
+            image: CustomImage.food,
+            isHostelRequied: true
+        },
+        {
+            id: 1,
+            type: "Maintenance",
+            image: CustomImage.maintenence,
+            isHostelRequied: true
+        },
+        {
+            id: 2,
+            type: "Staff Salary",
+            image: CustomImage.salary,
+            isHostelRequied: true
+        },
+        {
+            id: 3,
+            type: "Cylinder",
+            image: CustomImage.gascylinder,
+            isHostelRequied: true
+        },
+        {
+            id: 4,
+            type: "Fuel",
+            image: CustomImage.fuel,
+            isHostelRequied: false
+        },
+        {
+            id: 5,
+            type: "Fixed Expenses",
+            image: CustomImage.fixexpenses,
+            isHostelRequied: false
+        },
+        {
+            id: 6,
+            type: "One Time Expense",
+            image: CustomImage.onetime,
+            isHostelRequied: false
+        },
+    ]
+    const renderCategory = ({ item, index }) => {
+        return (
+            <Pressable key={"renderCategory_" + index} onPress={() => {
+                if (item.isHostelRequied && hostel == null) {
+                    ToastMessage.WarningShowToast('Please select hostel first...')
+                } else {
+                    // if (item.id == 2) {
+                    //     ToastMessage.WarningShowToast("Coming Soon")
+                    //     return
+                    // }
+                    navigation.navigate('ExpensesEntry', {
+                        staff: item.id == 2 ? true : false,
+                        category: item,
+                        hostel: hostel
+                    })
+                }
+            }} style={styles.box}>
+                <Image source={item.image} style={styles.category} />
+                <Text style={styles.normalText}>{item.type}</Text>
+            </Pressable>
+        )
+    }
+
     return (
         <SafeAreaView style={styles.container}>
             <FocusStatusBar backgroundColor={Colors.white} barStyle={'dark-content'} />
             <Spacer height={10} />
             <BackButton navigation={navigation} text={'Back'} />
             <ScrollView showsVerticalScrollIndicator={false}>
-
                 <Spacer height={15} />
                 <Text style={styles.headingText}>All Hostels Expenses</Text>
                 <Spacer height={10} />
                 <View style={styles.rowItem}>
                     <View style={styles.box}>
                         <Text style={{ ...styles.headingText2, color: Colors.blue }}>Totel Income</Text>
-                        <Text style={styles.normalText}>₹ 350000/-</Text>
+                        <Text style={styles.normalText}>₹ {totalExpenses?.totalPaidRent ?? 0}/-</Text>
                     </View>
                     <View style={styles.box}>
-                        <Text style={{ ...styles.headingText2, color: Colors.red }}>Totel Expense</Text>
-                        <Text style={styles.normalText}>₹ 280000/-</Text>
+                        <Text style={{ ...styles.headingText2, color: Colors.red }}>Totel Expens</Text>
+                        <Text style={styles.normalText}>Coming Soon</Text>
                     </View>
                     <View style={styles.box}>
-                        <Text style={{ ...styles.headingText2, color: Colors.green }}>Saving</Text>
-                        <Text style={styles.normalText}>₹ 70000/-</Text>
+                        <Text style={{ ...styles.headingText2, color: Colors.red }}>Totel Rent Due</Text>
+                        <Text style={styles.normalText}>₹ {totalExpenses?.totalDueRent ?? 0}/-</Text>
                     </View>
                 </View>
                 <Spacer height={15} />
@@ -43,81 +150,26 @@ const Expenses = ({ navigation }) => {
                 <InputFilled
                     type="Dropdown"
                     placeholder="Select a hostel..."
-                    data={hostelList}
-                    value={hostel}
-                    onChangeText={text => setHostel(text)}
+                    data={hostels}
+                    value={hostel?.hostelName || ''}
+                    keyName="hostelName"
+                    onChangeText={text => {
+                        setHostel(text)
+                    }}
                     icon={CustomImage.hostel}
                 />
                 <Spacer height={20} />
                 <Text style={styles.headingText}>Select Expenses Type</Text>
-                <Spacer height={25} />
-                <View style={styles.rowItem}>
-                    <Pressable onPress={() => {
-                        setSelectedType(1)
-                    }} style={styles.box}>
-                        {selectedType == 1 && <Image source={CustomImage.verify} style={styles.selectedImage} />}
-                        <Image source={CustomImage.food} style={styles.category} />
-                        <Text style={styles.normalText}>grocery</Text>
-                    </Pressable>
-                    <Pressable onPress={() => {
-                        setSelectedType(2)
-                    }} style={styles.box}>
-                        {selectedType == 2 && <Image source={CustomImage.verify} style={styles.selectedImage} />}
-                        <Image source={CustomImage.maintenence} style={styles.category} />
-                        <Text style={styles.normalText}>Maintenance</Text>
-                    </Pressable>
-                    <Pressable onPress={() => {
-                        setSelectedType(3)
-                    }} style={styles.box}>
-                        {selectedType == 3 && <Image source={CustomImage.verify} style={styles.selectedImage} />}
-                        <Image source={CustomImage.salary} style={styles.category} />
-                        <Text style={styles.normalText}>Staff Salary</Text>
-                    </Pressable>
 
-                </View>
                 <Spacer height={20} />
-                <View style={styles.rowItem}>
-                    <Pressable onPress={() => {
-                        setSelectedType(4)
-                    }} style={styles.box}>
-                        {selectedType == 4 && <Image source={CustomImage.verify} style={styles.selectedImage} />}
-                        <Image source={CustomImage.fuel} style={styles.category} />
-                        <Text style={styles.normalText}>Fuel</Text>
-                    </Pressable>
-                    <Pressable onPress={() => {
-                        setSelectedType(5)
-                    }} style={styles.box}>
-                        {selectedType == 5 && <Image source={CustomImage.verify} style={styles.selectedImage} />}
-                        <Image source={CustomImage.gascylinder} style={styles.category} />
-                        <Text style={styles.normalText}>Cylinder</Text>
-                    </Pressable>
-                    <Pressable onPress={() => {
-                        setSelectedType(6)
-                    }} style={styles.box}>
-                        {selectedType == 6 && <Image source={CustomImage.verify} style={styles.selectedImage} />}
-                        <Image source={CustomImage.fixexpenses} style={styles.category} />
-                        <Text style={styles.normalText}>Fixed Expenses</Text>
-                    </Pressable>
-                </View>
-                <Spacer height={20} />
-                <View style={styles.rowItem2}>
-                    <Pressable onPress={() => {
-                        setSelectedType(7)
-                    }} style={styles.box}>
-                        {selectedType == 7 && <Image source={CustomImage.verify} style={styles.selectedImage} />}
-                        <Image source={CustomImage.onetime} style={styles.category} />
-                        <Text style={styles.normalText}>One Time Expense</Text>
-                    </Pressable>
-                </View>
-                <Spacer height={20} />
-                <Pressable onPress={() => {
-                    navigation.navigate('ExpensesEntry', {
-                        staff: selectedType == 3 ? true : false
-                    })
-                }} style={styles.button}>
-                    <Text style={styles.buttonText}>Continue</Text>
-                </Pressable>
-                <Spacer height={20} />
+                <FlatList
+                    data={Category}
+                    renderItem={renderCategory}
+                    numColumns={3}
+                    contentContainerStyle={styles.flatStyle}
+                />
+
+                <Spacer height={15} />
             </ScrollView>
         </SafeAreaView>
     )
@@ -126,6 +178,9 @@ const Expenses = ({ navigation }) => {
 export default Expenses
 
 const styles = StyleSheet.create({
+    flatStyle: {
+        margin: horizScale(5)
+    },
     button: {
         backgroundColor: Colors.black,
         borderRadius: normScale(60),
@@ -167,7 +222,8 @@ const styles = StyleSheet.create({
         padding: horizScale(10),
         alignItems: 'center',
         justifyContent: 'space-evenly',
-        minWidth: horizScale(90)
+        flexGrow: 1,
+        margin: horizScale(5)
     },
     rowItem: {
         flexDirection: 'row',
@@ -178,7 +234,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'flex-start',
-        marginLeft: horizScale(15)
+        margin: horizScale(5)
     },
     container: {
         flex: 1,
@@ -192,12 +248,12 @@ const styles = StyleSheet.create({
     },
     headingText2: {
         fontFamily: fontFamily.bold,
-        fontSize: fontSize.regular,
+        fontSize: fontSize.das,
         color: Colors.black,
     },
     normalText: {
         fontFamily: fontFamily.regular,
-        fontSize: fontSize.medium,
+        fontSize: fontSize.small,
         color: Colors.black,
     }
 })
