@@ -398,6 +398,36 @@ const getAllHostelData = async (adminId) => {
         console.log("getAllHostelData error=>",error)
     }
 }
+const getCurrentMonthRange = () => {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime(); // Start of the month in milliseconds
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).getTime(); // End of the month in milliseconds
+
+    return { startOfMonth, endOfMonth };
+};
+const fetchExpenseForCurrentMonth = async () => {
+    const { startOfMonth, endOfMonth } = getCurrentMonthRange();
+
+    try {
+        const snapshot = await database()
+            .ref(tableNames.expenses) // Replace with your database node path
+            .orderByChild('createdAt')
+            .once('value'); 
+            const data = Object.values(snapshot?.val())??[]
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonth = now.getMonth();
+            const currentMonthData = data?.filter(item => {
+                const createdAtDate = new Date(item.createdAt);
+                const itemYear = createdAtDate.getFullYear();
+                const itemMonth = createdAtDate.getMonth(); 
+                return itemYear === currentYear && itemMonth === currentMonth;
+            })??[]; 
+        return currentMonthData;
+    } catch (error) {
+        console.error('Error fetching data for current month:', error);
+    }
+};
 export {
     firebase_login,
     firebase_signup,
@@ -413,5 +443,6 @@ export {
     firebase_getMasterHostel,
     GetLastTransection,
     getAllHostelData,
-    firebase_getTenantById
+    firebase_getTenantById,
+    fetchExpenseForCurrentMonth
 }

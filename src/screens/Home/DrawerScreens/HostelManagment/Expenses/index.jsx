@@ -7,7 +7,7 @@ import { Spacer, horizScale, normScale, vertScale } from '../../../../../util/La
 import { fontFamily, fontSize } from '../../../../../util/Fonts'
 import InputFilled from '../../../../../Components/InputFilled/InputFilled'
 import CustomImage from '../../../../../util/Images'
-import { getAllHostelData } from '../../../../../firebase_database'
+import { fetchExpenseForCurrentMonth, getAllHostelData } from '../../../../../firebase_database'
 import { useDispatch, useSelector } from 'react-redux'
 import { loaderAction } from '../../../../../redux/Actions/UserAction'
 import { useIsFocused } from '@react-navigation/native'
@@ -19,7 +19,61 @@ const Expenses = ({ navigation }) => {
     const [selectedType, setSelectedType] = useState(1)
     const { userInfo } = useSelector(state => state.userInfo)
     const [hostels, setHostels] = useState([])
-    const [totalExpenses, setTotalExpenses] = useState(null)
+    const [totalExpenses, setTotalExpenses] = useState({})
+    const [expenseList, setExpenseList] = useState([])
+    const [categoryExpenses, setCategoryExpenses] = useState([])
+    const [allExpensTotal, setAllExpensTotal] = useState(0)
+    function calculateMonthlyTotals(expenses) {
+       
+        const totals = {};
+
+        expenses.forEach(expense => {
+            const category = expense.categoryType;
+                const amount = Number(expense.expenseAmount);
+
+                // Initialize or update the total for the category
+                if (!totals[category]) {
+                    totals[category] = 0;
+                }
+                totals[category] += amount; 
+        });
+
+        // Convert totals object to an array of objects
+        const result = Object.keys(totals).map(category => ({
+            total: totals[category],
+            categoryType: category
+        }));
+
+        return result;
+    }
+
+    const getExpenseList = async () => {
+        try {
+            dispatch(loaderAction(true))
+            const response = await fetchExpenseForCurrentMonth()
+            if (response?.length > 0) {
+                console.log("fetchExpenseForCurrentMonth=>",response)
+                setExpenseList(response)
+             if( response.length>0)  {
+              const data=await  calculateMonthlyTotals(response)
+                 setCategoryExpenses(data)
+                 console.log("getExpenseList=>",data)
+                 const totalSum = data.reduce((accumulator, currentValue) => {
+                     return Number(accumulator) + Number(currentValue.total);
+                 }, 0); 
+                 setAllExpensTotal(totalSum)
+            }
+                
+            }
+        } catch (error) {
+
+        }
+        finally {
+
+            dispatch(loaderAction(false))
+        }
+
+    }
     const getData = async () => {
         try {
             dispatch(loaderAction(true))
@@ -28,6 +82,7 @@ const Expenses = ({ navigation }) => {
                 console.log(response)
                 setHostels(response)
                 let totalExpenses = await calculateTotals(response)
+                console.log("totalExpenses==>",totalExpenses)
                 setTotalExpenses(totalExpenses)
             }
         } catch (error) {
@@ -52,6 +107,7 @@ const Expenses = ({ navigation }) => {
     const { loading } = useSelector(state => state.loader)
     const focus = useIsFocused()
     useEffect(() => {
+        getExpenseList()
         getData()
     }, [focus])
     const Category = [
@@ -137,7 +193,7 @@ const Expenses = ({ navigation }) => {
                     </View>
                     <View style={styles.box}>
                         <Text style={{ ...styles.headingText2, color: Colors.red }}>Totel Expens</Text>
-                        <Text style={styles.normalText}>Coming Soon</Text>
+                        <Text style={styles.normalText}> {allExpensTotal}</Text>
                     </View>
                     <View style={styles.box}>
                         <Text style={{ ...styles.headingText2, color: Colors.red }}>Totel Rent Due</Text>
@@ -167,6 +223,7 @@ const Expenses = ({ navigation }) => {
                     renderItem={renderCategory}
                     numColumns={3}
                     contentContainerStyle={styles.flatStyle}
+                    scrollEnabled={false}
                 />
 
                 <Spacer height={15} />

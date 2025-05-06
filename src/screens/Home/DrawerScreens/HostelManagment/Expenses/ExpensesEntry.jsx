@@ -1,4 +1,4 @@
-import { Alert, FlatList, Image, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Alert, FlatList, Image, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import BackButton from '../../../../../Components/BackButton/BackButton'
 import { Colors } from '../../../../../util/Colors'
@@ -8,25 +8,26 @@ import { fontFamily, fontSize } from '../../../../../util/Fonts'
 import InputFilled from '../../../../../Components/InputFilled/InputFilled'
 import CustomImage from '../../../../../util/Images'
 import tableNames from '../../../../../firebase_database/constrains'
-import { firebase_addDataToTable, firebase_getAllDataFromTableById } from '../../../../../firebase_database'
-import { useDispatch } from 'react-redux'
+import { firebase_addDataToTable, firebase_getAllDataFromTableById, firebase_updateBedData } from '../../../../../firebase_database'
+import { useDispatch, useSelector } from 'react-redux'
 import { useIsFocused } from '@react-navigation/native'
 import { loaderAction } from '../../../../../redux/Actions/UserAction'
 import ToastMessage from '../../../../../Components/ToastMessage'
-
+import Modal from "react-native-modal";
 const ExpensesEntry = ({ navigation, route }) => {
     const dispatch = useDispatch()
+    const { userInfo } = useSelector(state => state.userInfo)
     const { staff, category, hostel } = route.params;
     const [enterExpense, setEnterExpense] = useState('')
     const [Description, setDescription] = useState('')
-    const [staffList, setStaffList] = useState([
-        // { id: 1, name: 'Anuj', due: 1, ammount: 3000, month: '22/07' },
-    ])
+    const [staffList, setStaffList] = useState([ ])
     const getData = async () => {
         try {
             dispatch(loaderAction(true))
             const response = await firebase_getAllDataFromTableById(tableNames.staff, "hostelId", hostel.id)
             if (response) {
+                console.log("setStaffList==>", response);
+
                 setStaffList(response)
             }
         } catch (error) {
@@ -45,17 +46,17 @@ const ExpensesEntry = ({ navigation, route }) => {
             dispatch(loaderAction(true))
             const data = {
                 hostelId: hostel?.id ?? null,
-                categoryId:category.id,
+                categoryId: category.id,
                 categoryType: category.type,
                 description: Description,
                 expenseAmount: enterExpense,
-                date: new Date().toISOString()
+                createdAt: new Date().toISOString()
             }
             console.log(tableNames.expenses, data)
-            // const response = await firebase_addDataToTable(tableNames.expenses, data)
-            // if (response) {
-            //     navigation.goBack()
-            // }
+            const response = await firebase_addDataToTable(tableNames.expenses, data)
+            if (response) {
+                navigation.goBack()
+            }
         } catch (error) {
 
         }
@@ -64,36 +65,131 @@ const ExpensesEntry = ({ navigation, route }) => {
         }
 
     }
+    const [selectedStaff, setSelectedStaff] = useState({})
+    const [updateModalVisible, setUpdateModalVisible] = useState(false)
     const renderItem = ({ item, index }) => {
-        return (<Pressable
-            onPress={() => { navigation.navigate('TenantProfileScreen', { isStaff: true }) }}
-            style={{ ...styles.staffList, backgroundColor: item.due == 0 ? '#ecf9ec' : '#ffebe6' }}>
+        return (<View style={{ ...styles.staffList, backgroundColor: item.due == 0 ? '#ecf9ec' : '#ffebe6' }}>
             <Image source={CustomImage.profileuser} style={{
                 width: horizScale(55),
                 height: horizScale(55),
             }} />
-            <View>
-                <Text numberOfLines={2} style={styles.normalText2}>{item.name}</Text>
-                <Text style={styles.normalText2}>{item.month}</Text>
+            <View style={{ justifyContent: 'center', alignItems: 'flex-start' }}>
+                <Text numberOfLines={2} style={styles.normalText}>{item.name} | {item.dateOfJoining}</Text>
+                <Text style={styles.normalText}>Monthly Salary : {item.monthlySalary}</Text>
+                <Text style={styles.normalText}>Remain Salary : {item.remainSalary}</Text>
             </View>
-            <View>
-                <Text style={styles.normalText}>Due : {item.due == 1 ? "Yes" : "No"}</Text>
-                <Text style={styles.normalText}>Amount : {item.ammount}</Text>
+            <View style={{ alignItems: 'center', justifyContent: 'space-around', height: '100%' }}>
+                <Pressable onPress={() => { navigation.navigate('TenantProfileScreen', { isStaff: true, staff: item }) }}
+                    style={styles.smallButton}>
+                    <Text style={styles.buttonText2}>Update</Text>
+                </Pressable>
+                <Pressable onPress={() => {
+                    setSelectedStaff(item)
+                    setUpdateModalVisible(true)
+                }}
+                    style={{ ...styles.smallButton, backgroundColor: Colors.green }}>
+                    <Text style={styles.buttonText2}>Pay</Text>
+                </Pressable>
             </View>
-            <Image source={CustomImage.arrow} style={{
-                width: horizScale(18),
-                height: horizScale(18)
-            }} />
-        </Pressable>)
+
+        </View>)
+    }
+    const addTransectionEnrty = async () => {
+        try {
+            const data = {
+                hostelId: hostel.id,
+                expenseAmount: enterExpense,
+                createdAt: new Date().toISOString(),
+                staffId:selectedStaff.id,
+                userId: userInfo.id
+            }
+            const response = await firebase_addDataToTable(tableNames.transectionStaff, data)
+            if (response) {
+                navigation.goBack()
+            }
+        } catch (error) {
+
+        }
+        finally {
+            dispatch(loaderAction(false))
+        }
+
+    }
+    const updateStaffProfile = async () => {
+        if (enterExpense == '') {
+            ToastMessage.WarningShowToast("Please enter amount...")
+            setUpdateModalVisible(false)
+            return
+        }
+        try {
+            dispatch(loaderAction(true))
+            const data = {
+                remainSalary: Number(selectedStaff.remainSalary) - Number(enterExpense),
+            }
+            await firebase_updateBedData(tableNames.staff, selectedStaff.id, data)
+          await  addTransectionEnrty()
+        } catch (error) {
+
+        }
+        finally {
+            setUpdateModalVisible(false)
+        }
     }
     return (
         <SafeAreaView style={styles.container}>
+            <Modal
+                isVisible={updateModalVisible}
+                onBackButtonPress={() => setUpdateModalVisible(false)}
+                onBackdropPress={() => setUpdateModalVisible(false)}
+            >
+                <View style={styles.modalBackground}>
+                    <View style={styles.modalContainer}>
+                        <InputFilled
+                            type="Mobile"
+                            placeholder={"Enter Pay Amount"}
+                            value={enterExpense}
+                            onChangeText={text => setEnterExpense(text)}
+                            icon={CustomImage.rent}
+                        />
+                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', width: '100%' }}>
+                            <TouchableOpacity style={{
+                                alignItems: 'center',
+                                flexDirection: 'row',
+                                borderRadius: horizScale(10),
+                                paddingVertical: horizScale(5),
+                                paddingHorizontal: horizScale(15),
+                                backgroundColor: Colors.red
+                            }} onPress={() => {
+                                setUpdateModalVisible(false)
+                            }}>
+                                <Text style={[styles.cardInfo, { color: Colors.white }]}>Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={{
+                                alignItems: 'center',
+                                flexDirection: 'row',
+                                borderRadius: horizScale(10),
+                                paddingVertical: horizScale(5),
+                                paddingHorizontal: horizScale(15),
+                                backgroundColor: Colors.green
+                            }} onPress={() => {
+                                updateStaffProfile()
+                            }}>
+                                <Image source={CustomImage.verify} style={{
+                                    height: horizScale(18), width: horizScale(18), tintColor: Colors.white, marginRight: horizScale(5)
+
+                                }} />
+                                <Text style={[styles.cardInfo, { color: Colors.white }]}>Done</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
             <FocusStatusBar backgroundColor={Colors.white} barStyle={'dark-content'} />
             <Spacer height={10} />
             <BackButton navigation={navigation} text={'Back'} />
             <ScrollView showsVerticalScrollIndicator={false}>
 
-                {!staff&& false &&
+                {!staff && false &&
                     <>
                         <Spacer height={15} />
                         <Text style={styles.headingText}>This month Expenses</Text>
@@ -140,6 +236,7 @@ const ExpensesEntry = ({ navigation, route }) => {
                                 <Text>No Staff member available...</Text>
                             </View>)
                         }}
+                        scrollEnabled={false}
                     />
                 }
                 {!staff && <>
@@ -163,12 +260,29 @@ const ExpensesEntry = ({ navigation, route }) => {
 export default ExpensesEntry
 
 const styles = StyleSheet.create({
+    cardInfo: {
+        fontSize: 14,
+        textAlign: 'center',
+        color: Colors.black
+    },
+    modalBackground: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalContainer: {
+        width: 300,
+        minHeight: 170,
+        backgroundColor: 'white',
+        borderRadius: 10,
+        padding: 20,
+        alignItems: 'center',
+        justifyContent: 'space-evenly'
+    },
     button: {
         backgroundColor: Colors.black,
         borderRadius: normScale(60),
-        // height: vertScale(60),
         width: '80%',
-        // width: fullWidth - horizScale(80),/
         paddingHorizontal: horizScale(10),
         paddingVertical: vertScale(15),
         justifyContent: 'center',
@@ -179,6 +293,21 @@ const styles = StyleSheet.create({
     buttonText: {
         color: Colors.white,
         fontSize: fontSize.regular,
+        letterSpacing: normScale(1),
+        fontFamily: fontFamily.boldItalic
+    },
+    smallButton: {
+        backgroundColor: Colors.yellow,
+        borderRadius: normScale(60),
+        paddingHorizontal: horizScale(10),
+        paddingVertical: vertScale(5),
+        justifyContent: 'center',
+        alignItems: 'center',
+        alignSelf: 'center',
+    },
+    buttonText2: {
+        color: Colors.white,
+        fontSize: fontSize.das,
         letterSpacing: normScale(1),
         fontFamily: fontFamily.boldItalic
     },

@@ -16,7 +16,7 @@ function getNextMonthDate(dateString) {
 }
  
 // Function to check if a month has passed and trigger new entry
-async function checkAndTriggerNewEntry(data,isStaff) {
+async function checkAndTriggerNewEntry(data) {
     const today = new Date();
     data.forEach(record => {
 
@@ -26,13 +26,13 @@ async function checkAndTriggerNewEntry(data,isStaff) {
         console.log(`A month has completed for record ${today , recordMonthDate}`);
         if (today > recordMonthDate) {
             console.log(`A month has completed for record ${record.id}. Triggering new entry...`);
-            triggerNewEntry(record, isStaff);
+            triggerNewEntry(record);
         }
     });
 }
 
 // Function to create a new entry
-async function triggerNewEntry(record, isStaff) {
+async function triggerNewEntry(record) {
     const updateLastTransection = {
         isCurrentMonth: false
     }
@@ -48,7 +48,8 @@ async function triggerNewEntry(record, isStaff) {
         monthlyRent: record.monthlyRent,
         isCurrentMonth:true
     };
-    await firebase_addDataToTable(isStaff?tableNames.transectionStaff:tableNames.transectionTenant, newEntry)
+
+    await firebase_addDataToTable(tableNames.transectionTenant, newEntry)
     // Here you would save the newEntry in your state or backend
     console.log("New entry created:", newEntry);
 }
@@ -57,11 +58,7 @@ const getTenantData = async (adminId)=>{
     let data = await GetLastTransection(tableNames.transectionTenant,adminId)
     await checkAndTriggerNewEntry(data,false);
 }
-const getStaffData = async (adminId) => {
-    let data = await GetLastTransection(tableNames.transectionStaff, adminId)
-    await checkAndTriggerNewEntry(data,true);
-}
-
+  
 // Custom hook to check last date in AsyncStorage and trigger rent check if needed
 function useCheckRentOncePerDay(adminId) {
     useEffect(() => {
@@ -76,7 +73,6 @@ function useCheckRentOncePerDay(adminId) {
             if (!lastCheckDate || lastCheckDate !== todayFormatted) {
                 console.log("Performing daily rent check...");
                 getTenantData(adminId)
-                getStaffData(adminId)
                 await AsyncStorage.setItem('lastCheckDate', todayFormatted);
             } else {
                 console.log("Rent check already performed today.");

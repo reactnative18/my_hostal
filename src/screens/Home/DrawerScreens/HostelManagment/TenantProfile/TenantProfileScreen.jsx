@@ -120,7 +120,6 @@ const TenantProfileScreen = ({ navigation, route }) => {
     useEffect(() => {
         try {
             dispatch(loaderAction(true))
-            console.log("route?.params=>",route?.params)
             let hostelId = route?.params?.tenant?.hostelId ? route?.params?.tenant?.hostelId : route?.params?.hostelId
             getAllHostels(hostelId)
             setIsStaff(staff || false)
@@ -137,6 +136,15 @@ const TenantProfileScreen = ({ navigation, route }) => {
                     setmonthlyRent(()=>amont)
                 }
             }
+            if (route?.params?.staff){
+                const { hostelId, name, mobile, remainSalary, monthlySalary, dateOfJoining } = route?.params?.staff
+                getAllHostels(hostelId)
+                setName(name)
+                setMobile(mobile)
+                setRent(remainSalary)
+                setmonthlyRent(monthlySalary)
+                setDOJ(dateOfJoining)
+            }
 
         } catch (error) {
             console.log("useeffect 1=>", error)
@@ -148,6 +156,7 @@ const TenantProfileScreen = ({ navigation, route }) => {
     }, [route?.params?.tenant])
     useEffect(() => {
         BedList.length > 0 && callDataTenant()
+
     }, [BedList])
     const callDataTenant = async () => {
         const { floorId, roomId, bedId, id, seatAvailable } = route?.params?.tenant ? route?.params?.tenant : route?.params
@@ -181,6 +190,23 @@ const TenantProfileScreen = ({ navigation, route }) => {
         setroom(room)
         setseat(bed)
     }
+    const updateStaffProfile=async()=>{
+        try {
+            const data={
+                remainSalary: Number(rent),
+                name: name,
+                mobile: mobile,
+                monthlySalary: Number(monthlyRent),
+                dateOfJoining: dOJ,
+                hostelId: hostel?.id,
+            }
+            await firebase_updateBedData(tableNames.staff, route.params.staff.id, data)
+            ToastMessage.successShowToast("Profile updated successfully")
+            navigation.goBack()
+        } catch (error) {
+            
+        }
+    }
     const createProfile = async () => {
         try {
             const params = isStaff ? {
@@ -191,7 +217,8 @@ const TenantProfileScreen = ({ navigation, route }) => {
                 hostelId: hostel?.id,
                 userPhoto: userPhoto == null ? "https://drive.google.com/file/d/1njoAhXT4jbIE9WDNbZ6hnYpX_zycMfF4/view?usp=sharing" : img1,
                 frunt_img: frunt == null ? "https://drive.google.com/file/d/1dh0_k5DNzW2TRgMaGRbhCf5W0Qh8KWbm/view?usp=sharing" : img2,
-                back_img: back == null ? "https://drive.google.com/file/d/1rxXk39ELnpdeMAdDiilkquOwR9jAapHe/view?usp=sharing" : img3
+                back_img: back == null ? "https://drive.google.com/file/d/1rxXk39ELnpdeMAdDiilkquOwR9jAapHe/view?usp=sharing" : img3,
+                remainSalary: Number(rent)
             } : {
                 name: name,
                 mobile: mobile,
@@ -233,7 +260,7 @@ const TenantProfileScreen = ({ navigation, route }) => {
                         isCurrentMonth: true,
                         monthlyRent: Number(monthlyRent),
                     }
-                    await firebase_addDataToTable(isStaff ? tableNames.transectionStaff : tableNames.transectionTenant, data)
+                    await firebase_addDataToTable( tableNames.transectionTenant, data)
                     navigation.replace('HomeDrawer')
                 }
             }
@@ -291,7 +318,13 @@ const TenantProfileScreen = ({ navigation, route }) => {
             <FocusStatusBar translucent={false} backgroundColor={Colors.white} barStyle={'dark-content'} />
             <View style={styles.headerView}>
                 <BackButton navigation={navigation} text={isStaff ? "Staff Profile" : "Tenant Profile"} />
-                <Pressable onPress={() => { createProfile() }} style={{
+                <Pressable onPress={() => { 
+                    if (staff && route?.params?.staff){
+                        updateStaffProfile()
+                    }else{
+                        createProfile()
+                    }
+                 }} style={{
                     ...styles.button,
                     marginRight: horizScale(15),
                     width: '30%',
@@ -460,7 +493,7 @@ const TenantProfileScreen = ({ navigation, route }) => {
                         onChangeText={text => setSecurityDeposit(text)}
                         icon={CustomImage.SecurityDeposit}
                     />
-
+                </>}
                     <Spacer height={20} />
                     <InputFilled
                         type="Mobile"
@@ -469,7 +502,6 @@ const TenantProfileScreen = ({ navigation, route }) => {
                         onChangeText={text => setRent(text)}
                         icon={CustomImage.rent}
                     />
-                </>}
                 <Spacer height={20} />
                 <InputFilled
                     type="Date"
